@@ -3,6 +3,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 import requests
+import os
+import dotenv
 import json
 
 # core/views.py
@@ -11,6 +13,10 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseServerError
 import requests
 import json
+
+dotenv.load_dotenv()  # Load environment variables from .env file
+n8n_webhook_url = os.getenv("N8NURL")  # Get the n8n webhook URL from environment variables
+
 
 def matcher_view(request):
     if request.method == 'POST':
@@ -21,7 +27,7 @@ def matcher_view(request):
         
 
         # --- IMPORTANT: Switch to your PRODUCTION Webhook URL ---
-        n8n_webhook_url = "http://localhost:7777/webhook/93add13d-0db8-43e1-847d-5240e7253852" # <-- Update this!
+        n8n_webhook_url = n8n_webhook_url
         payload = {
             "resume": resume_text,
             "company": company_name
@@ -31,10 +37,10 @@ def matcher_view(request):
             response = requests.post(n8n_webhook_url, json=payload, timeout=60) # Added a timeout
             response.raise_for_status()
 
-            # n8n now sends the final report text directly back
+            # n8n now sends the final report text directly back 
             report_text = response.text
 
-            # We pass this text to our new report.html template
+            # We pass this text to our new report.html template 
             context = {
                 'report_content': report_text
             }
