@@ -24,4 +24,7 @@ urlpatterns = [
     # When they submit the form to '/match/', it will also be handled by this view.
     path('', views.matcher_view, name='home'),
     path('match/', views.matcher_view, name='match_submit'),
+    path('signup/', views.signup_view, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
 ]

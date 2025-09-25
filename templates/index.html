@@ -1,35 +1,56 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Matcher</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #333; max-width: 800px; margin: 40px auto; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
-        h1 { color: #005a9c; }
-        form { display: flex; flex-direction: column; gap: 15px; }
-        textarea, input[type="text"] { padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem; }
-        textarea { min-height: 200px; resize: vertical; }
-        button { background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 4px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.2s; }
-        button:hover { background-color: #0056b3; }
-    </style>
+    <title>Lumos Career</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
 
-    <h1>Career Compatibility Matcher</h1>
-    <p>Enter your resume details and the name of a company you're interested in to get a personalized compatibility report.</p>
+    <div class="main-container">
 
-    <form action="/match/" method="POST">
-        {% csrf_token %}
+        <div class="info-column">
+            <h1>Welcome to<br><span class="brand-highlight">Lumos Career</span></h1>
+            <p>Your AI-powered co-pilot for navigating the complexities of the job market. Analyze your profile against real company insights to find a workplace where you'll not just fit, but thrive.</p>
+        </div>
 
-        <label for="resume">Your Resume / Profile:</label>
-        <textarea id="resume" name="resume_text" required placeholder="Paste your resume or describe your skills and experience..."></textarea>
+        <div class="form-column">
 
-        <label for="company">Company Name:</label>
-        <input type="text" id="company" name="company_name" required placeholder="e.g., Google, Tata Consultancy Services, etc.">
+            <nav>
+                {% if user.is_authenticated %}
+                    <span>Hello, {{ user.username }}!</span>
+                    <form action="/logout/" method="POST">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="/login/">Log In</a>
+                    <a href="/signup/">Sign Up</a>
+                {% endif %}
+            </nav>
 
-        <button type="submit">Find My Match</button>
-    </form>
+            <h2>Generate Your Report</h2>
+            <form action="/match/" method="POST">
+                {% csrf_token %}
+
+                <label for="resume">Your Resume / Profile:</label>
+                <textarea id="resume" name="resume_text" required placeholder="Paste your resume or describe your skills..."></textarea>
+
+                <label for="company">Company Name:</label>
+                <input type="text" id="company" name="company_name" required placeholder="e.g., Google, Microsoft, etc.">
+
+                <button type="submit">Find My Match</button>
+            </form>
+        </div>
+
+    </div>
 
 </body>
 </html>
