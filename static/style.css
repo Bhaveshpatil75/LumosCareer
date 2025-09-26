@@ -191,3 +191,94 @@ nav a:hover, nav button:hover {
     transform: translateY(-2px); /* A subtle lift effect on hover */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+/* static/style.css */
+
+/* Add these new styles for the Interview Co-Pilot page */
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px;
+    margin: 40px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    height: 80vh; /* Make the chat container take up most of the viewport height */
+}
+
+.chat-header {
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    flex-shrink: 0; /* Prevent the header from shrinking */
+}
+
+.chat-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--text-dark);
+}
+
+.chat-header p {
+    color: var(--text-light);
+    margin: 5px 0 0 0;
+}
+
+#company-form {
+    flex-shrink: 0; /* Prevent the form from shrinking */
+}
+
+.chat-messages {
+    flex-grow: 1; /* Allow this area to grow and fill available space */
+    overflow-y: auto; /* Add a scrollbar if content overflows */
+    padding: 10px;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9faff;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.chat-messages .message {
+        padding: 10px 15px;
+        border-radius: 18px;
+        max-width: 75%;
+        word-wrap: break-word;
+    }
+
+    .chat-messages .ai-message {
+        background-color: #e9f2ff;
+        color: var(--text-dark);
+        align-self: flex-start;
+    }
+
+    .chat-messages .user-message {
+        background-color: var(--primary-color);
+        color: white;
+        align-self: flex-end;
+    }
+
+    .chat-messages .system-message {
+        background-color: #f0f0f0;
+        color: var(--text-light);
+        align-self: center;
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+    #chat-form {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0; /* Prevent the form from shrinking */
+    }
+
+    #chat-form input {
+        flex-grow: 1; /* Allow the input to take up available space */
+    }
+
+    #chat-form button {
+        margin-top: 0;
+    }

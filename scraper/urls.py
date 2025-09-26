@@ -27,4 +27,8 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('interview/', views.interview_prep_view, name='interview_prep'),
+    path('interview/chat/', views.interview_chat_view, name='interview_chat'),
+
+
 ]

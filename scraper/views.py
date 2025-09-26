@@ -30,7 +30,7 @@ def matcher_view(request):
         company_name = request.POST.get('company_name', '')
 
         # Make sure this is your Production URL from n8n
-        n8n_webhook_url =os.getenv('N8NURL')
+        n8n_webhook_url =os.getenv('COMPANY_SCRAPER_URL')
         payload = {
             "resume": resume_text,
             "company": company_name
@@ -81,3 +81,55 @@ def logout_view(request):
     if request.method == 'POST':
         logout(request)
         return redirect('home') # Redirect to the main page after logout
+    
+def interview_prep_view(request):
+    # For now, this view just displays the page.
+    # Later, we will add the logic to talk to the Gemini API.
+    return render(request, 'interview_prep.html')
+
+
+def interview_prep_view(request):
+    if request.method == 'POST':
+        # This block runs when the user submits the company name
+        company_name = request.POST.get('company_name', '')
+
+        # --- IMPORTANT: Use the URL for your NEW "Interview Co-Pilot" workflow ---
+        n8n_webhook_url = os.getenv('INTERVIEW_COPILOT_URL')
+        payload = {
+            "company_name": company_name
+        }
+
+        try:
+            response = requests.post(n8n_webhook_url, json=payload, timeout=30)
+            response.raise_for_status()
+
+            # Parse the simple JSON object from the new workflow
+            # The response will be like {"ai_response": "Hello! I'm Lumos..."}
+            data = response.json()
+
+            # Send the AI's first message back to the browser as JSON
+            return JsonResponse(data)
+
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
+            return JsonResponse({'error': f'An error occurred: {e}'}, status=500)
+
+    # This runs for a normal GET visit, just displaying the page
+    return render(request, 'interview_prep.html')
+
+def interview_chat_view(request):
+    if request.method == 'POST':
+        user_message = request.POST.get('user_message', '')
+        # In a real app, you would retrieve and send the full chat history
+        # For now, we will just send the user's last message
+
+        n8n_webhook_url = os.getenv('INTERVIEW_CHAT_URL')
+        payload = {
+            "history": f"User: {user_message}"
+        }
+
+        try:
+            response = requests.post(n8n_webhook_url, json=payload, timeout=30)
+            response.raise_for_status()
+            return JsonResponse(response.json())
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
+            return JsonResponse({'error': f'An error occurred: {e}'}, status=500)
