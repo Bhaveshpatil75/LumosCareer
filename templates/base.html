@@ -21,17 +21,23 @@
             <a href="{% url 'home' %}">Lumos Career</a>
         </div>
         <div class="nav-links">
-            <a href="{% url 'home' %}">Home</a>
             <a href="{% url 'pathfinder' %}">Pathfinder</a>
             <a href="{% url 'interview_prep' %}">Interview Prep</a>
         </div>
         <div class="nav-profile">
             {% if user.is_authenticated %}
-            <span class="username">Hello, {{ user.username }}</span>
-            <form action="{% url 'logout' %}" method="POST" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="logout-btn">Logout</button>
-            </form>
+            <div class="profile-dropdown">
+                <div class="profile-avatar" onclick="toggleDropdown()">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <div class="dropdown-menu" id="profileDropdown">
+                    <a href="{% url 'profile' %}">My Profile</a>
+                    <form action="{% url 'logout' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                </div>
+            </div>
             {% else %}
             <a href="{% url 'login' %}" class="auth-link">Log In</a>
             <a href="{% url 'signup' %}" class="auth-link signup">Sign Up</a>
@@ -39,7 +45,26 @@
         </div>
     </nav>
 
-    {% block content %}{% endblock %}
+    <div class="content-wrapper">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Lumos Career</h3>
+                <p>Decoding the Job Market with AI.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Lumos Career. All rights reserved.</p>
+        </div>
+    </footer>
 
     {% block scripts %}
     <script src="{% static 'js/script.js' %}"></script>

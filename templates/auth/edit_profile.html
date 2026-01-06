@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="form-container edit-profile-container">
+    <h2>Edit Profile</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="bio">Bio</label>
+        <textarea name="bio" id="bio" rows="3" placeholder="Tell us about yourself">{{ profile.bio }}</textarea>
+
+        <label for="target_job_titles">Target Job Titles (Comma separated)</label>
+        <input type="text" name="target_job_titles" id="target_job_titles" value="{{ profile.target_job_titles }}"
+            placeholder="e.g. Full Stack Developer, Data Scientist">
+
+        <label for="resume_text">Resume</label>
+        <textarea name="resume_text" id="resume_text" rows="10"
+            placeholder="Paste your resume text here">{{ profile.resume_text }}</textarea>
+
+        <label for="linkedin_url">LinkedIn URL</label>
+        <input type="url" name="linkedin_url" id="linkedin_url" value="{{ profile.linkedin_url }}"
+            placeholder="https://linkedin.com/in/...">
+
+        <label for="github_url">GitHub URL</label>
+        <input type="url" name="github_url" id="github_url" value="{{ profile.github_url }}"
+            placeholder="https://github.com/...">
+
+        <label for="leetcode_url">LeetCode URL</label>
+        <input type="url" name="leetcode_url" id="leetcode_url" value="{{ profile.leetcode_url }}"
+            placeholder="https://leetcode.com/...">
+
+        <button type="submit">Save Changes</button>
+        <a href="{% url 'profile' %}" class="cancel-link">Cancel</a>
+    </form>
+</div>
+{% endblock %}

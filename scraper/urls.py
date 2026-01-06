@@ -31,6 +31,8 @@ urlpatterns = [
     path('interview/chat/', views.interview_chat_view, name='interview_chat'),
     path('pathfinder/', views.pathfinder_view, name='pathfinder'),
     path('roadmap/', views.roadmap_view, name='roadmap'),
+    path('profile/', views.profile_view, name='profile'),
+    path('profile/edit/', views.edit_profile_view, name='edit_profile'),
 
 
 ]

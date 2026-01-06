@@ -49,3 +49,15 @@ class AssessmentResult(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Result: {self.result_type}"
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    resume_text = models.TextField(blank=True, help_text="Paste your resume here.")
+    bio = models.TextField(blank=True, help_text="Short bio about yourself.")
+    target_job_titles = models.TextField(blank=True, help_text="Comma-separated list of target job titles.")
+    linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
+    github_url = models.URLField(blank=True, verbose_name="GitHub URL")
+    leetcode_url = models.URLField(blank=True, verbose_name="LeetCode URL")
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"

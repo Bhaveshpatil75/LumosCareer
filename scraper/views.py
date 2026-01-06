@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseServerError
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .models import AssessmentResult, Company, AssessmentQuestion
+from .models import AssessmentResult, Company, AssessmentQuestion, UserProfile
 import requests
 import os
 import dotenv
@@ -230,3 +230,43 @@ def roadmap_view(request):
         'available_nodes': sorted(list(graph.nodes))
     }
     return render(request, 'pathfinder/roadmap.html', context)
+
+@login_required
+def profile_view(request):
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+    
+    try:
+        assessment = AssessmentResult.objects.get(user=request.user)
+    except AssessmentResult.DoesNotExist:
+        assessment = None
+
+    context = {
+        'profile': profile,
+        'assessment': assessment
+    }
+    return render(request, 'auth/profile.html', context)
+
+@login_required
+def edit_profile_view(request):
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+
+    if request.method == 'POST':
+        profile.bio = request.POST.get('bio', '')
+        profile.target_job_titles = request.POST.get('target_job_titles', '')
+        profile.resume_text = request.POST.get('resume_text', '')
+        profile.linkedin_url = request.POST.get('linkedin_url', '')
+        profile.github_url = request.POST.get('github_url', '')
+        profile.leetcode_url = request.POST.get('leetcode_url', '')
+        profile.save()
+        return redirect('profile')
+
+    context = {
+        'profile': profile
+    }
+    return render(request, 'auth/edit_profile.html', context)

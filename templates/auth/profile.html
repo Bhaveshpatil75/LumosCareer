@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ user.username }}'s Profile | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="main-container profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar-large">
+            {{ user.username|slice:":1"|upper }}
+        </div>
+        <div class="profile-info">
+            <h1>{{ user.username }}</h1>
+            {% if profile.bio %}
+            <p class="profile-bio">{{ profile.bio }}</p>
+            {% else %}
+            <p class="profile-bio placeholder">No bio added yet.</p>
+            {% endif %}
+
+            <div class="profile-links">
+                {% if profile.linkedin_url %}
+                <a href="{{ profile.linkedin_url }}" target="_blank" class="social-link linkedin">LinkedIn</a>
+                {% endif %}
+                {% if profile.github_url %}
+                <a href="{{ profile.github_url }}" target="_blank" class="social-link github">GitHub</a>
+                {% endif %}
+                {% if profile.leetcode_url %}
+                <a href="{{ profile.leetcode_url }}" target="_blank" class="social-link leetcode">LeetCode</a>
+                {% endif %}
+            </div>
+
+            <a href="{% url 'edit_profile' %}" class="edit-profile-btn">Edit Profile</a>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <!-- Resume Section -->
+        <div class="profile-card resume-card">
+            <h2>Resume</h2>
+            {% if profile.resume_text %}
+            <div class="resume-preview">
+                {{ profile.resume_text|linebreaks|truncatewords:50 }}
+            </div>
+            {% else %}
+            <p class="empty-state">No resume uploaded.</p>
+            {% endif %}
+        </div>
+
+        <!-- Target Roles -->
+        <div class="profile-card roles-card">
+            <h2>Target Roles</h2>
+            {% if profile.target_job_titles %}
+            <div class="tags-container">
+                {% for role in profile.target_job_titles.split %}
+                <span class="tag role-tag">{{ role }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-state">No target roles specified.</p>
+            {% endif %}
+        </div>
+
+        <!-- Assessment Results -->
+        <div class="profile-card assessment-card">
+            <h2>Personality Type</h2>
+            {% if assessment %}
+            <div class="personality-result">
+                <span class="type-badge">{{ assessment.result_type }}</span>
+                <p>Taken on: {{ assessment.date_taken|date:"M d, Y" }}</p>
+                <a href="{% url 'pathfinder' %}" class="btn-small">Retake Test</a>
+            </div>
+            {% else %}
+            <p class="empty-state">Not yet assessed.</p>
+            <a href="{% url 'pathfinder' %}" class="btn-small">Start Pathfinder</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
