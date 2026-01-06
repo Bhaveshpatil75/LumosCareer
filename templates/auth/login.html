@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Log In</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Log In</button>
+    </form>
+    <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+</div>
+{% endblock %}

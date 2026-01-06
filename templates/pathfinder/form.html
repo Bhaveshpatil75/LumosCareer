@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Career Pathfinder | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="pathfinder-container">
+    <h1>Work Style Assessment 🧭</h1>
+    <p>Answer these questions to help us understand your work style and recommend a career path.</p>
+
+    <form id="pathfinder-form" method="POST" style="margin-top: 30px;">
+        {% csrf_token %}
+
+        {% for question in questions %}
+        <div class="question-block">
+            <p>{{ question.question_text }}</p>
+
+            <label class="choice-label">
+                <input type="radio" name="question_{{ question.id }}" value="A" required>
+                {{ question.choice_a }}
+            </label>
+            <label class="choice-label">
+                <input type="radio" name="question_{{ question.id }}" value="B" required>
+                {{ question.choice_b }}
+            </label>
+        </div>
+        {% endfor %}
+
+        <button type="submit">Submit My Answers</button>
+    </form>
+</div>
+{% endblock %}

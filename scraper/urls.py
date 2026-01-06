@@ -29,6 +29,8 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('interview/', views.interview_prep_view, name='interview_prep'),
     path('interview/chat/', views.interview_chat_view, name='interview_chat'),
+    path('pathfinder/', views.pathfinder_view, name='pathfinder'),
+    path('roadmap/', views.roadmap_view, name='roadmap'),
 
 
 ]

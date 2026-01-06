@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Company(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -12,3 +13,39 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class AssessmentQuestion(models.Model):
+    TRAIT_CHOICES = [
+        ('EI', 'Extraversion (E) vs. Introversion (I)'),
+        ('SN', 'Sensing (S) vs. Intuition (N)'),
+        ('TF', 'Thinking (T) vs. Feeling (F)'),
+        ('JP', 'Judging (J) vs. Perceiving (P)'),
+    ]
+
+    question_text = models.TextField()
+    trait = models.CharField(max_length=2, choices=TRAIT_CHOICES)
+
+    choice_a = models.CharField(max_length=200)
+    choice_b = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.trait}: {self.question_text[:50]}..."
+    
+
+# core/models.py
+
+class AssessmentResult(models.Model):
+    # Links this result to a specific user.
+    # OneToOneField means one user gets one result.
+    # models.CASCADE means if the user is deleted, this result is also deleted.
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+
+    # This field will store the final 4-letter type, e.g., "INTJ"
+    result_type = models.CharField(max_length=4)
+
+    # Keeps track of when the test was taken
+    date_taken = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Result: {self.result_type}"

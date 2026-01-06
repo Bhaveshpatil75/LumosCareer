@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Career Path | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="pathfinder-container">
+    <h1>Your <span class="brand-highlight">Career Path</span></h1>
+    <p>You have the <strong>{{ result_data.personality_type }}</strong> personality. Here is your recommended path
+        for becoming a <strong>{{ result_data.recommended_path }}</strong>.</p>
+    <p style="text-align: left; margin-bottom: 30px; color: var(--text-main);"><strong>Your Profile:</strong> {{
+        result_data.profile_summary }}</p>
+
+    <div class="roadmap-container">
+
+        {% for step in result_data.roadmap %}
+        <div class="roadmap-step">
+            <div class="step-content" data-status="{{ step.status }}" data-title="{{ step.title }}"
+                data-description="{{ step.description }}">
+                ★
+            </div>
+            <div class="step-title">{{ step.title }}</div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<div id="step-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h3 id="modal-title">Step Title</h3>
+        <p id="modal-description">This is the description.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    const modal = document.getElementById("step-modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalDescription = document.getElementById("modal-description");
+    const closeButton = document.querySelector(".close-button");
+
+    document.querySelectorAll('.step-content').forEach(step => {
+        step.addEventListener('click', () => {
+            const status = step.getAttribute('data-status');
+            const title = step.getAttribute('data-title');
+            const description = step.getAttribute('data-description');
+
+            if (status === 'locked') {
+                // Do nothing if the step is locked
+                return;
+            }
+
+            // Populate and show the modal
+            modalTitle.innerText = title;
+            modalDescription.innerText = description;
+            modal.style.display = "block";
+        });
+    });
+
+    // Close the modal
+    closeButton.onclick = function () {
+        modal.style.display = "none";
+    }
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+{% endblock %}

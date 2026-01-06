@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-container">
+
+    <div class="info-column">
+        <h1>Welcome to<br><span class="brand-highlight">Lumos Career</span></h1>
+        <p>Your AI-powered co-pilot for navigating the complexities of the job market. Analyze your profile against real
+            company insights to find a workplace where you'll not just fit, but thrive.</p>
+    </div>
+
+    <div class="form-column">
+        <h2>Generate Your Report</h2>
+        <form action="{% url 'match_submit' %}" method="POST">
+            {% csrf_token %}
+
+            <label for="resume">Your Resume / Profile:</label>
+            <textarea id="resume" name="resume_text" required
+                placeholder="Paste your resume or describe your skills..."></textarea>
+
+            <label for="jd">Job Description (Optional but Recommended):</label>
+            <textarea id="jd" name="job_description"
+                placeholder="Paste the Job Description or Company 'About Us' text here for a mathematical match score..."
+                style="height: 100px;"></textarea>
+
+            <label for="company">Company Name:</label>
+            <input type="text" id="company" name="company_name" required placeholder="e.g., Google, Microsoft, etc.">
+
+            <button type="submit">Find My Match</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

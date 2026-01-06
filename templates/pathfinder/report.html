@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Compatibility Report | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="pathfinder-container">
+    <h1>Your Career Compass Report</h1>
+</div>
+<!-- templates/report.html -->
+
+<div class="pathfinder-container" style="margin-top: 0;">
+    {% if show_score %}
+    <div class="ats-dashboard" style="box-shadow: none; border: none; padding: 0; background: transparent;">
+        <div class="ats-header">
+            <h2><span class="icon">📊</span> ATS Analysis</h2>
+            <p>Mathematical breakdown of your resume vs. job description</p>
+        </div>
+
+        <div class="ats-grid">
+            <!-- Card 1: The Score -->
+            <div class="ats-card score-card">
+                <h3>Match Score</h3>
+                <div class="score-circle-large" data-score="{{ similarity_score }}">
+                    <div class="inner-circle">
+                        <span class="score-number">{{ similarity_score }}%</span>
+                    </div>
+                </div>
+                <p class="score-label">Relevance Probability</p>
+            </div>
+
+            <!-- Card 2: Matching Keywords -->
+            <div class="ats-card keyword-card">
+                <h3>✅ Matched Keywords</h3>
+                <div class="keyword-cloud">
+                    {% for word in matching_keywords %}
+                    <span class="tag match">{{ word }}</span>
+                    {% empty %}
+                    <span class="empty-state">No exact keyword matches found.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Card 3: Missing Keywords -->
+            <div class="ats-card keyword-card">
+                <h3>⚠️ Missing Keywords</h3>
+                <div class="keyword-cloud">
+                    {% for word in missing_keywords %}
+                    <span class="tag missing">{{ word }}</span>
+                    {% empty %}
+                    <span class="empty-state">Great job! No major keywords missing.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="report-content" style="box-shadow: none; border: none; padding: 0; background: transparent;">
+        {{ report_content | safe | linebreaks }}
+    </div>
+
+    <a href="{% url 'home' %}"
+        style="display: inline-block; margin-top: 30px; padding: 12px 20px; background-color: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Run
+        a New Report</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const scoreCircles = document.querySelectorAll('.score-circle-large');
+        scoreCircles.forEach(circle => {
+            const score = circle.getAttribute('data-score');
+            if (score) {
+                circle.style.background = `conic-gradient(var(--primary-color) ${score}%, #333 0)`;
+            }
+        });
+    });
+</script>
+{% endblock %}

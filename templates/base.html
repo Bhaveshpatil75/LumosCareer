@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lumos Career{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{% url 'home' %}">Lumos Career</a>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'pathfinder' %}">Pathfinder</a>
+            <a href="{% url 'interview_prep' %}">Interview Prep</a>
+        </div>
+        <div class="nav-profile">
+            {% if user.is_authenticated %}
+            <span class="username">Hello, {{ user.username }}</span>
+            <form action="{% url 'logout' %}" method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="auth-link">Log In</a>
+            <a href="{% url 'signup' %}" class="auth-link signup">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    {% block scripts %}
+    <script src="{% static 'js/script.js' %}"></script>
+    {% endblock %}
+</body>
+
+</html>

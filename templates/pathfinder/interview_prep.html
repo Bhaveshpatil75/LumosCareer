@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Interview Co-Pilot | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <h1>AI Interview Co-Pilot 🤖</h1>
+        <p>Enter a company name to begin your personalized prep session.</p>
+    </div>
+
+    <form id="company-form" method="POST">
+        {% csrf_token %}
+        <label for="company">Company Name:</label>
+        <input type="text" id="company" name="company_name" required placeholder="e.g., Google, Microsoft...">
+        <button type="submit">Start Prep Session</button>
+    </form>
+
+    <div id="recommendations-area"
+        style="display:none; margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+        <h4>People who prepared for <span id="target-company-name"></span> also checked:</h4>
+        <div id="recommendations-list" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+    </div>
+
+    <div class="chat-messages">
+    </div>
+    <form id="chat-form" method="POST" style="display: none; margin-top: 20px;">
+        {% csrf_token %}
+        <input type="text" name="user_message" placeholder="Type your answer here..." autocomplete="off" required>
+        <button type="submit">Send</button>
+    </form>
+
+</div>
+
+<script>
+    // Simple script to handle the response and show recommendations
+    document.getElementById('company-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const companyName = formData.get('company_name');
+
+        // Show loading or something...
+
+        fetch('', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Show chat form
+                document.getElementById('chat-form').style.display = 'block';
+                document.querySelector('.chat-messages').innerHTML = '<div class="message bot">Session started for ' + companyName + '. How can I help?</div>';
+
+                // Show recommendations
+                if (data.recommendations && data.recommendations.length > 0) {
+                    const recArea = document.getElementById('recommendations-area');
+                    const recList = document.getElementById('recommendations-list');
+                    document.getElementById('target-company-name').innerText = companyName;
+                    recList.innerHTML = '';
+
+                    data.recommendations.forEach(rec => {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge bg-secondary';
+                        badge.style.padding = '5px 10px';
+                        badge.style.borderRadius = '15px';
+                        badge.innerText = rec;
+                        recList.appendChild(badge);
+                    });
+                    recArea.style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+{% endblock %}
