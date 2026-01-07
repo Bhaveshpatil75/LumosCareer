@@ -1,31 +1,61 @@
 {% extends 'base.html' %}
 
-{% block title %}Career Pathfinder | Lumos Career{% endblock %}
+{% block title %}Work Style Assessment | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="pathfinder-container">
-    <h1>Work Style Assessment 🧭</h1>
-    <p>Answer these questions to help us understand your work style and recommend a career path.</p>
+<div class="assessment-wrapper">
+    <div class="assessment-header">
+        <h1>Uncover Your<br><span class="brand-highlight">Work Persona</span></h1>
+        <p>Answer honestly. There are no wrong answers, only your truth.</p>
+    </div>
 
-    <form id="pathfinder-form" method="POST" style="margin-top: 30px;">
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <form id="pathfinder-form" method="POST">
         {% csrf_token %}
 
         {% for question in questions %}
-        <div class="question-block">
+        <div class="question-card">
             <p>{{ question.question_text }}</p>
 
-            <label class="choice-label">
-                <input type="radio" name="question_{{ question.id }}" value="A" required>
-                {{ question.choice_a }}
-            </label>
-            <label class="choice-label">
-                <input type="radio" name="question_{{ question.id }}" value="B" required>
-                {{ question.choice_b }}
-            </label>
+            <div class="options-grid">
+                <!-- Option A -->
+                <label class="option-card">
+                    <input type="radio" name="question_{{ question.id }}" value="A" required
+                        onchange="updateProgress()">
+                    <div class="option-content">
+                        {{ question.choice_a }}
+                    </div>
+                </label>
+
+                <!-- Option B -->
+                <label class="option-card">
+                    <input type="radio" name="question_{{ question.id }}" value="B" required
+                        onchange="updateProgress()">
+                    <div class="option-content">
+                        {{ question.choice_b }}
+                    </div>
+                </label>
+            </div>
         </div>
         {% endfor %}
 
-        <button type="submit">Submit My Answers</button>
+        <div class="submit-btn-container">
+            <button type="submit">Reveal My Archetype</button>
+        </div>
     </form>
 </div>
+
+<script>
+    function updateProgress() {
+        const totalQuestions = {{ questions| length
+    }};
+    const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+    const progress = (answered / totalQuestions) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+    }
+</script>
 {% endblock %}
