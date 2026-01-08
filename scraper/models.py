@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import os
 
 class Company(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -52,12 +53,19 @@ class AssessmentResult(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    resume_file = models.FileField(upload_to='resumes/', blank=True, null=True, help_text="Upload your resume (PDF only, max 5MB).")
     resume_text = models.TextField(blank=True, help_text="Paste your resume here.")
     bio = models.TextField(blank=True, help_text="Short bio about yourself.")
     target_job_titles = models.TextField(blank=True, help_text="Comma-separated list of target job titles.")
     linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
     github_url = models.URLField(blank=True, verbose_name="GitHub URL")
     leetcode_url = models.URLField(blank=True, verbose_name="LeetCode URL")
+
+    @property
+    def filename(self):
+        if self.resume_file:
+            return os.path.basename(self.resume_file.name)
+        return ""
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

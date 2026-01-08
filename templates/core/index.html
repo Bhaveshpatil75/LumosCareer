@@ -13,11 +13,16 @@
 
         <div class="form-column">
             <h2>Generate Your Report</h2>
-            <form action="{% url 'match_submit' %}" method="POST">
+            <form action="{% url 'match_submit' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <label for="resume">Your Resume / Profile:</label>
-                <textarea id="resume" name="resume_text" required
+                <label for="resume_file">Upload Resume (PDF, max 5MB):</label>
+                <input type="file" id="resume_file" name="resume_file" accept=".pdf" style="margin-bottom: 10px;">
+
+                <p style="text-align: center; margin: 5px 0;">- OR -</p>
+
+                <label for="resume">Paste Resume / Profile:</label>
+                <textarea id="resume" name="resume_text"
                     placeholder="Paste your resume or describe your skills..."></textarea>
 
                 <label for="jd">Job Description (Optional but Recommended):</label>

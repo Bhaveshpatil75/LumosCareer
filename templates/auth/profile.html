@@ -37,7 +37,16 @@
         <!-- Resume Section -->
         <div class="profile-card resume-card">
             <h2>Resume</h2>
-            {% if profile.resume_text %}
+            {% if profile.resume_file %}
+            <div class="resume-file-preview">
+                <a href="{{ profile.resume_file.url }}" target="_blank" class="resume-file-link"
+                    style="display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                    <span class="file-icon" style="font-size: 24px;">📄</span>
+                    <span class="file-name" style="font-weight: 500; color: var(--text-color);">{{ profile.filename
+                        }}</span>
+                </a>
+            </div>
+            {% elif profile.resume_text %}
             <div class="resume-preview">
                 {{ profile.resume_text|linebreaks|truncatewords:50 }}
             </div>

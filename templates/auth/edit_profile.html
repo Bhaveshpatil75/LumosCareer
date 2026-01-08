@@ -5,7 +5,7 @@
 {% block content %}
 <div class="form-container edit-profile-container">
     <h2>Edit Profile</h2>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         <label for="bio">Bio</label>
@@ -15,9 +15,13 @@
         <input type="text" name="target_job_titles" id="target_job_titles" value="{{ profile.target_job_titles }}"
             placeholder="e.g. Full Stack Developer, Data Scientist">
 
-        <label for="resume_text">Resume</label>
+        <label for="resume_file">Upload Resume (PDF, max 5MB)</label>
+        <input type="file" name="resume_file" id="resume_file" accept=".pdf"
+            style="display: block; margin-bottom: 15px;">
+
+        <label for="resume_text">Resume Text</label>
         <textarea name="resume_text" id="resume_text" rows="10"
-            placeholder="Paste your resume text here">{{ profile.resume_text }}</textarea>
+            placeholder="Paste your resume text here, or it will be auto-filled from the uploaded file.">{{ profile.resume_text }}</textarea>
 
         <label for="linkedin_url">LinkedIn URL</label>
         <input type="url" name="linkedin_url" id="linkedin_url" value="{{ profile.linkedin_url }}"
