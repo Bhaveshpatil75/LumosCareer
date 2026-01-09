@@ -1080,16 +1080,19 @@ a:hover {
 .dropdown-menu a,
 .dropdown-menu button {
     color: var(--text-main);
-    padding: 12px 16px;
+    padding: 12px 20px;
     text-decoration: none;
-    display: block;
-    text-align: left;
+    display: flex;
+    align-items: center;
     width: 100%;
     background: none;
     border: none;
     font-size: 0.95rem;
     cursor: pointer;
     font-family: 'Poppins', sans-serif;
+    text-align: left;
+    box-sizing: border-box;
+    margin: 0;
 }
 
 .dropdown-menu a:hover,
