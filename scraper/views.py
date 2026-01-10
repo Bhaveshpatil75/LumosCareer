@@ -29,17 +29,25 @@ def calculate_similarity_score(resume_text, job_description):
 @login_required
 def matcher_view(request):
     if request.method == 'POST':
-        resume_text = request.POST.get('resume_text', '')
-        resume_file = request.FILES.get('resume_file')
-
-        if resume_file:
-            try:
-                validate_file_size(resume_file)
-                extracted_text = extract_text_from_pdf_file(resume_file)
-                if extracted_text:
-                    resume_text = extracted_text
-            except ValidationError as e:
-                return HttpResponse(f"Error: {e.message}", status=400)
+        # 1. Retrieve Resume from User Profile
+        try:
+            profile = request.user.profile
+            resume_text = profile.resume_text
+            if not resume_text:
+                # Fallback: try to re-extract if file exists but text is empty (edge case)
+                if profile.resume_file:
+                    extracted = extract_text_from_pdf_file(profile.resume_file)
+                    if extracted:
+                        resume_text = extracted
+                        profile.resume_text = extracted
+                        profile.save()
+            
+            if not resume_text:
+                # Redirect to profile edit if still no resume
+                return redirect('edit_profile')
+                
+        except UserProfile.DoesNotExist:
+            return redirect('edit_profile')
 
         company_name = request.POST.get('company_name', '')
         job_description = request.POST.get('job_description', '')
@@ -68,7 +76,68 @@ def matcher_view(request):
             report_text = ""
             try:
                 data = response.json()
-                report_text = data.get('content').get('parts')[0].get('text', 'No report content found.')
+                
+                # Helper function to extract text from a dict
+                def get_text_from_dict(d):
+                    for key in ['company_summary', 'summary', 'text', 'output', 'content']:
+                        if key in d:
+                            val = d[key]
+                            if isinstance(val, str):
+                                return val
+                            return str(val)
+                    # If no known key, return values joined
+                    return " ".join([str(v) for v in d.values() if isinstance(v, (str, int, float))])
+
+                # 1. Handle Standard Gemini/Vertex 'content' -> 'parts' structure
+                if isinstance(data, dict) and 'content' in data and 'parts' in data['content']:
+                     report_text = data.get('content').get('parts')[0].get('text', '')
+                
+                # 2. Handle List (e.g. [{"company_summary": "..."}])
+                elif isinstance(data, list):
+                    if len(data) > 0:
+                        item = data[0]
+                        if isinstance(item, dict):
+                            report_text = get_text_from_dict(item)
+                        else:
+                            report_text = str(item)
+                
+                # 3. Handle Dict
+                elif isinstance(data, dict):
+                    report_text = get_text_from_dict(data)
+                
+                else:
+                    report_text = str(data)
+
+                # 4. Double-Check: If result matches JSON structure (starts with [ or {), try to parse again
+                # This handles cases where the field value itself was a JSON string
+                if isinstance(report_text, str):
+                    report_text = report_text.strip()
+                    if (report_text.startswith('{') and report_text.endswith('}')) or \
+                       (report_text.startswith('[') and report_text.endswith(']')):
+                        try:
+                            nested_data = json.loads(report_text)
+                            if isinstance(nested_data, list) and len(nested_data) > 0:
+                                nested_data = nested_data[0]
+                            
+                            if isinstance(nested_data, dict):
+                                report_text = get_text_from_dict(nested_data)
+                            elif isinstance(nested_data, str):
+                                report_text = nested_data
+                            else:
+                                report_text = str(nested_data)
+                        except json.JSONDecodeError:
+                            pass # Keep original text if not valid JSON
+
+                # Final Cleanup: Remove surrounding quotes if they exist (rare but possible after str() conversion or JSON behavior)
+                if isinstance(report_text, str):
+                    report_text = report_text.strip()
+                    if (report_text.startswith('"') and report_text.endswith('"')) or \
+                       (report_text.startswith("'") and report_text.endswith("'")):
+                        report_text = report_text[1:-1]
+
+            except (json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
+                report_text = f"Error: Could not parse the AI's response. {e}."
+                            
             except (json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
                 report_text = f"Error: Could not parse the AI's response. {e}."
             
@@ -77,7 +146,9 @@ def matcher_view(request):
                 'similarity_score': similarity_score,
                 'matching_keywords': matching_keywords,
                 'missing_keywords': missing_keywords,
-                'show_score': True if job_description else False
+                'show_score': True if job_description else False,
+                'company_name': company_name,
+                'job_description': job_description
             }
             return render(request, 'pathfinder/report.html', context)
             

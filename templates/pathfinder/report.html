@@ -5,6 +5,9 @@
 {% block content %}
 <div class="pathfinder-container">
     <h1>Your Career Compass Report</h1>
+    {% if company_name %}
+    <h2 style="color: var(--primary-color); margin-top: 10px;">Target: {{ company_name }}</h2>
+    {% endif %}
 </div>
 <!-- templates/report.html -->
 

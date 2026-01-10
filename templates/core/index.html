@@ -16,14 +16,12 @@
             <form action="{% url 'match_submit' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <label for="resume_file">Upload Resume (PDF, max 5MB):</label>
-                <input type="file" id="resume_file" name="resume_file" accept=".pdf" style="margin-bottom: 10px;">
-
-                <p style="text-align: center; margin: 5px 0;">- OR -</p>
-
-                <label for="resume">Paste Resume / Profile:</label>
-                <textarea id="resume" name="resume_text"
-                    placeholder="Paste your resume or describe your skills..."></textarea>
+                <div class="resume-status" style="margin-bottom: 20px; text-align: center;">
+                    <p style="margin-bottom: 10px;">Using resume from your <strong>Profile</strong>.</p>
+                    <a href="{% url 'edit_profile' %}"
+                        style="font-size: 0.9em; text-decoration: underline; color: var(--primary-color);">Change Resume
+                        in Profile</a>
+                </div>
 
                 <label for="jd">Job Description (Optional but Recommended):</label>
                 <textarea id="jd" name="job_description"
