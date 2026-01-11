@@ -4,70 +4,226 @@
 
 {% block content %}
 <div class="pathfinder-container">
-    <h1>Your <span class="brand-highlight">Career Path</span></h1>
-    <p>You have the <strong>{{ result_data.personality_type }}</strong> personality. Here is your recommended path
-        for becoming a <strong>{{ result_data.recommended_path }}</strong>.</p>
-    <p style="text-align: left; margin-bottom: 30px; color: var(--text-main);"><strong>Your Profile:</strong> {{
-        result_data.profile_summary }}</p>
-
-    <div class="roadmap-container">
-
-        {% for step in result_data.roadmap %}
-        <div class="roadmap-step">
-            <div class="step-content" data-status="{{ step.status }}" data-title="{{ step.title }}"
-                data-description="{{ step.description }}">
-                ★
-            </div>
-            <div class="step-title">{{ step.title }}</div>
+    <div class="result-header">
+        <h1>Your <span class="brand-highlight">Career Path</span></h1>
+        <div class="personality-badge">
+            <span class="badge-label">Personality Type</span>
+            <span class="badge-value">{{ result_data.personality_type }}</span>
         </div>
-        {% endfor %}
+    </div>
 
+    <div class="glass-card profile-summary-card">
+        <h3 class="card-title">Profile Summary</h3>
+        <p class="summary-text">
+            {{ result_data.profile_summary }}
+        </p>
+    </div>
+
+    <div class="roadmap-section">
+        <h2 class="section-title">Recommended Path</h2>
+        <div class="roadmap-container">
+            {% for step in result_data.roadmap %}
+            <a href="{% url 'path_node_detail' step.step_id|default:forloop.counter %}" class="roadmap-step-link">
+                <div class="roadmap-step status-{{ step.status }}">
+                    <div class="step-icon">
+                        {% if step.status == 'completed' %}
+                        ✓
+                        {% elif step.status == 'in-progress' %}
+                        ⟳
+                        {% else %}
+                        🔒
+                        {% endif %}
+                    </div>
+
+                    <div class="step-info">
+                        <span class="step-status-label">
+                            {{ step.status|title }}
+                        </span>
+                        <h4 class="step-title">
+                            {{ step.title }}
+                        </h4>
+                    </div>
+
+                    <div class="step-arrow">→</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
-<div id="step-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h3 id="modal-title">Step Title</h3>
-        <p id="modal-description">This is the description.</p>
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-{{ block.super }}
-<script>
-    const modal = document.getElementById("step-modal");
-    const modalTitle = document.getElementById("modal-title");
-    const modalDescription = document.getElementById("modal-description");
-    const closeButton = document.querySelector(".close-button");
-
-    document.querySelectorAll('.step-content').forEach(step => {
-        step.addEventListener('click', () => {
-            const status = step.getAttribute('data-status');
-            const title = step.getAttribute('data-title');
-            const description = step.getAttribute('data-description');
-
-            if (status === 'locked') {
-                // Do nothing if the step is locked
-                return;
-            }
-
-            // Populate and show the modal
-            modalTitle.innerText = title;
-            modalDescription.innerText = description;
-            modal.style.display = "block";
-        });
-    });
-
-    // Close the modal
-    closeButton.onclick = function () {
-        modal.style.display = "none";
+<style>
+    .pathfinder-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        color: var(--text-main);
     }
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .personality-badge {
+        background: linear-gradient(135deg,
+                rgba(var(--color-primary-rgb), 0.2),
+                rgba(var(--color-accent-rgb), 0.2));
+        border: 1px solid rgba(var(--color-primary-rgb), 0.5);
+        padding: 10px 20px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        backdrop-filter: blur(10px);
+    }
+
+    .badge-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+
+    .badge-value {
+        font-weight: 700;
+        color: var(--color-accent);
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: var(--color-primary);
+        font-size: 1.2rem;
+    }
+
+    .summary-text {
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        opacity: 0.9;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 25px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    .roadmap-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .roadmap-step-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: transform 0.2s ease;
+    }
+
+    .roadmap-step-link:hover {
+        transform: translateY(-3px);
+    }
+
+    .roadmap-step {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .roadmap-step-link:hover .roadmap-step {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(var(--color-primary-rgb), 0.3);
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .roadmap-step.status-completed .step-icon {
+        color: var(--color-success);
+        background: rgba(var(--color-success-rgb), 0.15);
+    }
+
+    .roadmap-step.status-in-progress .step-icon {
+        color: var(--color-warning);
+        background: rgba(var(--color-warning-rgb), 0.15);
+        animation: pulse 2s infinite;
+    }
+
+    .step-info {
+        flex: 1;
+    }
+
+    .step-status-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.6;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .step-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .step-arrow {
+        font-size: 1.5rem;
+        opacity: 0.3;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .roadmap-step-link:hover .step-arrow {
+        opacity: 1;
+        transform: translateX(5px);
+        color: var(--color-primary);
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(var(--color-warning-rgb), 0.2);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(var(--color-warning-rgb), 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(var(--color-warning-rgb), 0);
         }
     }
-</script>
+</style>
 {% endblock %}

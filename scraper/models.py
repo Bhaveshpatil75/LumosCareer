@@ -44,6 +44,9 @@ class AssessmentResult(models.Model):
 
     # This field will store the final 4-letter type, e.g., "INTJ"
     result_type = models.CharField(max_length=4)
+    
+    # Store the full detailed report from the AI for deep dive pages
+    detailed_report = models.JSONField(blank=True, null=True)
 
     # Keeps track of when the test was taken
     date_taken = models.DateTimeField(auto_now_add=True)

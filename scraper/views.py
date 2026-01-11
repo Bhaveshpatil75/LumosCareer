@@ -265,7 +265,7 @@ def pathfinder_view(request):
             defaults={'result_type': result_type}
         )
 
-        n8n_webhook_url = "http://localhost:7777/webhook/7e55999f-1503-459d-a85c-15986a018a0b"
+        n8n_webhook_url = os.getenv('PATHFINDER_URL')
         payload = {
             "result_type": result_type
         }
@@ -274,7 +274,20 @@ def pathfinder_view(request):
             response = requests.post(n8n_webhook_url, json=payload, timeout=60)
             response.raise_for_status()
             n8n_data = response.json()
-            report_data = n8n_data['report_json']
+            
+            # The n8n node should return a structure where 'report_json' contains the actual data
+            # OR the entire body is the data. Let's robustness check.
+            report_data = n8n_data.get('report_json', n8n_data)
+            
+            # Save the full detailed report to the database
+            AssessmentResult.objects.update_or_create(
+                user=request.user,
+                defaults={
+                    'result_type': result_type,
+                    'detailed_report': report_data
+                }
+            )
+
             context = {
                 'result_data': report_data 
             }
@@ -289,6 +302,38 @@ def pathfinder_view(request):
             'questions': questions
         }
         return render(request, 'pathfinder/form.html', context)
+
+@login_required
+def path_node_detail_view(request, step_index):
+    try:
+        assessment = AssessmentResult.objects.get(user=request.user)
+        report = assessment.detailed_report
+        
+        # Robustly get the roadmap list
+        roadmap = report.get('roadmap', [])
+        
+        # Find the node with the matching step_id or index
+        # We will assume step_index corresponds to step_id for now, or list index - 1
+        # Let's try to match by 'step_id' if present, else use index
+        node = None
+        
+        # Try to find by step_id first
+        for step in roadmap:
+            if step.get('step_id') == step_index:
+                node = step
+                break
+        
+        # If not found by ID (or if step_index is 1-based index but IDs are arbitrary), try list index
+        if not node and 0 <= step_index - 1 < len(roadmap):
+             node = roadmap[step_index - 1]
+
+        if not node:
+             return render(request, 'pathfinder/result.html', {'error': 'Step not found'})
+
+        return render(request, 'pathfinder/node_detail.html', {'node': node})
+
+    except AssessmentResult.DoesNotExist:
+        return redirect('pathfinder')
 
 @login_required
 def roadmap_view(request):

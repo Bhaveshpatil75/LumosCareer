@@ -30,6 +30,7 @@ urlpatterns = [
     path('interview/', views.interview_prep_view, name='interview_prep'),
     path('interview/chat/', views.interview_chat_view, name='interview_chat'),
     path('pathfinder/', views.pathfinder_view, name='pathfinder'),
+    path('pathfinder/step/<int:step_index>/', views.path_node_detail_view, name='path_node_detail'),
     path('roadmap/', views.roadmap_view, name='roadmap'),
     path('profile/', views.profile_view, name='profile'),
     path('profile/edit/', views.edit_profile_view, name='edit_profile'),
