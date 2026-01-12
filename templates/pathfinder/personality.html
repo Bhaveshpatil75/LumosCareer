@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Work Style Assessment | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="assessment-wrapper">
+    <div class="assessment-header">
+        <h1>Uncover Your<br><span class="brand-highlight">Work Persona</span></h1>
+        <p>Answer honestly to reveal your base archetype.</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <form id="pathfinder-form" method="POST" action="{% url 'personality_test' %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="personality">
+
+        {% for question in questions %}
+        <div class="question-card">
+            <p>{{ question.question_text }}</p>
+
+            <div class="options-grid">
+                <!-- Option A -->
+                <label class="option-card">
+                    <input type="radio" name="question_{{ question.id }}" value="A" required
+                        onchange="updateProgress()">
+                    <div class="option-content">
+                        {{ question.choice_a }}
+                    </div>
+                </label>
+
+                <!-- Option B -->
+                <label class="option-card">
+                    <input type="radio" name="question_{{ question.id }}" value="B" required
+                        onchange="updateProgress()">
+                    <div class="option-content">
+                        {{ question.choice_b }}
+                    </div>
+                </label>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="submit-btn-container">
+            <button type="submit">Submit<i class="fas fa-arrow-right"></i></button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function updateProgress() {
+        // totalQuestions is rendered from server
+        const totalQuestions = Number("{{ questions|length }}");
+        const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+        const progress = (answered / totalQuestions) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+    }
+</script>
+{% endblock %}

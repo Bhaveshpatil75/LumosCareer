@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Career Deep Dive | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="assessment-wrapper">
+    <div class="assessment-header">
+        <h1>Refine Your<br><span class="brand-highlight">Path</span></h1>
+        <p>Tell us about your preferences and aspirations.</p>
+    </div>
+
+    <!-- Info Used Summary -->
+    <div class="info-summary-card glass-card">
+        <h3><i class="fas fa-magic"></i> Context We Use</h3>
+        <div class="info-badges">
+            <div class="info-badge success">
+                <i class="fas fa-check-circle"></i> Personality: <strong>{{ personality_type }}</strong>
+            </div>
+
+            {% if has_resume %}
+            <div class="info-badge success">
+                <i class="fas fa-check-circle"></i> Resume: <strong>Uploaded</strong>
+            </div>
+            {% else %}
+            <div class="info-badge warning">
+                <i class="fas fa-exclamation-circle"></i> Resume: <strong>Not Found</strong> (Optional)
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <form id="pathfinder-form" method="POST" action="{% url 'pathfinder' %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="career">
+
+        {% for question in questions %}
+        <div class="question-card">
+            <p><span class="question-number">{{ question.order }}.</span> {{ question.question_text }}</p>
+
+            <div class="textarea-container">
+                <textarea name="career_question_{{ question.id }}" rows="4" placeholder="Type your answer here..."
+                    required class="glass-textarea"></textarea>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="submit-btn-container">
+            <button type="submit" class="finish-btn">Reveal My Path <i class="fas fa-magic"></i></button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .glass-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem;
+        color: white;
+        font-family: inherit;
+        font-size: 1rem;
+        resize: vertical;
+        transition: all 0.3s ease;
+    }
+
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(76, 145, 150, 0.5);
+        /* Brand teal */
+        outline: none;
+        box-shadow: 0 0 15px rgba(76, 145, 150, 0.2);
+    }
+
+    .question-number {
+        color: #4C9196;
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+
+    .finish-btn {
+        background: linear-gradient(135deg, #4C9196, #2C5F63);
+    }
+
+    .info-summary-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .info-summary-card h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-badges {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid transparent;
+    }
+
+    .info-badge.success {
+        background: rgba(var(--color-success-rgb), 0.1);
+        color: var(--color-success);
+        border-color: rgba(var(--color-success-rgb), 0.2);
+    }
+
+    .info-badge.warning {
+        background: rgba(var(--color-warning-rgb), 0.1);
+        color: var(--color-warning);
+        border-color: rgba(var(--color-warning-rgb), 0.2);
+    }
+</style>
+{% endblock %}

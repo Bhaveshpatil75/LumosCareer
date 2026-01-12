@@ -34,6 +34,19 @@ class AssessmentQuestion(models.Model):
         return f"{self.trait}: {self.question_text[:50]}..."
     
 
+    
+    
+class CareerQuestion(models.Model):
+    question_text = models.TextField()
+    order = models.IntegerField(default=0, help_text="Order of the question in the quiz.")
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.order}. {self.question_text[:50]}..."
+
+
 # core/models.py
 
 class AssessmentResult(models.Model):

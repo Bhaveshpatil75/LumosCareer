@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Access Restricted | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="locked-container">
+    <div class="glass-card locked-card">
+        <div class="icon-wrapper">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h1>Unlock Your Career Path</h1>
+        <p class="locked-message">
+            To provide the most accurate career guidance, we first need to understand your unique working style.
+        </p>
+        <p class="sub-message">
+            Please complete the Personality Assessment to unlock the Career Pathfinder.
+        </p>
+
+        <div class="action-area">
+            <a href="{% url 'personality_test' %}" class="unlock-btn">
+                <i class="fas fa-fingerprint"></i> Start Personality Assessment
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .locked-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .locked-card {
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        padding: 50px 30px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        backdrop-filter: blur(20px);
+    }
+
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 30px;
+        background: rgba(var(--color-primary-rgb), 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--color-primary);
+        box-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.2);
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.7));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .locked-message {
+        font-size: 1.1rem;
+        color: var(--text-main);
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+
+    .sub-message {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin-bottom: 40px;
+    }
+
+    .unlock-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        text-decoration: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(var(--color-primary-rgb), 0.3);
+    }
+
+    .unlock-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(var(--color-primary-rgb), 0.4);
+    }
+</style>
+{% endblock %}

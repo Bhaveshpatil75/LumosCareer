@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseServerError
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .models import AssessmentResult, Company, AssessmentQuestion, UserProfile
+from .models import AssessmentResult, Company, AssessmentQuestion, UserProfile, CareerQuestion
 import requests
 import os
 import dotenv
@@ -229,12 +229,13 @@ def interview_chat_view(request):
             return JsonResponse({'error': f'An error occurred: {e}'}, status=500)
 
 @login_required
-def pathfinder_view(request):
+def personality_view(request):
+    """
+    Handles the MBTI-style personality assessment.
+    """
     if request.method == 'POST':
         questions = AssessmentQuestion.objects.all()
         # Scores: E vs I, S vs N, T vs F, J vs P
-        # We'll map them to a vector [-1, 1]
-        # E/S/T/J = +1, I/N/F/P = -1
         raw_scores = {'EI': 0, 'SN': 0, 'TF': 0, 'JP': 0}
         total_questions = {'EI': 0, 'SN': 0, 'TF': 0, 'JP': 0}
 
@@ -246,8 +247,6 @@ def pathfinder_view(request):
             elif answer == 'B':
                 raw_scores[question.trait] -= 1
 
-        # Normalize to [-1, 1] vector
-        # Avoid division by zero if no questions for a trait
         user_vector = []
         for trait in ['EI', 'SN', 'TF', 'JP']:
             count = total_questions[trait]
@@ -256,37 +255,80 @@ def pathfinder_view(request):
             else:
                 user_vector.append(0)
 
-        # Use Centroid Classifier
         classifier = PersonalityClassifier()
         result_type = classifier.classify(user_vector)
-
+        
+        # Save or update result
         AssessmentResult.objects.update_or_create(
             user=request.user,
             defaults={'result_type': result_type}
         )
+        
+        # Redirect to Profile to see result
+        return redirect('profile')
 
+    else:
+        questions = AssessmentQuestion.objects.all()
+        context = {
+            'questions': questions
+        }
+        return render(request, 'pathfinder/personality.html', context)
+
+
+@login_required
+def pathfinder_view(request):
+    """
+    Handles the Career Specific Quiz.
+    Prerequisite: User must have a personality type found in AssessmentResult.
+    """
+    # Check Prerequisite
+    try:
+        assessment = AssessmentResult.objects.get(user=request.user)
+        personality_type = assessment.result_type
+        if not personality_type:
+             return render(request, 'pathfinder/locked.html')
+    except AssessmentResult.DoesNotExist:
+        return render(request, 'pathfinder/locked.html')
+
+    # Handle Submission
+    if request.method == 'POST':
+        # Collect Career Answers
+        career_questions = CareerQuestion.objects.all()
+        career_data = []
+        for q in career_questions:
+            answer = request.POST.get(f'career_question_{q.id}', '')
+            career_data.append({
+                'question': q.question_text,
+                'answer': answer
+            })
+
+        # Get Resume (Optional)
+        resume_text = ""
+        try:
+            profile = request.user.profile
+            resume_text = profile.resume_text
+        except UserProfile.DoesNotExist:
+            pass
+
+        # Prepare Payload for n8n
         n8n_webhook_url = os.getenv('PATHFINDER_URL')
         payload = {
-            "result_type": result_type
+            "personality_type": personality_type,
+            "resume_text": resume_text,
+            "career_answers": career_data
         }
 
         try:
-            response = requests.post(n8n_webhook_url, json=payload, timeout=60)
+            response = requests.post(n8n_webhook_url, json=payload, timeout=90)
             response.raise_for_status()
             n8n_data = response.json()
             
-            # The n8n node should return a structure where 'report_json' contains the actual data
-            # OR the entire body is the data. Let's robustness check.
+            # Robust extraction of the report
             report_data = n8n_data.get('report_json', n8n_data)
             
-            # Save the full detailed report to the database
-            AssessmentResult.objects.update_or_create(
-                user=request.user,
-                defaults={
-                    'result_type': result_type,
-                    'detailed_report': report_data
-                }
-            )
+            # Save Final Detailed Result
+            assessment.detailed_report = report_data
+            assessment.save()
 
             context = {
                 'result_data': report_data 
@@ -296,12 +338,24 @@ def pathfinder_view(request):
         except (requests.exceptions.RequestException, json.JSONDecodeError, KeyError) as e:
             return HttpResponseServerError(f"Error processing AI report: {e}")
 
+    # Render Career Quiz
     else:
-        questions = AssessmentQuestion.objects.all()
+        questions = CareerQuestion.objects.all()
+        
+        # Check for resume existence for display
+        has_resume = False
+        try:
+            if request.user.profile.resume_text or request.user.profile.resume_file:
+                has_resume = True
+        except UserProfile.DoesNotExist:
+            pass
+
         context = {
-            'questions': questions
+            'questions': questions,
+            'personality_type': personality_type,
+            'has_resume': has_resume
         }
-        return render(request, 'pathfinder/form.html', context)
+        return render(request, 'pathfinder/career.html', context)
 
 @login_required
 def path_node_detail_view(request, step_index):
