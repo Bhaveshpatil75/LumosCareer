@@ -189,9 +189,19 @@ def logout_view(request):
 def interview_prep_view(request):
     if request.method == 'POST':
         company_name = request.POST.get('company_name', '')
+        
+        # Get Resume
+        resume_text = ""
+        try:
+            profile = request.user.profile
+            resume_text = profile.resume_text
+        except UserProfile.DoesNotExist:
+            pass
+
         n8n_webhook_url = os.getenv('INTERVIEW_COPILOT_URL')
         payload = {
-            "company_name": company_name
+            "company_name": company_name,
+            "resume": resume_text
         }
 
         # Get Recommendations
@@ -211,7 +221,10 @@ def interview_prep_view(request):
         except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
             return JsonResponse({'error': f'An error occurred: {e}'}, status=500)
 
-    return render(request, 'pathfinder/interview_prep.html')
+    context = {
+        'voice_interview_url': os.getenv('VOICE_INTERVIEW_URL', '#')
+    }
+    return render(request, 'pathfinder/interview_prep.html', context)
 
 def interview_chat_view(request):
     if request.method == 'POST':

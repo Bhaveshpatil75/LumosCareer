@@ -3,43 +3,326 @@
 {% block title %}Interview Co-Pilot | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="chat-container">
-    <div class="chat-header">
-        <h1>AI Interview Co-Pilot 🤖</h1>
-        <p>Enter a company name to begin your personalized prep session.</p>
+<style>
+    .interview-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 40px;
+        background: var(--background-card);
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .header-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, var(--text-main), var(--primary-color));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .header-section p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 40px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 20px;
+        font-size: 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        color: var(--text-main);
+        transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+        border-color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 20px rgba(76, 145, 150, 0.2);
+    }
+
+    .resume-badge {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(76, 145, 150, 0.2);
+        color: var(--primary-color);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        border: 1px solid rgba(76, 145, 150, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        pointer-events: none;
+    }
+
+    .options-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .option-card {
+        background: #252525;
+        border: 2px solid var(--border-color);
+        border-radius: 16px;
+        padding: 30px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .option-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color);
+        background: #2A2A2A;
+    }
+
+    .option-card.selected {
+        border-color: var(--primary-color);
+        background: rgba(76, 145, 150, 0.1);
+        box-shadow: 0 0 25px rgba(76, 145, 150, 0.2);
+    }
+
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        transition: transform 0.3s ease;
+    }
+
+    .option-card:hover .card-icon {
+        transform: scale(1.1);
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 10px;
+    }
+
+    .card-desc {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .action-btn {
+        width: 100%;
+        padding: 18px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        background: var(--primary-color);
+        color: white;
+        opacity: 0.5;
+        pointer-events: none;
+        margin-top: 20px;
+    }
+
+    .action-btn.active {
+        opacity: 1;
+        pointer-events: all;
+        box-shadow: 0 5px 20px rgba(76, 145, 150, 0.4);
+    }
+
+    .action-btn.active:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 145, 150, 0.5);
+    }
+
+    /* Chat Interface Styles (Initially Hidden) */
+    .chat-interface {
+        display: none;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    .setup-interface {
+        /* Default visible */
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .recommendations-glass {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        display: none;
+    }
+</style>
+
+<div class="interview-container">
+
+    <!-- Setup Interface -->
+    <div id="setup-view" class="setup-interface">
+        <div class="header-section">
+            <h1>Interview Co-Pilot 🚀</h1>
+            <p>Master your upcoming interview with AI-tailored simulations using your profile & resume.</p>
+        </div>
+
+        <form id="prep-form" onsubmit="return false;">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <input type="text" id="company_input" name="company_name" required
+                    placeholder="Enter Target Company (e.g. Google, Netflix)..." autocomplete="off">
+                <div class="resume-badge">
+                    <span style="font-size: 1.2em;">📄</span> Profile Resume Linked
+                </div>
+            </div>
+
+            <div class="options-grid">
+                <div class="option-card" onclick="selectMode('text', this)">
+                    <div class="card-icon">💬</div>
+                    <div class="card-title">Text Simulation</div>
+                    <div class="card-desc">Real-time chat with an AI recruiter. Perfect for refining your answers and
+                        logic.</div>
+                </div>
+
+                <div class="option-card" onclick="selectMode('voice', this)">
+                    <div class="card-icon">🎙️</div>
+                    <div class="card-title">Voice Simulation</div>
+                    <div class="card-desc">Speak directly to the AI. Practice your delivery, tone, and confidence.</div>
+                </div>
+            </div>
+
+            <input type="hidden" id="selected_mode" value="">
+            <button type="button" id="start-btn" class="action-btn" onclick="startSession()">Start Preparation</button>
+        </form>
     </div>
 
-    <form id="company-form" method="POST">
-        {% csrf_token %}
-        <label for="company">Company Name:</label>
-        <input type="text" id="company" name="company_name" required placeholder="e.g., Google, Microsoft...">
-        <button type="submit">Start Prep Session</button>
-    </form>
+    <!-- Active Chat Interface -->
+    <div id="chat-view" class="chat-interface">
+        <div class="chat-header">
+            <h2 id="chat-session-title">Interview @ Company</h2>
+            <button onclick="location.reload()"
+                style="background:none; border:none; color:var(--text-muted); cursor:pointer;">End Session</button>
+        </div>
 
-    <div id="recommendations-area"
-        style="display:none; margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
-        <h4>People who prepared for <span id="target-company-name"></span> also checked:</h4>
-        <div id="recommendations-list" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
-    </div>
+        <div id="recommendations-area" class="recommendations-glass">
+            <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-muted);">Common topics:</h4>
+            <div id="recommendations-list" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+        </div>
 
-    <div class="chat-messages">
+        <div class="chat-messages" id="chat-messages-container">
+            <!-- Messages go here -->
+        </div>
+
+        <form id="chat-form" method="POST" style="margin-top: 20px; display: flex; gap: 10px;">
+            {% csrf_token %}
+            <input type="text" id="user-message" name="user_message" placeholder="Type your answer..."
+                autocomplete="off" required style="flex-grow:1;">
+            <button type="submit" style="margin-top:0; padding: 14px 25px;">Send</button>
+        </form>
     </div>
-    <form id="chat-form" method="POST" style="display: none; margin-top: 20px;">
-        {% csrf_token %}
-        <input type="text" name="user_message" placeholder="Type your answer here..." autocomplete="off" required>
-        <button type="submit">Send</button>
-    </form>
 
 </div>
 
 <script>
-    // Simple script to handle the response and show recommendations
-    document.getElementById('company-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const companyName = formData.get('company_name');
+    let currentMode = '';
 
-        // Show loading or something...
+    function selectMode(mode, cardElement) {
+        currentMode = mode;
+        document.getElementById('selected_mode').value = mode;
+
+        // Visual selection
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        cardElement.classList.add('selected');
+
+        // Enable button if company is filled (simple check, or check on click)
+        checkReady();
+    }
+
+    document.getElementById('company_input').addEventListener('input', checkReady);
+
+    function checkReady() {
+        const company = document.getElementById('company_input').value.trim();
+        const btn = document.getElementById('start-btn');
+
+        if (company && currentMode) {
+            btn.classList.add('active');
+            btn.innerText = currentMode === 'text' ? 'Start Text Session' : 'Start Voice Session';
+        } else {
+            btn.classList.remove('active');
+            btn.innerText = 'Start Preparation';
+        }
+    }
+
+    function startSession() {
+        const company = document.getElementById('company_input').value.trim();
+        if (!company || !currentMode) return;
+
+        if (currentMode === 'voice') {
+            // Redirect for Voice Mode
+            const voiceUrl = "{{ voice_interview_url|escapejs }}";
+            if (voiceUrl && voiceUrl !== '#' && voiceUrl !== 'None') {
+                window.location.href = voiceUrl;
+            } else {
+                alert("Voice interview configuration is missing. Please contact support.");
+            }
+            return;
+        }
+
+        // Text Mode Logic
+        initiateTextSession(company);
+    }
+
+    function initiateTextSession(companyName) {
+        const btn = document.getElementById('start-btn');
+        btn.innerText = 'Initializing...';
+        btn.style.opacity = '0.7';
+
+        const formData = new FormData();
+        formData.append('company_name', companyName);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
         fetch('', {
             method: 'POST',
@@ -52,32 +335,108 @@
             .then(data => {
                 if (data.error) {
                     alert(data.error);
+                    btn.innerText = 'Start Text Session';
+                    btn.style.opacity = '1';
                     return;
                 }
 
-                // Show chat form
-                document.getElementById('chat-form').style.display = 'block';
-                document.querySelector('.chat-messages').innerHTML = '<div class="message bot">Session started for ' + companyName + '. How can I help?</div>';
+                // Switch Views
+                document.getElementById('setup-view').style.display = 'none';
+                document.getElementById('chat-view').style.display = 'block';
+                document.getElementById('chat-session-title').innerText = 'Interview @ ' + companyName;
 
-                // Show recommendations
+                // Add Initial Bot Message
+                const messagesDiv = document.getElementById('chat-messages-container');
+                messagesDiv.innerHTML = `
+                <div class="message ai-message">
+                    <strong>AI Recruiter:</strong><br>
+                    Hello! I see you're preparing for ${companyName}. I've reviewed your resume and I'm ready to help you prepare. Let's start with a simple question: tell me about yourself?
+                </div>
+            `;
+
+                // Show recommendations if any
                 if (data.recommendations && data.recommendations.length > 0) {
                     const recArea = document.getElementById('recommendations-area');
                     const recList = document.getElementById('recommendations-list');
-                    document.getElementById('target-company-name').innerText = companyName;
                     recList.innerHTML = '';
 
                     data.recommendations.forEach(rec => {
                         const badge = document.createElement('span');
-                        badge.className = 'badge bg-secondary';
-                        badge.style.padding = '5px 10px';
+                        badge.className = 'tag';
+                        badge.style.padding = '5px 12px';
                         badge.style.borderRadius = '15px';
+                        badge.style.fontSize = '0.85rem';
                         badge.innerText = rec;
                         recList.appendChild(badge);
                     });
                     recArea.style.display = 'block';
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+                btn.innerText = 'Start Text Session';
+                btn.style.opacity = '1';
+            });
+    }
+
+    // Handle Chat Messages
+    document.getElementById('chat-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const input = document.getElementById('user-message');
+        const message = input.value.trim();
+        if (!message) return;
+
+        // Add User Message
+        const messagesDiv = document.getElementById('chat-messages-container');
+        messagesDiv.innerHTML += `<div class="message user-message">${message}</div>`;
+        input.value = '';
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        // Send to backend
+        const formData = new FormData();
+        formData.append('user_message', message);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        // Show typing indicator?
+        // For now just wait
+
+        fetch('chat/', { // Using relative path to the chat endpoint
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                let reply = "I'm having trouble connecting right now.";
+                if (data.reply) { // Assuming backend returns { reply: "..." } or similar
+                    reply = data.reply;
+                } else if (data.content) { // N8N structure might differ
+                    reply = data.content;
+                } else if (data.output) {
+                    reply = data.output;
+                } else {
+                    // formatting the whole json if structure is unknown, relying on views.py logic usually
+                    // looking at views.py, it returns response.json() from N8N.
+                    // N8N usually returns JSON. Let's start robust.
+                    reply = data.text || data.reply || data.message || JSON.stringify(data);
+                }
+
+                // Clean up if it's a "parts" object from gemini
+                if (data.content && data.content.parts) {
+                    reply = data.content.parts[0].text;
+                }
+
+                messagesDiv.innerHTML += `
+                <div class="message ai-message">
+                    <strong>AI Recruiter:</strong><br>
+                    ${reply}
+                </div>
+            `;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            })
+            .catch(err => {
+                messagesDiv.innerHTML += `<div class="message system-message">Error connecting to AI.</div>`;
+            });
     });
 </script>
 {% endblock %}
