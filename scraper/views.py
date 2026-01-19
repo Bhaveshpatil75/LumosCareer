@@ -27,6 +27,7 @@ def calculate_similarity_score(resume_text, job_description):
     return round(similarity_score, 2), matching_keywords[:10], missing_keywords[:10]
 
 @login_required
+@login_required
 def matcher_view(request):
     if request.method == 'POST':
         # 1. Retrieve Resume from User Profile
@@ -137,9 +138,6 @@ def matcher_view(request):
 
             except (json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
                 report_text = f"Error: Could not parse the AI's response. {e}."
-                            
-            except (json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
-                report_text = f"Error: Could not parse the AI's response. {e}."
             
             context = {
                 'report_content': report_text,
@@ -157,7 +155,10 @@ def matcher_view(request):
             return HttpResponseServerError(error_message)
 
     else:
-        return render(request, 'core/index.html')
+        return render(request, 'pathfinder/matcher.html')
+
+def landing_page_view(request):
+    return render(request, 'core/index.html')
     
 def signup_view(request):
     if request.method == 'POST':

@@ -22,7 +22,8 @@ from . import views
 urlpatterns = [
     # When a user visits the root URL (''), it will show the form.
     # When they submit the form to '/match/', it will also be handled by this view.
-    path('', views.matcher_view, name='home'),
+    path('', views.landing_page_view, name='home'),
+    path('analyzer/', views.matcher_view, name='matcher'),
     path('match/', views.matcher_view, name='match_submit'),
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),

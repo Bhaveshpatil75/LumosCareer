@@ -1,88 +1,133 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="hero-section">
-    <div class="main-container">
-
-        <div class="info-column">
-            <h1>Welcome to<br><span class="brand-highlight">Lumos Career</span></h1>
-            <p>Your AI-powered co-pilot for navigating the complexities of the job market. Analyze your profile against
-                real
-                company insights to find a workplace where you'll not just fit, but thrive.</p>
+<div class="homepage-container">
+    <!-- Hero Section -->
+    <section class="hero-section" style="text-align: center; padding: 60px 20px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 20px;">Unlock Your <span class="brand-highlight">True
+                Potential</span></h1>
+        <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto; line-height: 1.6; color: var(--text-muted);">
+            Lumos Career is your AI-powered career co-pilot. From discovering your personality type to acing the
+            interview,
+            we provide the tools you need to navigate the modern job market with confidence.
+        </p>
+        <div style="margin-top: 40px;">
+            <a href="{% url 'pathfinder' %}" class="btn-primary"
+                style="padding: 15px 30px; font-size: 1.1rem; border-radius: 30px; text-decoration: none; display: inline-block;">Start
+                Your Journey</a>
         </div>
+    </section>
 
-        <div class="form-column">
-            <h2>Generate Your Report</h2>
-            <form action="{% url 'match_submit' %}" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
+    <!-- Brand Meaning Section -->
+    <section class="brand-meaning-section"
+        style="text-align: center; padding: 40px 20px; max-width: 900px; margin: 0 auto;">
+        <div style="font-size: 3rem; margin-bottom: 10px;">✨ <i>Lumos!</i></div>
+        <h2 style="font-size: 2rem; margin-bottom: 20px;">Illuminating Your Path</h2>
+        <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-muted);">
+            In the wizarding world, <strong>"Lumos"</strong> is the spell that lights up the wand, casting away darkness
+            to reveal the path ahead.
+            At <span class="brand-highlight">Lumos Career</span>, we believe your professional journey shouldn't be a
+            shot in the dark.
+            We are here to <strong>shed light</strong> on your true potential, illuminating opportunities and guiding
+            you through the obscurity of the modern job market with clarity and precision.
+        </p>
+    </section>
 
-                <div class="resume-status" style="margin-bottom: 20px; text-align: center;">
-                    <p style="margin-bottom: 10px;">Using resume from your <strong>Profile</strong>.</p>
-                    <a href="{% url 'edit_profile' %}"
-                        style="font-size: 0.9em; text-decoration: underline; color: var(--primary-color);">Change Resume
-                        in Profile</a>
-                </div>
+    <!-- Quote Section -->
+    <section class="quote-section"
+        style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.02); margin: 40px 0;">
+        <blockquote style="font-size: 1.5rem; font-style: italic; color: var(--primary-color);">
+            "Smart work is not about shortcuts, but about leverage."
+        </blockquote>
+        <p style="margin-top: 10px; color: var(--text-muted);">- Anonymous</p>
+    </section>
 
-                <label for="jd">Job Description (Optional but Recommended):</label>
-                <textarea id="jd" name="job_description"
-                    placeholder="Paste the Job Description or Company 'About Us' text here for a mathematical match score..."
-                    style="height: 100px;"></textarea>
+    <!-- Features Grid -->
+    <section class="features-overview" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+        <h2 style="text-align: center; margin-bottom: 50px; font-size: 2.5rem;">Our <span
+                class="brand-highlight">Ecosystem</span></h2>
 
-                <label for="company">Company Name:</label>
-                <input type="text" id="company" name="company_name" required
-                    placeholder="e.g., Google, Microsoft, etc.">
+        <div class="features-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
 
-                <button type="submit">Find My Match</button>
-            </form>
+            <!-- Personality Test -->
+            <div class="feature-card" style="text-align: center;">
+                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🧠</div>
+                <h3>Personality Archetype</h3>
+                <p>Understand your core traits using our MBTI-inspired assessment. Know yourself before you sell
+                    yourself.</p>
+                <a href="{% url 'personality_test' %}" class="btn-small">Take the Test →</a>
+            </div>
+
+            <!-- Pathfinder -->
+            <div class="feature-card" style="text-align: center;">
+                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🗺️</div>
+                <h3>Career Pathfinder</h3>
+                <p>Generate a personalized career roadmap based on your personality and skills. Visualize your future.
+                </p>
+                <a href="{% url 'pathfinder' %}" class="btn-small">Explore Paths →</a>
+            </div>
+
+            <!-- Match Analyzer -->
+            <div class="feature-card" style="text-align: center;">
+                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">📊</div>
+                <h3>Match Analyzer</h3>
+                <p>Beat the ATS. Compare your resume against potential employers and get a compatibility score.</p>
+                <a href="{% url 'matcher' %}" class="btn-small">Analyze Match →</a>
+            </div>
+
+            <!-- Interview Prep -->
+            <div class="feature-card" style="text-align: center;">
+                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🎙️</div>
+                <h3>Interview Co-Pilot</h3>
+                <p>Practice with AI-driven text or voice interviews tailored to specific job descriptions.</p>
+                <a href="{% url 'interview_prep' %}" class="btn-small">Start Practicing →</a>
+            </div>
+
         </div>
+    </section>
 
-    </div>
+    <!-- Profile System Promo -->
+    <section class="profile-promo"
+        style="background: #181818; padding: 60px 40px; border-radius: 16px; margin: 60px auto; max-width: 1000px; text-align: center; border: 1px solid var(--border-color);">
+        <h2 style="margin-bottom: 20px;">Your Central Hub</h2>
+        <p
+            style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto;">
+            Track your progress with our detailed Profile System. Save your career paths, keep a library of analyzed
+            companies, and review your interview history all in one place.
+        </p>
+        <a href="{% url 'profile' %}" class="btn-outline"
+            style="border: 1px solid var(--primary-color); padding: 10px 25px; border-radius: 20px; color: var(--primary-color); text-decoration: none; transition: all 0.3s;">
+            Go to Profile
+        </a>
+    </section>
+
 </div>
 
-<section class="features-section">
-    <div class="section-container">
-        <h2 class="section-title">Why use <span class="brand-highlight">Lumos?</span></h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>ATS Analysis</h3>
-                <p>Get a mathematical match score for your resume against any job description to beat the bots.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🧠</div>
-                <h3>Personality Match</h3>
-                <p>Discover if a company's culture aligns with your work style and values before you apply.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🗺️</div>
-                <h3>Career Roadmap</h3>
-                <p>Get a step-by-step verified roadmap to bridge the gap between where you are and where you want to be.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+<style>
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white !important;
+    }
 
-<section class="how-it-works-section">
-    <div class="section-container">
-        <h2 class="section-title">How It Works</h2>
-        <div class="steps-container">
-            <div class="step-item">
-                <div class="step-number">1</div>
-                <h3>Paste Your Data</h3>
-                <p>Input your resume and the target job description or company name.</p>
-            </div>
-            <div class="step-item">
-                <div class="step-number">2</div>
-                <h3>AI Analysis</h3>
-                <p>Our engine scrapes real-time data and cross-references it with your profile.</p>
-            </div>
-            <div class="step-item">
-                <div class="step-number">3</div>
-                <h3>Get Insights</h3>
-                <p>Receive a comprehensive report with match scores, keywords, and a tailored roadmap.</p>
-            </div>
-        </div>
-    </div>
-</section>
+    .btn-primary:hover {
+        background-color: var(--primary-hover) !important;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline:hover {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+    }
+
+    .feature-card {
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-color);
+    }
+</style>
 {% endblock %}
