@@ -976,60 +976,7 @@ a:hover {
     line-height: 1.5;
 }
 
-/* Footer */
-.site-footer {
-    width: 100%;
-    background-color: #0d0d0d;
-    border-top: 1px solid var(--border-color);
-    padding: 60px 0 20px;
-    margin-top: auto;
-}
 
-.footer-content {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 30px;
-}
-
-.footer-brand h3 {
-    color: var(--text-main);
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-}
-
-.footer-brand p {
-    color: var(--text-muted);
-}
-
-.footer-links {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-links a {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.footer-bottom {
-    text-align: center;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    color: #555;
-    font-size: 0.85rem;
-}
 
 /* --- Profile System Styles --- */
 
