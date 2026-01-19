@@ -6,9 +6,17 @@
 <div class="pathfinder-container">
     <div class="result-header">
         <h1>Your <span class="brand-highlight">Career Path</span></h1>
-        <div class="personality-badge">
-            <span class="badge-label">Personality Type</span>
-            <span class="badge-value">{{ result_data.personality_type }}</span>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="personality-badge">
+                <span class="badge-label">Personality Type</span>
+                <span class="badge-value">{{ result_data.personality_type }}</span>
+            </div>
+            {% if not is_saved_path %}
+            <button id="savePathBtn" onclick="saveCareerPath()" class="btn-primary"
+                style="padding: 10px 20px; font-size: 0.9rem; border-radius: 50px;">
+                + Follow Path
+            </button>
+            {% endif %}
         </div>
     </div>
 
@@ -226,4 +234,37 @@
         }
     }
 </style>
+
+<script>
+    function saveCareerPath() {
+        const btn = document.getElementById('savePathBtn');
+        btn.disabled = true;
+        btn.innerText = 'Saving...';
+
+        fetch('{% url "save_career_path" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({}) // Backend pulls from current session's assessment
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.innerText = 'Following ✓';
+                    btn.classList.add('btn-success');
+                } else {
+                    btn.innerText = 'Error';
+                    btn.disabled = false;
+                    alert(data.error || 'Failed to save path');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerText = 'Error';
+                btn.disabled = false;
+            });
+    }
+</script>
 {% endblock %}

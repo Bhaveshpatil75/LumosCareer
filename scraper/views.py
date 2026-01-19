@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseServerError
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .models import AssessmentResult, Company, AssessmentQuestion, UserProfile, CareerQuestion
+from .models import AssessmentResult, Company, AssessmentQuestion, UserProfile, CareerQuestion, CareerPath, SavedCompany, InterviewSession
 import requests
 import os
 import dotenv
@@ -189,6 +189,17 @@ def logout_view(request):
 def interview_prep_view(request):
     if request.method == 'POST':
         company_name = request.POST.get('company_name', '')
+        interview_type = request.POST.get('interview_type', 'text') # Default to text if not specified
+        job_description = request.POST.get('job_description', '')
+        
+        # Save Interview Session
+        if request.user.is_authenticated:
+            InterviewSession.objects.create(
+                user=request.user,
+                company_name=company_name,
+                interview_type=interview_type,
+                job_description=job_description
+            )
         
         # Get Resume
         resume_text = ""
@@ -441,7 +452,10 @@ def profile_view(request):
 
     context = {
         'profile': profile,
-        'assessment': assessment
+        'assessment': assessment,
+        'career_paths': CareerPath.objects.filter(user=request.user).order_by('-created_at'),
+        'saved_companies': SavedCompany.objects.filter(user=request.user).order_by('-date_saved'),
+        'interviews': InterviewSession.objects.filter(user=request.user).order_by('-date_logged'),
     }
     return render(request, 'auth/profile.html', context)
 
@@ -481,3 +495,124 @@ def edit_profile_view(request):
         'profile': profile
     }
     return render(request, 'auth/edit_profile.html', context)
+
+
+@login_required
+def save_career_path(request):
+    if request.method == 'POST':
+        try:
+            assessment = AssessmentResult.objects.get(user=request.user)
+            report = assessment.detailed_report
+            if not report:
+                 return JsonResponse({'error': 'No assessment result found to save.'}, status=400)
+            
+            # Extract relevant info from report
+            # Assuming report structure, adjust as needed based on n8n output
+            title = report.get('career_path_title', 'My Career Path') 
+            if isinstance(report, dict) and 'title' in report:
+                title = report['title']
+            elif isinstance(report, dict) and 'career' in report:
+                title = report['career']
+
+            CareerPath.objects.create(
+                user=request.user,
+                title=title,
+                description=report.get('summary', 'Generated Career Path'),
+                roadmap_data=report, # Save the whole report as the roadmap data
+                progress=0,
+                status='Active'
+            )
+            return JsonResponse({'success': True, 'message': 'Career path saved successfully!'})
+        except AssessmentResult.DoesNotExist:
+            return JsonResponse({'error': 'No assessment result found.'}, status=404)
+    return JsonResponse({'error': 'Invalid request method.'}, status=405)
+
+@login_required
+def update_career_path(request, path_id):
+    if request.method == 'POST':
+        try:
+            career_path = CareerPath.objects.get(id=path_id, user=request.user)
+            # Update progress or status
+            import json
+            data = json.loads(request.body)
+            if 'progress' in data:
+                career_path.progress = int(data['progress'])
+            if 'status' in data:
+                career_path.status = data['status']
+            career_path.save()
+            return JsonResponse({'success': True})
+        except CareerPath.DoesNotExist:
+            return JsonResponse({'error': 'Path not found'}, status=404)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@login_required
+def save_company(request):
+    if request.method == 'POST':
+        company_name = request.POST.get('company_name')
+        report_content = request.POST.get('report_content')
+        compatibility_score = request.POST.get('compatibility_score')
+
+        if not company_name:
+            return JsonResponse({'error': 'Company name missing'}, status=400)
+        
+        try:
+            score = float(compatibility_score) if compatibility_score else None
+        except ValueError:
+            score = None
+
+        SavedCompany.objects.create(
+            user=request.user,
+            company_name=company_name,
+            compatibility_score=score,
+            analysis_report={'content': report_content} # Wrap in JSON
+        )
+        return JsonResponse({'success': True, 'message': 'Company saved to profile!'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@login_required
+def save_interview_session(request):
+    # This might be redundant if we save in interview_prep_view, 
+    # but useful if we want a dedicated endpoint for just logging manually
+    if request.method == 'POST':
+        company_name = request.POST.get('company_name')
+        interview_type = request.POST.get('interview_type', 'text')
+        
+        InterviewSession.objects.create(
+            user=request.user,
+            company_name=company_name,
+            interview_type=interview_type,
+            notes=request.POST.get('notes', ''),
+            job_description=request.POST.get('job_description', '')
+        )
+        return redirect('profile')
+    return redirect('profile')
+
+@login_required
+def delete_item(request, item_type, item_id):
+    if request.method == 'POST':
+        try:
+            if item_type == 'path':
+                CareerPath.objects.filter(id=item_id, user=request.user).delete()
+            elif item_type == 'company':
+                SavedCompany.objects.filter(id=item_id, user=request.user).delete()
+            elif item_type == 'interview':
+                InterviewSession.objects.filter(id=item_id, user=request.user).delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@login_required
+def view_career_path(request, path_id):
+    try:
+        career_path = CareerPath.objects.get(id=path_id, user=request.user)
+        # We reuse result.html but assume it acts on 'result_data'
+        # We might need to hide the 'Follow Path' button since it's already followed
+        # Or change it to 'Unfollow' or just hide it.
+        context = {
+            'result_data': career_path.roadmap_data,
+            'is_saved_path': True # flag to hide 'Follow' button
+        }
+        return render(request, 'pathfinder/result.html', context)
+    except CareerPath.DoesNotExist:
+        return redirect('profile')

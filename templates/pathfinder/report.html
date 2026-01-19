@@ -62,10 +62,64 @@
         {{ report_content | safe | linebreaks }}
     </div>
 
-    <a href="{% url 'home' %}"
-        style="display: inline-block; margin-top: 30px; padding: 12px 20px; background-color: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Run
-        a New Report</a>
+    <div style="margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="{% url 'home' %}"
+            style="padding: 12px 20px; background-color: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); text-decoration: none; border-radius: 8px; font-weight: 600;">
+            Run a New Report
+        </a>
+
+        <button id="saveCompanyBtn" onclick="saveCompanyToProfile()"
+            style="padding: 12px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            Save to Profile
+        </button>
+    </div>
 </div>
+
+<script>
+    function saveCompanyToProfile() {
+        const btn = document.getElementById('saveCompanyBtn');
+        const companyName = "{{ company_name|escapejs }}";
+        const score = "{{ similarity_score|default:'' }}";
+        // Get content from the rendered block if trying to save full report, 
+        // OR rely on what was in context. 
+        // Here we will try to grab the raw content if possible or just what is rendered.
+        // A better approach is to send what we have.
+        // Since 'report_content' variable might be huge and contain HTML, we can try to send it.
+        const reportContent = `{{ report_content|escapejs }}`;
+
+        btn.disabled = true;
+        btn.innerText = 'Saving...';
+
+        const formData = new FormData();
+        formData.append('company_name', companyName);
+        formData.append('compatibility_score', score);
+        formData.append('report_content', reportContent);
+
+        fetch('{% url "save_company" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.innerText = 'Saved ✓';
+                    btn.style.backgroundColor = '#4CAF50';
+                } else {
+                    btn.innerText = 'Save to Profile';
+                    btn.disabled = false;
+                    alert(data.error || 'Failed to save');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerText = 'Error';
+                btn.disabled = false;
+            });
+    }
+</script>
 {% endblock %}
 
 {% block scripts %}

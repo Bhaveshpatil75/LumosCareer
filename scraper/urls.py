@@ -36,5 +36,11 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('profile/edit/', views.edit_profile_view, name='edit_profile'),
 
-
+    # New Features
+    path('profile/save-path/', views.save_career_path, name='save_career_path'),
+    path('profile/path/<int:path_id>/', views.view_career_path, name='view_career_path'),
+    path('profile/update-path/<int:path_id>/', views.update_career_path, name='update_career_path'),
+    path('profile/save-company/', views.save_company, name='save_company'),
+    path('profile/save-interview/', views.save_interview_session, name='save_interview'),
+    path('profile/delete/<str:item_type>/<int:item_id>/', views.delete_item, name='delete_item'),
 ]

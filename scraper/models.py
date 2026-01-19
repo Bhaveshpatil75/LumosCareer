@@ -85,3 +85,44 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+class CareerPath(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='career_paths')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    roadmap_data = models.JSONField(help_text="JSON structure of the roadmap steps")
+    progress = models.IntegerField(default=0, help_text="Percentage completion")
+    status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Completed', 'Completed'), ('Paused', 'Paused')], default='Active')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
+
+class SavedCompany(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saved_companies')
+    company_name = models.CharField(max_length=200)
+    compatibility_score = models.FloatField(null=True, blank=True)
+    analysis_report = models.JSONField(null=True, blank=True)
+    date_saved = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Saved Companies"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.company_name}"
+
+class InterviewSession(models.Model):
+    INTERVIEW_TYPES = [
+        ('text', 'Text Based'),
+        ('voice', 'Voice Based'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interviews')
+    company_name = models.CharField(max_length=200)
+    interview_type = models.CharField(max_length=10, choices=INTERVIEW_TYPES)
+    date_logged = models.DateTimeField(auto_now_add=True)
+    job_description = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.company_name} ({self.interview_type})"
