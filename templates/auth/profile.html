@@ -50,10 +50,9 @@
                 <h2>Resume</h2>
                 {% if profile.resume_file %}
                 <div class="resume-file-preview">
-                    <a href="{{ profile.resume_file.url }}" target="_blank" class="resume-file-link"
-                        style="display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
-                        <span class="file-icon" style="font-size: 24px;">📄</span>
-                        <span class="file-name" style="font-weight: 500; color: var(--text-color);">Resume</span>
+                    <a href="{{ profile.resume_file.url }}" target="_blank" class="resume-file-link">
+                        <span class="file-icon">📄</span>
+                        <span class="file-name">Resume</span>
                     </a>
                 </div>
                 {% elif profile.resume_text %}
@@ -402,6 +401,29 @@
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    .resume-file-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+    }
+
+    .resume-file-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .file-icon {
+        font-size: 24px;
+    }
+
+    .file-name {
+        font-weight: 500;
+        color: var(--text-color);
     }
 </style>
 

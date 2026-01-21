@@ -317,6 +317,13 @@ def personality_view(request):
 
 
 @login_required
+def pathfinder_hub(request):
+    """
+    Hub page to choose between Custom Path and Library.
+    """
+    return render(request, 'pathfinder/landing.html')
+
+@login_required
 def pathfinder_view(request):
     """
     Handles the Career Specific Quiz.
@@ -676,16 +683,32 @@ def delete_item(request, item_type, item_id):
     return JsonResponse({'error': 'Invalid method'}, status=405)
 
 @login_required
+def career_library_view(request):
+    predefined_paths = CareerPath.objects.filter(is_predefined=True).order_by('title')
+    return render(request, 'pathfinder/library.html', {'predefined_paths': predefined_paths})
+
+@login_required
 def view_career_path(request, path_id):
     try:
+        # Try finding a user path first
         career_path = CareerPath.objects.get(id=path_id, user=request.user)
-        # We reuse result.html but assume it acts on 'result_data'
-        # We might need to hide the 'Follow Path' button since it's already followed
-        # Or change it to 'Unfollow' or just hide it.
-        context = {
-            'result_data': career_path.roadmap_data,
-            'is_saved_path': True # flag to hide 'Follow' button
-        }
-        return render(request, 'pathfinder/result.html', context)
+        is_owner = True
     except CareerPath.DoesNotExist:
-        return redirect('profile')
+        try:
+            # Then try finding a predefined path
+            career_path = CareerPath.objects.get(id=path_id, is_predefined=True)
+            is_owner = False
+        except CareerPath.DoesNotExist:
+            return redirect('profile')
+
+    context = {
+        'path': career_path,
+        'result_data': career_path.roadmap_data, # For backward compatibility with result.html if used
+        'is_saved_path': is_owner
+    }
+    
+    # Render the specific detail view for standard paths
+    if career_path.is_predefined:
+        return render(request, 'pathfinder/view_career_path.html', context)
+        
+    return render(request, 'pathfinder/result.html', context)

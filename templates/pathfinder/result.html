@@ -51,7 +51,8 @@
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
                         <span>{{ detail.skill }}</span>
                         <span
-                            style="color: {% if detail.impact == 'High' %}var(--color-success){% else %}var(--color-warning){% endif %}; font-weight: bold;">
+                            class="{% if detail.impact == 'High' %}text-high-impact{% else %}text-medium-impact{% endif %}"
+                            style="font-weight: bold;">
                             {{ detail.lift }}x Lift
                         </span>
                     </div>
@@ -116,6 +117,14 @@
 </div>
 
 <style>
+    .text-high-impact {
+        color: var(--color-success);
+    }
+
+    .text-medium-impact {
+        color: var(--color-warning);
+    }
+
     .pathfinder-container {
         max-width: 900px;
         margin: 0 auto;

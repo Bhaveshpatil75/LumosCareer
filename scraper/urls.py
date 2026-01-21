@@ -30,7 +30,8 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('interview/', views.interview_prep_view, name='interview_prep'),
     path('interview/chat/', views.interview_chat_view, name='interview_chat'),
-    path('pathfinder/', views.pathfinder_view, name='pathfinder'),
+    path('pathfinder/', views.pathfinder_hub, name='pathfinder'), # Landing Hub
+    path('pathfinder/custom/', views.pathfinder_view, name='pathfinder_quiz'), # The Quiz
     path('personality-test/', views.personality_view, name='personality_test'),
     path('pathfinder/step/<int:step_index>/', views.path_node_detail_view, name='path_node_detail'),
     path('roadmap/', views.roadmap_view, name='roadmap'),
@@ -44,4 +45,5 @@ urlpatterns = [
     path('profile/save-company/', views.save_company, name='save_company'),
     path('profile/save-interview/', views.save_interview_session, name='save_interview'),
     path('profile/delete/<str:item_type>/<int:item_id>/', views.delete_item, name='delete_item'),
+    path('career-library/', views.career_library_view, name='career_library'),
 ]

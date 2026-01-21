@@ -1,0 +1,130 @@
+{% extends 'base.html' %} 
+{% load static %} 
+
+{% block title %}Start Your Journey | Lumos Career{% endblock %} 
+
+{% block content %}
+<div class="landing-container">
+    <div class="landing-header text-center mb-5">
+        <h1 class="hero-title">Choose Your <span class="brand-highlight">Path</span></h1>
+        <p class="hero-subtitle">
+            Two ways to reach your goals. Both led by intelligence.
+        </p>
+    </div>
+
+    <div class="choice-grid">
+        <!-- Option 1: Expert Library -->
+        <a href="{% url 'career_library' %}" class="choice-card glass-card">
+            <div class="card-icon">📚</div>
+            <div class="card-content">
+                <h2>Browse Library</h2>
+                <p>Explore curated roadmaps designed by industry experts. Instant access to proven paths like Full Stack, Data Science, and more.</p>
+                <span class="btn-link">View Paths →</span>
+            </div>
+        </a>
+
+        <!-- Option 2: Custom AI -->
+        <a href="{% url 'pathfinder_quiz' %}" class="choice-card glass-card glowing-border">
+            <div class="card-icon">🤖</div>
+            <div class="card-content">
+                <h2>AI Pathfinder</h2>
+                <p>Generate a 100% custom roadmap tailored to your unique personality, background, and specific career goals.</p>
+                <span class="btn-link">Create Custom Path →</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .landing-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 60px 20px;
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: var(--text-muted);
+    }
+
+    .choice-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-top: 40px;
+    }
+
+    .choice-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 50px 30px;
+        text-decoration: none;
+        color: var(--text-main);
+        transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .choice-card:hover {
+        transform: translateY(-8px);
+        background: rgba(30, 30, 30, 0.8);
+    }
+
+    .choice-card .card-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .choice-card h2 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: #fff;
+    }
+
+    .choice-card p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    .btn-link {
+        font-weight: 600;
+        color: var(--color-primary);
+        font-size: 1.1rem;
+    }
+
+    /* Glass Card Styles Reuse */
+    .glass-card {
+        background: rgba(30, 30, 30, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+    }
+
+    /* Glowing Border for AI Option */
+    .glowing-border {
+        border-color: rgba(var(--color-primary-rgb), 0.5);
+        box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.1);
+    }
+
+    .glowing-border:hover {
+        box-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .choice-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

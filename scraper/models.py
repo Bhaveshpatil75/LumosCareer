@@ -87,17 +87,20 @@ class UserProfile(models.Model):
         return f"{self.user.username}'s Profile"
 
 class CareerPath(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='career_paths')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='career_paths', null=True, blank=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     roadmap_data = models.JSONField(help_text="JSON structure of the roadmap steps")
     progress = models.IntegerField(default=0, help_text="Percentage completion")
     status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Completed', 'Completed'), ('Paused', 'Paused')], default='Active')
+    is_predefined = models.BooleanField(default=False, help_text="If True, this is a system-defined path for all users.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.title}"
+        if self.is_predefined:
+            return f"[PREDEFINED] {self.title}"
+        return f"{self.user.username if self.user else 'Anon'} - {self.title}"
 
 class SavedCompany(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saved_companies')

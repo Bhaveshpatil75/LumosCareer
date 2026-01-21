@@ -145,4 +145,67 @@ class Command(BaseCommand):
                 )
                 self.stdout.write(f"Added Signal for {skill_name}")
 
-        self.stdout.write(self.style.SUCCESS('Successfully seeded database with algorithmic data'))
+        # 5. Seed Predefined Career Paths
+        from scraper.models import CareerPath
+        
+        # Clear existing predefined paths
+        CareerPath.objects.filter(is_predefined=True).delete()
+
+        predefined_paths = [
+            {
+                "title": "Full Stack Python Developer",
+                "description": "Master the art of building complete web applications using Python, Django, and modern frontend technologies like React.",
+                "roadmap_data": {
+                    "steps": [
+                        {"name": "HTML/CSS", "status": "completed", "description": "Learn the building blocks of the web."},
+                        {"name": "Python", "status": "completed", "description": "Master Python fundamentals."},
+                        {"name": "Django", "status": "in-progress", "description": "Build robust backends with Django."},
+                        {"name": "SQL", "status": "in-progress", "description": "Manage databases effectively."},
+                        {"name": "JavaScript", "status": "locked", "description": "Add interactivity to your sites."},
+                        {"name": "React", "status": "locked", "description": "Build modern, dynamic user interfaces."}
+                    ]
+                },
+                "progress": 30
+            },
+            {
+                "title": "AI & Data Scientist",
+                "description": "Dive deep into data analysis, machine learning, and artificial intelligence with Python's powerful ecosystem.",
+                "roadmap_data": {
+                    "steps": [
+                        {"name": "Python", "status": "completed", "description": "Master Python for data science."},
+                        {"name": "Pandas", "status": "in-progress", "description": "Manipulate and analyze data structures."},
+                        {"name": "SQL", "status": "in-progress", "description": "Query large datasets."},
+                        {"name": "Scikit-Learn", "status": "locked", "description": "Implement machine learning algorithms."},
+                        {"name": "TensorFlow", "status": "locked", "description": "Build and deploy neural networks."}
+                    ]
+                },
+                "progress": 20
+            },
+            {
+                "title": "DevOps Engineer",
+                "description": "Bridge the gap between development and operations. Learn to deploy, scale, and manage infrastructure.",
+                "roadmap_data": {
+                    "steps": [
+                        {"name": "Linux", "status": "completed", "description": "Master the command line."},
+                        {"name": "Git", "status": "completed", "description": "Version control your code."},
+                        {"name": "Docker", "status": "in-progress", "description": "Containerize applications."},
+                        {"name": "AWS", "status": "locked", "description": "Manage cloud infrastructure."},
+                        {"name": "Kubernetes", "status": "locked", "description": "Orchestrate container deployments."}
+                    ]
+                },
+                "progress": 15
+            }
+        ]
+
+        for path in predefined_paths:
+            CareerPath.objects.create(
+                title=path["title"],
+                description=path["description"],
+                roadmap_data=path["roadmap_data"],
+                progress=path["progress"],
+                is_predefined=True,
+                status="Active"
+            )
+            self.stdout.write(f"Created Predefined Path: {path['title']}")
+
+        self.stdout.write(self.style.SUCCESS('Successfully seeded database with algorithmic data and predefined paths'))

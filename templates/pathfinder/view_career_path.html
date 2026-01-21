@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ path.title }} | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="result-container path-view-wrapper">
+    <!-- Header -->
+    <div class="path-header glass-card">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <a href="{% url 'career_library' %}" class="back-link">
+                    ← Back to Library
+                </a>
+                <h1 class="path-title">{{ path.title }}</h1>
+                <p class="path-description">
+                    {{ path.description }}
+                </p>
+            </div>
+
+            <div class="text-end">
+                <div class="progress-circle dynamic-gradient" data-progress="{{ path.progress }}">
+                    <div class="inner-circle">
+                        {{ path.progress }}%
+                    </div>
+                </div>
+                <span class="progress-label">Completion</span>
+            </div>
+        </div>
+
+        <div class="action-buttons mt-4 d-flex gap-3">
+            <button onclick="savePath('{{ path.id }}')" class="btn-primary start-btn">
+                Start this Path
+            </button>
+            <button class="btn-secondary share-btn">
+                Share Journey
+            </button>
+        </div>
+    </div>
+
+    <!-- Timeline/Roadmap -->
+    <div class="roadmap-container">
+        <h2 class="journey-header">Your Journey Map</h2>
+
+        <div class="timeline">
+            {% for step in path.roadmap_data.steps %}
+            <div class="timeline-item">
+                <!-- Connector Dot -->
+                <div class="timeline-dot status-{{ step.status }}"></div>
+
+                <div class="glass-card timeline-content">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="step-type">Step {{ forloop.counter }}</span>
+                        <span class="status-badge status-{{ step.status }}">{{ step.status }}</span>
+                    </div>
+
+                    <h3 class="step-title">{{ step.name }}</h3>
+                    <p class="step-desc">{{ step.description }}</p>
+
+                    {% if step.status != 'locked' %}
+                    <a href="#" class="btn-outline-small">View Resources →</a>
+                    {% else %}
+                    <span class="locked-msg">
+                        🔒 Complete previous steps to unlock
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .path-view-wrapper {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .glass-card {
+        background: rgba(30, 30, 30, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+    }
+
+    .path-header {
+        margin-bottom: 40px;
+        padding: 40px;
+    }
+
+    .back-link {
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 20px;
+    }
+
+    .path-title {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .path-description {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        max-width: 700px;
+        line-height: 1.6;
+    }
+
+    .progress-circle {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .inner-circle {
+        width: 70%;
+        height: 70%;
+        background: #121212;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .progress-label {
+        display: block;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .start-btn {
+        padding: 12px 30px;
+        border-radius: 30px;
+    }
+
+    .share-btn {
+        padding: 12px 30px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .journey-header {
+        margin-bottom: 30px;
+        padding-left: 20px;
+        border-left: 4px solid var(--color-primary);
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 40px;
+        border-left: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 40px;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -49px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 3px solid #121212;
+    }
+
+    .timeline-dot.status-completed {
+        background: var(--color-success);
+        box-shadow: 0 0 10px var(--color-success);
+    }
+
+    .timeline-dot.status-in-progress {
+        background: var(--color-warning);
+        box-shadow: 0 0 10px var(--color-warning);
+    }
+
+    .timeline-dot.status-locked {
+        background: var(--text-muted);
+    }
+
+    .timeline-content {
+        padding: 25px;
+        transition: transform 0.2s;
+    }
+
+    .timeline-content:hover {
+        transform: translateX(10px);
+        border-color: var(--color-primary);
+    }
+
+    .step-type {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .status-badge.status-completed {
+        color: var(--color-success);
+        background: rgba(var(--color-success-rgb), 0.1);
+    }
+
+    .status-badge.status-in-progress {
+        color: var(--color-warning);
+        background: rgba(var(--color-warning-rgb), 0.1);
+    }
+
+    .status-badge.status-locked {
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .step-title {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+        color: #fff;
+    }
+
+    .step-desc {
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .locked-msg {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-outline-small {
+        font-size: 0.9rem;
+        color: var(--color-primary);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+
+    .btn-outline-small:hover {
+        border-color: var(--color-primary);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const circles = document.querySelectorAll('.dynamic-gradient');
+        circles.forEach(circle => {
+            const progress = circle.getAttribute('data-progress');
+            circle.style.background = `conic-gradient(var(--color-primary) ${progress}%, rgba(255,255,255,0.1) 0)`;
+        });
+    });
+
+    function savePath(pathId) {
+        if (confirm("Start this career path? It will be added to your profile.")) {
+            // Placeholder for backend integration
+            alert("Path added to your profile! (Simulation)");
+        }
+    }
+</script>
+{% endblock %}
