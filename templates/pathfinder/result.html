@@ -27,6 +27,61 @@
         </p>
     </div>
 
+    <!-- Algorithmic Insights Section -->
+    {% if algorithmic_insights %}
+    <div class="glass-card profile-summary-card" style="border: 1px solid rgba(var(--color-accent-rgb), 0.3);">
+        <h3 class="card-title" style="color: var(--color-accent);">Scientific Career Analysis</h3>
+
+        <div class="row" style="display: flex; flex-wrap: wrap; gap: 20px;">
+            <!-- Bayesian Success Probability -->
+            <div style="flex: 1; min-width: 300px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h5 style="margin-bottom: 10px;">Hiring Probability</h5>
+                    <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-success); line-height: 1;">
+                        {{ algorithmic_insights.success_probability }}%
+                    </div>
+                    <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">
+                        Calculated using <strong>Bayesian Inference</strong> based on market signals for your projected
+                        skills.
+                    </p>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px;">
+                    <h6 style="font-size: 0.9rem; margin-bottom: 15px; opacity: 0.8;">Key Signal Contributors:</h6>
+                    {% for detail in algorithmic_insights.probability_details %}
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
+                        <span>{{ detail.skill }}</span>
+                        <span
+                            style="color: {% if detail.impact == 'High' %}var(--color-success){% else %}var(--color-warning){% endif %}; font-weight: bold;">
+                            {{ detail.lift }}x Lift
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Simulated Annealing Schedule -->
+            <div style="flex: 1; min-width: 300px;">
+                <h5 style="text-align: center; margin-bottom: 20px;">Optimized Study Schedule</h5>
+                <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">
+                    Generated via <strong>Simulated Annealing</strong> algorithm to minimize burnout.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                    {% for day, subject in algorithmic_insights.weekly_schedule.items %}
+                    <div
+                        style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; font-size: 0.9rem;">
+                        <div style="opacity: 0.6; font-size: 0.75rem;">{{ day }}</div>
+                        <div
+                            style="color: {% if subject == 'Rest' %}#888{% else %}var(--text-main){% endif %}; font-weight: 500;">
+                            {{ subject }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="roadmap-section">
         <h2 class="section-title">Recommended Path</h2>
         <div class="roadmap-container">

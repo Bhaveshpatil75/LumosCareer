@@ -126,3 +126,76 @@ class InterviewSession(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.company_name} ({self.interview_type})"
+
+# --- ALGORITHMIC MODELS ---
+
+class SkillNode(models.Model):
+    """
+    Represents a specific skill, role, or concept in the Knowledge Graph.
+    Used by: Dijkstra, PageRank, SimulatedAnnealing.
+    """
+    name = models.CharField(max_length=100, unique=True)
+    category = models.CharField(max_length=50, choices=[
+        ('Language', 'Language'),
+        ('Framework', 'Framework'),
+        ('Tool', 'Tool'),
+        ('Concept', 'Concept'),
+        ('Role', 'Role'),
+        ('Soft Skill', 'Soft Skill')
+    ], default='Concept')
+    description = models.TextField(blank=True)
+    
+    # Metadata for Algorithms
+    difficulty_level = models.IntegerField(default=1, help_text="1-10 Scale")
+    learning_weeks = models.IntegerField(default=1, help_text="Estimated weeks to learn")
+    
+    # PageRank Score (Cached)
+    importance_score = models.FloatField(default=0.0, help_text="Calculated Centrality Score")
+
+    def __str__(self):
+        return self.name
+
+class SkillEdge(models.Model):
+    """
+    Represents a directed connection (Prerequisite -> Target).
+    Used by: Dijkstra (Structure).
+    """
+    source = models.ForeignKey(SkillNode, on_delete=models.CASCADE, related_name='outgoing_edges')
+    target = models.ForeignKey(SkillNode, on_delete=models.CASCADE, related_name='incoming_edges')
+    
+    # Edge Weights
+    weight_time = models.IntegerField(default=1, help_text="Transition time cost")
+    weight_difficulty = models.IntegerField(default=1, help_text="Transition difficulty cost")
+    
+    class Meta:
+        unique_together = ('source', 'target')
+
+    def __str__(self):
+        return f"{self.source} -> {self.target}"
+
+class SkillSignal(models.Model):
+    """
+    Represents Market Data for a skill.
+    Used by: BayesianPredictor, Apriori (as source).
+    """
+    skill = models.OneToOneField(SkillNode, on_delete=models.CASCADE, related_name='market_signal')
+    
+    # Bayesian Probabilities (P(Skill|Success) etc)
+    # Storing as 'Lift' or raw probabilities? Let's store raw probs for flexibility.
+    success_rate = models.FloatField(default=0.5, help_text="P(Skill|Hired) - Probability appearing in hired profiles")
+    failure_rate = models.FloatField(default=0.1, help_text="P(Skill|Rejected) - Probability appearing in rejected profiles")
+    
+    # Demand Trend
+    demand_trend = models.CharField(max_length=20, choices=[
+        ('Rising', 'Rising'),
+        ('Stable', 'Stable'),
+        ('Falling', 'Falling')
+    ], default='Stable')
+
+    @property
+    def lift(self):
+        if self.failure_rate == 0: return 0
+        return round(self.success_rate / self.failure_rate, 2)
+
+    def __str__(self):
+        return f"{self.skill.name} Signal (Lift: {self.lift}x)"

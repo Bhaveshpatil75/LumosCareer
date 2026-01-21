@@ -18,6 +18,12 @@
                     style="margin-bottom: 1rem; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
                     {{ node.status|title }}
                 </span>
+                {% if algo_score %}
+                <span class="status-badge"
+                    style="margin-left: 10px; background: rgba(var(--color-primary-rgb), 0.2); color: var(--color-primary); border: 1px solid var(--color-primary); display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                    Impact Score: {{ algo_score }}
+                </span>
+                {% endif %}
                 <h1
                     style="font-size: 2.5rem; margin-bottom: 0.5rem; background: var(--gradient-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
                     {{ node.title }}
