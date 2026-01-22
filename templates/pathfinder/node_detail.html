@@ -96,22 +96,23 @@
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
     }
 
+    /* COMPLETED STATUS - GREEN */
     .status-badge.status-completed {
-        background: rgba(var(--color-success-rgb), 0.2);
-        color: var(--color-success);
-        border: 1px solid var(--color-success);
+        background: rgba(40, 167, 69, 0.2) !important;
+        color: #28a745 !important;
+        border: 1px solid #28a745 !important;
     }
 
     .status-badge.status-open {
-        background: rgba(var(--color-primary-rgb), 0.2);
-        color: var(--color-primary);
-        border: 1px solid var(--color-primary);
+        background: rgba(76, 145, 150, 0.2) !important;
+        color: #4C9196 !important;
+        border: 1px solid #4C9196 !important;
     }
 
     .status-badge.status-locked {
-        background: rgba(var(--color-muted-rgb), 0.2);
-        color: var(--text-muted);
-        border: 1px solid var(--text-muted);
+        background: rgba(255, 255, 255, 0.1);
+        color: #aaa;
+        border: 1px solid #aaa;
     }
 
     .resource-link:hover {
@@ -131,10 +132,22 @@
         font-weight: 600;
     }
     
-    .btn:hover {
-        transform: scale(1.05);
-        filter: brightness(1.1);
+    /* Global Button Style Overrides - FORCE TEAL */
+    .btn, .btn-secondary, button {
+        background-color: #4C9196 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 10px 24px !important;
+        transition: all 0.2s ease;
     }
+
+    .btn:hover, .btn-secondary:hover, button:hover {
+        background-color: #3A6F73 !important;
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(76, 145, 150, 0.4);
+    }
+
 </style>
 
 <script>

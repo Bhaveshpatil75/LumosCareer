@@ -59,7 +59,8 @@
                 <!-- Connector Dot -->
                 <div class="timeline-dot status-{{ step.status }}">
                     {% if step.status == 'completed' %}
-                        <i class="fas fa-check text-white" style="font-size: 0.7rem;"></i>
+                        <!-- Solid Green Circle for Completed -->
+                        <div style="width: 100%; height: 100%; border-radius: 50%; background: var(--color-success);"></div>
                     {% elif step.status == 'locked' %}
                         <i class="fas fa-lock text-black-50" style="font-size: 0.7rem;"></i>
                     {% endif %}
@@ -112,6 +113,11 @@
 </div>
 
 <style>
+    :root {
+        --color-success-custom: #28a745; /* Explicit Green */
+        --color-teal-custom: #4C9196;   /* Explicit Teal */
+    }
+
     .path-view-wrapper {
         max-width: 1000px;
         margin: 0 auto;
@@ -168,6 +174,7 @@
         line-height: 1.6;
     }
 
+    /* Progress Circle */
     .progress-circle {
         width: 80px;
         height: 80px;
@@ -177,6 +184,12 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        background: #222; 
+    }
+    
+    .dynamic-gradient {
+        /* JS updates this, but baseline */
+        background: conic-gradient(#28a745 0%, #333 0%);
     }
 
     .inner-circle {
@@ -189,6 +202,7 @@
         justify-content: center;
         font-weight: bold;
         color: #fff;
+        z-index: 2;
     }
 
     .progress-label {
@@ -200,15 +214,15 @@
         letter-spacing: 1px;
     }
 
-    /* Start Path Button Enhanced */
+    /* START BTN - TEAL */
     .start-btn {
         padding: 15px 40px;
-        border-radius: 50px;
+        border-radius: 50px !important;
         font-weight: 700;
         font-size: 1.1rem;
-        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-        border: none;
-        color: white;
+        background-color: #4C9196 !important; /* Teal */
+        border: none !important;
+        color: white !important;
         box-shadow: 0 4px 15px rgba(76, 145, 150, 0.4);
         transition: transform 0.2s, box-shadow 0.2s;
         text-transform: uppercase;
@@ -217,12 +231,14 @@
     .start-btn:hover { 
         transform: scale(1.05); 
         box-shadow: 0 6px 20px rgba(76, 145, 150, 0.6);
+        background-color: #3A6F73 !important; /* Darker Teal */
+        color: white !important;
     }
 
     .journey-header {
         margin-bottom: 40px;
         padding-left: 20px;
-        border-left: 4px solid var(--color-primary);
+        border-left: 4px solid #4C9196;
         color: #fff;
     }
 
@@ -230,7 +246,7 @@
     .timeline {
         position: relative;
         padding-left: 40px;
-        border-left: 2px solid rgba(255, 255, 255, 0.08); /* Transparent line fixed */
+        border-left: 2px solid rgba(255, 255, 255, 0.08); 
     }
 
     .timeline-item {
@@ -253,21 +269,25 @@
         justify-content: center;
         z-index: 2;
         transition: all 0.3s;
+        overflow: hidden; 
     }
     
     .timeline-item:hover .timeline-dot {
-        border-color: var(--color-primary);
+        border-color: #4C9196;
         box-shadow: 0 0 10px rgba(76, 145, 150, 0.3);
     }
     
+    /* COMPLETED DOT - GREEN FILLED */
     .timeline-dot.status-completed {
-        background: var(--color-success); /* Green dot for done */
-        border-color: var(--color-success);
+        background-color: #28a745 !important; 
+        border-color: #28a745 !important;
+        box-shadow: 0 0 15px rgba(40, 167, 69, 0.5) !important;
     }
     
     .timeline-dot.status-open {
-        background: var(--color-primary); /* Crimson dot for current */
-        border-color: var(--color-primary);
+        background-color: #4C9196 !important; 
+        border-color: #4C9196 !important;
+        box-shadow: 0 0 15px rgba(76, 145, 150, 0.4); 
     }
 
     .timeline-content {
@@ -288,16 +308,19 @@
         border-radius: 4px;
         text-transform: uppercase;
         font-weight: 600;
+        border: 1px solid transparent;
     }
 
+    /* COMPLETED TEXT - GREEN */
     .status-badge.status-completed {
-        color: #fff;
-        background: var(--color-success);
+        color: #28a745 !important;
+        background-color: rgba(40, 167, 69, 0.15) !important;
+        border-color: #28a745 !important;
     }
 
     .status-badge.status-open {
         color: #fff;
-        background: var(--color-primary);
+        background-color: #4C9196 !important;
     }
 
     .status-badge.status-locked {
@@ -325,16 +348,29 @@
     }
     
     .btn-text-primary {
-        color: var(--color-primary);
+        color: #4C9196 !important;
         font-weight: 600;
         font-size: 0.9rem;
     }
     
     .locked-step {
         opacity: 0.6;
-        pointer-events: none; /* Disable clicking locked steps */
+        pointer-events: none; 
     }
 
+    /* Force all buttons to match theme: Teal background, White Text, Rounded */
+    button, .btn, .btn-primary, .btn-outline-success, .btn-secondary {
+        border-radius: 50px !important;
+        background-color: #4C9196 !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+    
+    button:hover, .btn:hover, .btn-primary:hover, .btn-outline-success:hover, .btn-secondary:hover {
+        background-color: #3A6F73 !important; /* Darker Teal */
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(76, 145, 150, 0.3) !important;
+    }
 </style>
 
 <script>
@@ -342,9 +378,8 @@
         const circles = document.querySelectorAll('.dynamic-gradient');
         circles.forEach(circle => {
             const progress = circle.getAttribute('data-progress');
-            // Check if progress is 100 to show full circle
-            const deg = (progress / 100) * 360;
-            circle.style.background = `conic-gradient(var(--color-primary) ${progress}%, rgba(255,255,255,0.1) 0)`;
+            // Explicit Green Hex Code
+            circle.style.background = `conic-gradient(#28a745 0% ${progress}%, #333 ${progress}% 100%)`;
         });
     });
 
@@ -378,9 +413,6 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Redirect to profile or reload to see it as "Active" if logic allows
-                // Ideally redirect to the new user-path URL, but we don't have the new ID easily returned yet unless we update API.
-                // For now, let's redirect to profile where they can find it, or just reload.
                 window.location.href = "{% url 'profile' %}";
             } else {
                 alert("Error: " + data.error);
@@ -401,7 +433,6 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Reload to reflect state changes (simplest for now)
                 location.reload();
             } else {
                 alert("Error: " + (data.error || "Could not update progress"));
