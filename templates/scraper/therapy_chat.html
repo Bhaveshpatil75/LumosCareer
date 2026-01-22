@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Therapist - Lumos Career{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-layout {
+        max-width: 800px;
+        margin: 20px auto;
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .chat-header {
+        padding: 20px;
+        background: linear-gradient(to right, #2c3e50, #000000); /* Darker header */
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .bot-avatar {
+        width: 40px;
+        height: 40px;
+        background: #d63384;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+    }
+
+    .header-info h3 {
+        margin: 0;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .header-info p {
+        margin: 2px 0 0;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.8rem;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: var(--bg-main);
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        line-height: 1.5;
+        font-size: 0.95rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.bot {
+        background: #2d2d2d;
+        color: #e0e0e0;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+
+    .message.user {
+        background: linear-gradient(135deg, #d63384 0%, #FF6B6B 100%);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
+
+    .chat-input-area {
+        padding: 20px;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 14px;
+        border-radius: 30px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-main);
+        color: var(--text-primary);
+        font-family: inherit;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: #d63384;
+    }
+
+    .send-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #d63384;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
+
+    .send-btn:hover {
+        transform: scale(1.05);
+    }
+    
+    .typing-indicator {
+        font-style: italic;
+        color: #888;
+        font-size: 0.8rem;
+        margin-left: 10px;
+        display: none;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+    <div class="chat-header">
+        <div class="bot-avatar">🌿</div>
+        <div class="header-info">
+            <h3>Lumos Wellness Companion</h3>
+            <p>Here to listen, support, and guide.</p>
+        </div>
+        <a href="{% url 'therapy_landing' %}" style="margin-left: auto; color: #888; text-decoration: none;">✕</a>
+    </div>
+
+    <div class="chat-messages" id="chatBox">
+        <div class="message bot">
+            Hello! I'm here to provide a safe space for you. Whether you're feeling stressed about exams, career choices, or just need to vent, I'm listening. How are you feeling today?
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="userInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+
+    // Auto-scroll to bottom
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    userInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+    function appendMessage(text, sender) {
+        const div = document.createElement('div');
+        div.className = `message ${sender}`;
+        div.textContent = text;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // 1. User Message
+        appendMessage(text, 'user');
+        userInput.value = '';
+
+        // 2. Bot Typing... (Simulated lag)
+        setTimeout(async () => {
+             try {
+                const response = await fetch("{% url 'ai_chat_api' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+                
+                if (data.reply) {
+                    appendMessage(data.reply, 'bot');
+                } else {
+                    appendMessage("I'm having trouble connecting right now. Please try again.", 'bot');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                appendMessage("Sorry, something went wrong.", 'bot');
+            }
+        }, 500);
+    }
+</script>
+{% endblock %}

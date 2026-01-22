@@ -802,6 +802,7 @@ def career_step_detail_view(request, path_id, step_id):
                 node = step
                 break
         
+
         if not node:
              return redirect('view_career_path', path_id=path_id)
 
@@ -819,3 +820,81 @@ def career_step_detail_view(request, path_id, step_id):
 
     except CareerPath.DoesNotExist:
         return redirect('profile')
+
+# --- THERAPY VIEWS ---
+
+@login_required
+def therapy_landing_view(request):
+    therapist_url = os.getenv('THERAPIST_URL', '#')
+    return render(request, 'scraper/therapy_landing.html', {'therapist_url': therapist_url})
+
+@login_required
+def book_session_view(request, session_type='therapy'):
+    from .models import TherapySession
+    # We can reuse TherapySession model for now or create a new one, 
+    # but for simplicity let's use TherapySession and just store type in notes or separate field if needed.
+    # Actually, the user asked for "Connect with Expert" in Interview tab too.
+    # Let's assume we treat them similarly.
+    
+    current_title = "Schedule Therapy Session" if session_type == 'therapy' else "Schedule Mock Interview"
+    
+    if request.method == 'POST':
+        preferred_date = request.POST.get('preferred_date')
+        notes = request.POST.get('additional_notes')
+        
+        # Determine context
+        final_notes = f"[{session_type.upper()}] {notes}"
+        
+        TherapySession.objects.create(
+            user=request.user,
+            preferred_date=preferred_date,
+            additional_notes=final_notes,
+            status='Pending'
+        )
+        return render(request, 'scraper/session_book.html', {'success': True, 'session_type': session_type})
+        
+    return render(request, 'scraper/session_book.html', {'session_type': session_type, 'current_title': current_title})
+
+@login_required
+def ai_therapist_view(request):
+    return render(request, 'scraper/therapy_chat.html')
+
+@login_required
+def ai_chat_api(request):
+    if request.method == 'POST':
+        import json
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '')
+            
+            # Simple Logic or LSA Integration
+            # For now, let's use a simple keyword matcher + LSA fallback if we had a corpus
+            
+            responses = {
+                'stress': "I understand you're feeling stressed. Remember to take deep breaths. Can you tell me what's causing this stress?",
+                'anxious': "Anxiety can be tough. Try to focus on the present moment. What is one thing you can see right now?",
+                'sad': "I'm sorry to hear you're feeling down. It's okay to feel this way. Do you want to talk about it?",
+                'tired': "Rest is important. Make sure you are getting enough sleep and taking breaks.",
+                'job': "Job hunting is stressful, but you are capable. Let's break it down into small steps.",
+                'interview': "For interviews, preparation is key. Use our different Interview Prep tools to practice!",
+                'hello': "Hello! I am your AI assistant here to listen. How are you feeling today?",
+                'hi': "Hi there! I'm here to support you. What's on your mind?",
+            }
+            
+            reply = "I see. Please tell me more about how that makes you feel."
+            
+            # Simple keyword matching
+            lower_msg = user_message.lower()
+            for key, val in responses.items():
+                if key in lower_msg:
+                    reply = val
+                    break
+            
+            # Use LSA Engine if no simple match (Mock usage as we need a corpus)
+            # lsa = LSAEngine()
+            # ...
+            
+            return JsonResponse({'reply': reply})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid method'}, status=405)

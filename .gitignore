@@ -1,1 +1,7 @@
 .env
+__pycache__/
+media/
+resumes/
+managemants/
+migrations/
+db.sqlite3

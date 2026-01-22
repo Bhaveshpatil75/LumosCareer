@@ -47,4 +47,11 @@ urlpatterns = [
     path('profile/delete/<str:item_type>/<int:item_id>/', views.delete_item, name='delete_item'),
     path('profile/path/<int:path_id>/step/<int:step_id>/', views.career_step_detail_view, name='career_step_detail'),
     path('career-library/', views.career_library_view, name='career_library'),
+    
+    # Therapy Features
+    path('therapy/', views.therapy_landing_view, name='therapy_landing'),
+    path('therapy/book/', views.book_session_view, {'session_type': 'therapy'}, name='book_therapy_session'),
+    path('interview/book/', views.book_session_view, {'session_type': 'interview'}, name='book_interview_session'),
+    path('therapy/chat/', views.ai_therapist_view, name='ai_therapist_view'),
+    path('api/therapy/chat/', views.ai_chat_api, name='ai_chat_api'),
 ]

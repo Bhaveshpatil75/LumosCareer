@@ -130,6 +130,23 @@ class InterviewSession(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.company_name} ({self.interview_type})"
 
+
+class TherapySession(models.Model):
+    SESSION_STATUS = [
+        ('Pending', 'Pending'),
+        ('Scheduled', 'Scheduled'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled')
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='therapy_sessions')
+    request_date = models.DateTimeField(auto_now_add=True)
+    preferred_date = models.CharField(max_length=100, blank=True, help_text="User's preferred timing")
+    additional_notes = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=SESSION_STATUS, default='Pending')
+
+    def __str__(self):
+        return f"{self.user.username} - Therapy Request ({self.status})"
+
 # --- ALGORITHMIC MODELS ---
 
 class SkillNode(models.Model):

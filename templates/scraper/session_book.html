@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ current_title }} - Lumos Career{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 40px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .back-link {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+
+    .back-link:hover {
+        color: var(--primary-color);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        background: var(--bg-main);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #d63384;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #FF6B6B 0%, #d63384 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+
+    .submit-btn:hover {
+        opacity: 0.9;
+    }
+
+    .success-box {
+        background: rgba(40, 167, 69, 0.1);
+        border: 1px solid #28a745;
+        color: #28a745;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    {% if session_type == 'therapy' %}
+        <a href="{% url 'therapy_landing' %}" class="back-link">← Back to Wellness</a>
+    {% else %}
+        <a href="{% url 'interview_prep' %}" class="back-link">← Back to Interview Prep</a>
+    {% endif %}
+
+    {% if success %}
+    <div class="success-box">
+        <h3>Request Received! ✅</h3>
+        <p>We have received your request for a {{ session_type|title }} session.</p>
+        <p>Our team will contact you shortly via <strong>Email</strong> or <strong>WhatsApp</strong> to confirm the details.</p>
+        <p style="margin-top: 15px;">
+            <a href="{% url 'profile' %}" style="color: inherit; text-decoration: underline;">View in Profile</a>
+        </p>
+    </div>
+    {% else %}
+    <h2 style="margin-bottom: 10px; color: var(--text-primary);">{{ current_title }}</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 30px;">
+        Connect with an expert to help you succeed.
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Preferred Date & Time</label>
+            <input type="text" name="preferred_date" class="form-control" placeholder="e.g., Next Monday evening, or 24th Jan 5 PM" required>
+        </div>
+
+        <div class="form-group">
+            <label>Notes / Specific Topics</label>
+            <textarea name="additional_notes" class="form-control" rows="4" placeholder="Briefly describe what you'd like to discuss..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">Send Request</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

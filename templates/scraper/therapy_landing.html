@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Wellness - Lumos Career{% endblock %}
+
+{% block extra_css %}
+<style>
+    .therapy-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+        text-align: center;
+    }
+
+    .therapy-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, #FF6B6B 0%, #d63384 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .therapy-header p {
+        color: #888;
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .therapy-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .card-btn {
+        display: inline-block;
+        width: auto;
+        min-width: 180px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 12px 24px;
+        background: rgba(255,255,255,0.05); /* Gentle secondary style */
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .therapy-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 35px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center; /* Center content */
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center flex items */
+    }
+
+    .card-btn.primary {
+        background: linear-gradient(135deg, #FF6B6B 0%, #d63384 100%);
+        color: white;
+        border: none;
+    }
+
+    .card-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+    
+    .badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .badge-voice { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .badge-chat { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #000; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="therapy-container">
+    <div class="therapy-header">
+        <h1>Mental Wellness & Support</h1>
+        <p>Your mental health matters. Whether you need professional guidance or a quick chat to destress, we're here for you.</p>
+    </div>
+
+    <div class="therapy-options">
+        
+        <!-- Option 1: Expert -->
+        <div class="therapy-card">
+            <div class="card-icon">🧘‍♂️</div>
+            <h3 class="card-title">Connect with Expert</h3>
+            <p class="card-desc">
+                Schedule a 1-on-1 session with a certified counselor. 
+                Perfect for deep-diving into stress management and career anxiety.
+            </p>
+            <a href="{% url 'book_therapy_session' %}" class="card-btn">Schedule Session</a>
+        </div>
+
+        <!-- Option 2: AI Voice -->
+        <div class="therapy-card">
+            <span class="badge badge-voice">Live</span>
+            <div class="card-icon">🎧</div>
+            <h3 class="card-title">Speak with AI Counselor</h3>
+            <p class="card-desc">
+                Talk naturally with our empathetic AI voice assistant. 
+                Voice your thoughts and get instant, calming guidance.
+            </p>
+            <!-- Check if URL is valid or # -->
+            {% if therapist_url and therapist_url != '#' %}
+                <a href="{{ therapist_url }}" class="card-btn primary" target="_blank">Start Voice Session</a>
+            {% else %}
+               <a href="#" onclick="alert('Voice service is currently configuring. Please try again later.'); return false;" class="card-btn primary" style="filter: grayscale(1);">Coming Soon</a>
+            {% endif %}
+        </div>
+
+        <!-- Option 3: AI Chat -->
+        <div class="therapy-card">
+             <span class="badge badge-chat">24/7</span>
+            <div class="card-icon">💬</div>
+            <h3 class="card-title">Chat with AI</h3>
+            <p class="card-desc">
+                Prefer texting? Have a judgment-free conversation with our AI companion anytime, anywhere.
+            </p>
+            <a href="{% url 'ai_therapist_view' %}" class="card-btn">Start Chat</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

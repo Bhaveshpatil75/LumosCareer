@@ -199,6 +199,7 @@
 
 <div class="interview-container">
 
+
     <!-- Setup Interface -->
     <div id="setup-view" class="setup-interface">
         <div class="header-section">
@@ -217,23 +218,36 @@
                 </div>
             </div>
 
-            <div class="options-grid">
-                <div class="option-card" onclick="selectMode('text', this)">
-                    <div class="card-icon">💬</div>
-                    <div class="card-title">Text Simulation</div>
-                    <div class="card-desc">Real-time chat with an AI recruiter. Perfect for refining your answers and
-                        logic.</div>
+            <!-- New 3-Card Grid -->
+            <div class="options-grid" style="grid-template-columns: repeat(3, 1fr);">
+                
+                <!-- Option 1: Live Expert -->
+                <div class="option-card" onclick="window.location.href='{% url 'book_interview_session' %}'">
+                    <div class="card-icon">👨‍🏫</div>
+                    <div class="card-title">Expert Mock</div>
+                    <div class="card-desc">Schedule a live session with an industry expert for detailed feedback.</div>
                 </div>
 
+                <!-- Option 2: Voice AI -->
                 <div class="option-card" onclick="selectMode('voice', this)">
                     <div class="card-icon">🎙️</div>
                     <div class="card-title">Voice Simulation</div>
-                    <div class="card-desc">Speak directly to the AI. Practice your delivery, tone, and confidence.</div>
+                    <div class="card-desc">Speak naturally to our AI recruiter. Perfect for confidence & flow.</div>
                 </div>
+                
+                <!-- Option 3: Text AI -->
+                <div class="option-card" onclick="selectMode('text', this)">
+                    <div class="card-icon">💬</div>
+                    <div class="card-title">Text Simulation</div>
+                    <div class="card-desc">Real-time chat with an AI recruiter. Refine your answers and logic.</div>
+                </div>
+
             </div>
 
             <input type="hidden" id="selected_mode" value="">
-            <button type="button" id="start-btn" class="action-btn" onclick="startSession()">Start Preparation</button>
+            
+            <!-- Start button only needed for AI modes -->
+            <button type="button" id="start-btn" class="action-btn" onclick="startSession()" style="display:none;">Start Preparation</button>
         </form>
     </div>
 
@@ -275,7 +289,7 @@
         document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
         cardElement.classList.add('selected');
 
-        // Enable button if company is filled (simple check, or check on click)
+        // Show/Update button
         checkReady();
     }
 
@@ -286,11 +300,12 @@
         const btn = document.getElementById('start-btn');
 
         if (company && currentMode) {
-            btn.classList.add('active');
+            btn.style.display = 'block';
+            setTimeout(() => btn.classList.add('active'), 10); // Trigger transition
             btn.innerText = currentMode === 'text' ? 'Start Text Session' : 'Start Voice Session';
         } else {
             btn.classList.remove('active');
-            btn.innerText = 'Start Preparation';
+            if (!currentMode) btn.style.display = 'none'; // Hide if no mode
         }
     }
 
@@ -437,4 +452,5 @@
             });
     });
 </script>
+
 {% endblock %}
