@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Step Details | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="result-container" style="max-width: 900px; margin: 0 auto; padding: 40px 20px;">
+<div class="result-container" style="max-width: 900px; margin: 0 auto; padding: 40px 20px; padding-bottom: 100px;">
     <!-- Back Button -->
-    <a href="{% url 'pathfinder' %}" class="btn-secondary"
-        style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 8px;">
+    <a href="{% url 'view_career_path' path.id %}" class="btn-secondary"
+        style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.05); color: #ccc;">
         ← Back to Roadmap
     </a>
 
@@ -17,72 +18,94 @@
                 <span class="status-badge status-{{ node.status }} status-badge-base">
                     {{ node.status|title }}
                 </span>
-                {% if algo_score %}
-                <span class="status-badge impact-score-badge">
-                    Impact Score: {{ algo_score }}
-                </span>
-                {% endif %}
+                
                 <h1
-                    style="font-size: 2.5rem; margin-bottom: 0.5rem; background: var(--gradient-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
-                    {{ node.title }}
+                    style="font-size: 2.5rem; margin-bottom: 0.5rem; background: var(--gradient-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+                    {{ node.name }}
                 </h1>
+                {% if node.duration %}
+                <p class="text-muted" style="margin-top: 5px;"><i class="far fa-clock me-1"></i> {{ node.duration }}</p>
+                {% endif %}
             </div>
+            
             <div style="font-size: 3rem; opacity: 0.2;">
-                {% if node.status == 'completed' %}✓{% elif node.status == 'in-progress' %}⟳{% else %}🔒{% endif %}
+                {% if node.status == 'completed' %}
+                <i class="fas fa-check-circle text-success"></i>
+                {% elif node.status == 'open' %}
+                <i class="fas fa-play-circle text-primary"></i>
+                {% else %}
+                <i class="fas fa-lock text-muted"></i>
+                {% endif %}
             </div>
         </div>
         <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-secondary); margin-top: 1rem;">
-            {{ node.full_description|default:node.description }}
+            {{ node.description }}
         </p>
+
+        <!-- Mark as Done Action (Inside Detail View) -->
+        {% if is_owner and node.status == 'open' %}
+        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+            <button onclick="markAsDone('{{ path.id }}', '{{ node.step_id }}')" 
+                class="btn rounded-pill px-4 py-2 fw-bold shadow-lg" style="transition: transform 0.2s; background: var(--color-secondary); color: #fff; border: none;">
+                <i class="fas fa-check me-2"></i> Mark Step as Done
+            </button>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Action Plan & Resources Grid -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-
-        <!-- Action Items -->
-        <div class="glass-card" style="padding: 2rem;">
-            <h3 style="margin-bottom: 1.5rem; color: var(--color-primary);">Action Items</h3>
-            <ul style="list-style: none; padding: 0;">
-                {% for action in node.actions %}
-                <li style="margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 10px;">
-                    <span style="color: var(--color-accent);">→</span>
-                    <span>{{ action }}</span>
-                </li>
-                {% empty %}
-                <li style="color: var(--text-muted);">No specific actions listed.</li>
-                {% endfor %}
-            </ul>
-        </div>
+    <!-- Resources Grid -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
 
         <!-- Resources -->
         <div class="glass-card" style="padding: 2rem;">
-            <h3 style="margin-bottom: 1.5rem; color: var(--color-primary);">Resources</h3>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                {% for resource in node.resources %}
-                <a href="{{ resource.url }}" target="_blank" class="resource-link"
-                    style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; text-decoration: none; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
-                    <span>{{ resource.name }}</span>
-                    <span style="font-size: 1.2rem;">↗</span>
-                </a>
-                {% empty %}
-                <p style="color: var(--text-muted);">No resources available.</p>
-                {% endfor %}
-            </div>
+            <h3 style="margin-bottom: 1.5rem; color: #fff; font-weight: 600;">
+                <i class="fas fa-book-reader me-2 text-primary"></i> Learning Resources
+            </h3>
+            
+            {% if node.status != 'locked' %}
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for resource in node.resources %}
+                    <a href="{{ resource.url }}" target="_blank" class="resource-link"
+                        style="padding: 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; text-decoration: none; color: #eee; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                        <div>
+                            <span style="font-weight: 600; display: block; margin-bottom: 4px;">{{ resource.title }}</span>
+                            <span style="font-size: 0.85rem; color: #888;">{{ resource.url|truncatechars:40 }}</span>
+                        </div>
+                        <span style="font-size: 1.2rem; color: var(--color-primary);">↗</span>
+                    </a>
+                    {% empty %}
+                    <p style="color: var(--text-muted); font-style: italic;">No specific resources listed for this step.</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-lock fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+                    <p class="text-muted">Unlock this step to view resources.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
 <style>
+    .glass-card {
+        background: rgba(30, 30, 30, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+
     .status-badge.status-completed {
         background: rgba(var(--color-success-rgb), 0.2);
         color: var(--color-success);
         border: 1px solid var(--color-success);
     }
 
-    .status-badge.status-in-progress {
-        background: rgba(var(--color-warning-rgb), 0.2);
-        color: var(--color-warning);
-        border: 1px solid var(--color-warning);
+    .status-badge.status-open {
+        background: rgba(var(--color-primary-rgb), 0.2);
+        color: var(--color-primary);
+        border: 1px solid var(--color-primary);
     }
 
     .status-badge.status-locked {
@@ -93,7 +116,8 @@
 
     .resource-link:hover {
         background: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(5px);
+        border-color: rgba(255,255,255,0.2) !important;
+        transform: translateY(-2px);
     }
 
     .status-badge-base {
@@ -106,19 +130,49 @@
         letter-spacing: 1px;
         font-weight: 600;
     }
-
-    .impact-score-badge {
-        margin-left: 10px;
-        background: rgba(var(--color-primary-rgb), 0.2);
-        color: var(--color-primary);
-        border: 1px solid var(--color-primary);
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 600;
+    
+    .btn:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
     }
 </style>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function markAsDone(pathId, stepId) {
+        fetch(`/profile/update-path/${pathId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({ mark_step_id: stepId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert("Error: " + (data.error || "Could not update progress"));
+            }
+        })
+        .catch(err => console.error(err));
+    }
+</script>
 {% endblock %}

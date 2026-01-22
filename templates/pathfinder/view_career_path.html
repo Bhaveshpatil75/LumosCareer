@@ -29,42 +29,82 @@
         </div>
 
         <div class="action-buttons mt-4 d-flex gap-3">
-            <button onclick="savePath('{{ path.id }}')" class="btn-primary start-btn">
-                Start this Path
+             {% if not is_saved_path %}
+            <button onclick="startPath('{{ path.id }}')" class="btn-primary start-btn">
+                Start this Path <i class="fas fa-rocket ms-2"></i>
             </button>
-            <button class="btn-secondary share-btn">
-                Share Journey
-            </button>
+            <span class="text-muted small align-self-center ms-2">Add to profile to track progress</span>
+            {% else %}
+            <div class="badge bg-success p-3 rounded-pill px-4 fs-6 shadow-sm">
+                <i class="fas fa-check-circle me-2"></i> Active Path
+            </div>
+            {% endif %}
         </div>
     </div>
 
     <!-- Timeline/Roadmap -->
     <div class="roadmap-container">
         <h2 class="journey-header">Your Journey Map</h2>
+        
+        {% if not path.roadmap_data.steps %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i> No steps found for this path. This path might be using an old data format.
+        </div>
+        {% endif %}
 
         <div class="timeline">
             {% for step in path.roadmap_data.steps %}
-            <div class="timeline-item">
+            <div class="timeline-item {% if step.status == 'locked' %}locked-step{% endif %}">
+                
                 <!-- Connector Dot -->
-                <div class="timeline-dot status-{{ step.status }}"></div>
-
-                <div class="glass-card timeline-content">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="step-type">Step {{ forloop.counter }}</span>
-                        <span class="status-badge status-{{ step.status }}">{{ step.status }}</span>
-                    </div>
-
-                    <h3 class="step-title">{{ step.name }}</h3>
-                    <p class="step-desc">{{ step.description }}</p>
-
-                    {% if step.status != 'locked' %}
-                    <a href="#" class="btn-outline-small">View Resources →</a>
-                    {% else %}
-                    <span class="locked-msg">
-                        🔒 Complete previous steps to unlock
-                    </span>
+                <div class="timeline-dot status-{{ step.status }}">
+                    {% if step.status == 'completed' %}
+                        <i class="fas fa-check text-white" style="font-size: 0.7rem;"></i>
+                    {% elif step.status == 'locked' %}
+                        <i class="fas fa-lock text-black-50" style="font-size: 0.7rem;"></i>
                     {% endif %}
                 </div>
+
+                <!-- Clickable Card leading to Detail View -->
+                <a href="{% url 'career_step_detail' path.id step.step_id %}" class="card-link-wrapper" style="text-decoration: none; display: block; color: inherit;">
+                    <div class="glass-card timeline-content step-card-hover">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="step-type">Step {{ step.step_id }}</span>
+                            
+                            <div class="d-flex gap-2 align-items-center">
+                                {% if step.duration %}
+                                <span class="badge bg-secondary bg-opacity-25 text-light fw-normal">
+                                    <i class="far fa-clock me-1"></i> {{ step.duration }}
+                                </span>
+                                {% endif %}
+                                <span class="status-badge status-{{ step.status }}">{{ step.status }}</span>
+                            </div>
+                        </div>
+
+                        <h3 class="step-title">{{ step.name }}</h3>
+                        <p class="step-desc text-truncate-2">{{ step.description|truncatechars:120 }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="btn-text-primary">
+                                {% if step.status == 'locked' %}
+                                    <i class="fas fa-lock me-1"></i> Locked
+                                {% else %}
+                                    View Details & Resources <i class="fas fa-arrow-right ms-1"></i>
+                                {% endif %}
+                            </span>
+
+                            <!-- Direct Action Button on Card (Stop Propagation to prevent double click if using JS, but href is safest) -->
+                            {% if is_saved_path and step.status == 'open' %}
+                            <object> <!-- Use object to nest interactive element inside anchor validly -->
+                                <button onclick="event.preventDefault(); markAsDone('{{ path.id }}', '{{ step.step_id }}')" 
+                                    class="btn btn-outline-success btn-sm rounded-pill px-3 position-relative z-2">
+                                    <i class="fas fa-check me-1"></i> Mark Done
+                                </button>
+                            </object>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
             </div>
             {% endfor %}
         </div>
@@ -76,6 +116,7 @@
         max-width: 1000px;
         margin: 0 auto;
         padding: 40px 20px;
+        padding-bottom: 100px;
     }
 
     .glass-card {
@@ -83,10 +124,18 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .step-card-hover:hover {
+        transform: translateY(-5px);
+        background: rgba(40, 40, 40, 0.8);
+        border-color: rgba(220, 20, 60, 0.4);
     }
 
     .path-header {
-        margin-bottom: 40px;
+        margin-bottom: 50px;
         padding: 40px;
     }
 
@@ -98,7 +147,9 @@
         align-items: center;
         gap: 5px;
         margin-bottom: 20px;
+        transition: color 0.2s;
     }
+    .back-link:hover { color: #fff; }
 
     .path-title {
         font-size: 2.5rem;
@@ -107,6 +158,7 @@
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
+        font-weight: 700;
     }
 
     .path-description {
@@ -124,6 +176,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
     .inner-circle {
@@ -141,72 +194,85 @@
     .progress-label {
         display: block;
         margin-top: 10px;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
+    /* Start Path Button Enhanced */
     .start-btn {
-        padding: 12px 30px;
-        border-radius: 30px;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        border: none;
+        color: white;
+        box-shadow: 0 4px 15px rgba(76, 145, 150, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
-
-    .share-btn {
-        padding: 12px 30px;
-        border-radius: 30px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #fff;
+    .start-btn:hover { 
+        transform: scale(1.05); 
+        box-shadow: 0 6px 20px rgba(76, 145, 150, 0.6);
     }
 
     .journey-header {
-        margin-bottom: 30px;
+        margin-bottom: 40px;
         padding-left: 20px;
         border-left: 4px solid var(--color-primary);
+        color: #fff;
     }
 
+    /* Timeline Styles */
     .timeline {
         position: relative;
         padding-left: 40px;
-        border-left: 2px solid rgba(255, 255, 255, 0.1);
+        border-left: 2px solid rgba(255, 255, 255, 0.08); /* Transparent line fixed */
     }
 
     .timeline-item {
         position: relative;
         margin-bottom: 40px;
+        transition: opacity 0.3s;
     }
 
     .timeline-dot {
         position: absolute;
-        left: -49px;
-        top: 0;
-        width: 20px;
-        height: 20px;
+        left: -51px; 
+        top: 25px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
-        border: 3px solid #121212;
+        background: #121212;
+        border: 2px solid rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        transition: all 0.3s;
     }
-
+    
+    .timeline-item:hover .timeline-dot {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 10px rgba(220, 20, 60, 0.3);
+    }
+    
     .timeline-dot.status-completed {
-        background: var(--color-success);
-        box-shadow: 0 0 10px var(--color-success);
+        background: var(--color-success); /* Green dot for done */
+        border-color: var(--color-success);
     }
-
-    .timeline-dot.status-in-progress {
-        background: var(--color-warning);
-        box-shadow: 0 0 10px var(--color-warning);
-    }
-
-    .timeline-dot.status-locked {
-        background: var(--text-muted);
+    
+    .timeline-dot.status-open {
+        background: var(--color-primary); /* Crimson dot for current */
+        border-color: var(--color-primary);
     }
 
     .timeline-content {
-        padding: 25px;
-        transition: transform 0.2s;
-    }
-
-    .timeline-content:hover {
-        transform: translateX(10px);
-        border-color: var(--color-primary);
+        padding: 30px;
+        transition: transform 0.2s, border-color 0.2s;
     }
 
     .step-type {
@@ -218,56 +284,57 @@
 
     .status-badge {
         font-size: 0.75rem;
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 4px;
         text-transform: uppercase;
+        font-weight: 600;
     }
 
     .status-badge.status-completed {
-        color: var(--color-success);
-        background: rgba(var(--color-success-rgb), 0.1);
+        color: #fff;
+        background: var(--color-success);
     }
 
-    .status-badge.status-in-progress {
-        color: var(--color-warning);
-        background: rgba(var(--color-warning-rgb), 0.1);
+    .status-badge.status-open {
+        color: #fff;
+        background: var(--color-primary);
     }
 
     .status-badge.status-locked {
-        color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.05);
+        color: #ccc;
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .step-title {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         margin-bottom: 10px;
         color: #fff;
+        font-weight: 600;
     }
 
     .step-desc {
         color: var(--text-secondary);
-        margin-bottom: 20px;
+        line-height: 1.6;
     }
 
-    .locked-msg {
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 5px;
+    .step-desc.text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
-
-    .btn-outline-small {
-        font-size: 0.9rem;
+    
+    .btn-text-primary {
         color: var(--color-primary);
-        text-decoration: none;
-        border-bottom: 1px solid transparent;
-        transition: border-color 0.2s;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .locked-step {
+        opacity: 0.6;
+        pointer-events: none; /* Disable clicking locked steps */
     }
 
-    .btn-outline-small:hover {
-        border-color: var(--color-primary);
-    }
 </style>
 
 <script>
@@ -275,15 +342,72 @@
         const circles = document.querySelectorAll('.dynamic-gradient');
         circles.forEach(circle => {
             const progress = circle.getAttribute('data-progress');
+            // Check if progress is 100 to show full circle
+            const deg = (progress / 100) * 360;
             circle.style.background = `conic-gradient(var(--color-primary) ${progress}%, rgba(255,255,255,0.1) 0)`;
         });
     });
 
-    function savePath(pathId) {
-        if (confirm("Start this career path? It will be added to your profile.")) {
-            // Placeholder for backend integration
-            alert("Path added to your profile! (Simulation)");
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
         }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function startPath(pathId) {
+        if (!confirm("Are you sure you want to start this career path? It will be added to your profile.")) return;
+
+        fetch("{% url 'save_career_path' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrftoken
+            },
+            body: `path_id=${pathId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to profile or reload to see it as "Active" if logic allows
+                // Ideally redirect to the new user-path URL, but we don't have the new ID easily returned yet unless we update API.
+                // For now, let's redirect to profile where they can find it, or just reload.
+                window.location.href = "{% url 'profile' %}";
+            } else {
+                alert("Error: " + data.error);
+            }
+        })
+        .catch(err => console.error(err));
+    }
+
+    function markAsDone(pathId, stepId) {
+        fetch(`/profile/update-path/${pathId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({ mark_step_id: stepId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload to reflect state changes (simplest for now)
+                location.reload();
+            } else {
+                alert("Error: " + (data.error || "Could not update progress"));
+            }
+        })
+        .catch(err => console.error(err));
     }
 </script>
 {% endblock %}

@@ -580,14 +580,46 @@ def edit_profile_view(request):
 @login_required
 def save_career_path(request):
     if request.method == 'POST':
+        # Check if we are cloning a predefined path
+        predefined_id = request.POST.get('path_id')
+        
+        if predefined_id:
+            try:
+                # CLONE LOGIC
+                original_path = CareerPath.objects.get(id=predefined_id, is_predefined=True)
+                
+                # Deep copy roadmap data to reset statuses
+                new_roadmap = original_path.roadmap_data
+                steps = new_roadmap.get('steps', [])
+                
+                # Reset steps: 1st Open, others Locked
+                for i, step in enumerate(steps):
+                    if i == 0:
+                        step['status'] = 'open'
+                    else:
+                        step['status'] = 'locked'
+                
+                CareerPath.objects.create(
+                    user=request.user,
+                    title=original_path.title,
+                    description=original_path.description,
+                    roadmap_data=new_roadmap,
+                    progress=0,
+                    status='Active',
+                    is_predefined=False
+                )
+                return JsonResponse({'success': True, 'message': 'Career path started!'})
+                
+            except CareerPath.DoesNotExist:
+                 return JsonResponse({'error': 'Original path not found.'}, status=404)
+
+        # Fallback to old "Save Generator Result" logic
         try:
             assessment = AssessmentResult.objects.get(user=request.user)
             report = assessment.detailed_report
             if not report:
                  return JsonResponse({'error': 'No assessment result found to save.'}, status=400)
             
-            # Extract relevant info from report
-            # Assuming report structure, adjust as needed based on n8n output
             title = report.get('career_path_title', 'My Career Path') 
             if isinstance(report, dict) and 'title' in report:
                 title = report['title']
@@ -598,7 +630,7 @@ def save_career_path(request):
                 user=request.user,
                 title=title,
                 description=report.get('summary', 'Generated Career Path'),
-                roadmap_data=report, # Save the whole report as the roadmap data
+                roadmap_data=report, 
                 progress=0,
                 status='Active'
             )
@@ -612,15 +644,53 @@ def update_career_path(request, path_id):
     if request.method == 'POST':
         try:
             career_path = CareerPath.objects.get(id=path_id, user=request.user)
-            # Update progress or status
             import json
             data = json.loads(request.body)
+            
+            # Handle Step Completion
+            step_id_to_mark = data.get('mark_step_id')
+            
+            if step_id_to_mark:
+                roadmap = career_path.roadmap_data
+                steps = roadmap.get('steps', [])
+                
+                step_found_index = -1
+                
+                # 1. Update status of target step
+                for i, step in enumerate(steps):
+                    # Robust int/str comparison
+                    if str(step.get('step_id')) == str(step_id_to_mark):
+                        step['status'] = 'completed'
+                        step_found_index = i
+                        break
+                
+                # 2. Unlock next step
+                if step_found_index != -1 and step_found_index + 1 < len(steps):
+                     steps[step_found_index + 1]['status'] = 'open'
+
+                # 3. Recalculate Progress
+                total = len(steps)
+                completed = sum(1 for s in steps if s.get('status') == 'completed')
+                new_progress = int((completed / total) * 100) if total > 0 else 0
+                
+                career_path.progress = new_progress
+                career_path.roadmap_data = roadmap # Save JSON updates
+                career_path.save()
+                
+                return JsonResponse({
+                    'success': True, 
+                    'new_progress': new_progress,
+                    'steps': steps # Return updated steps to refresh UI
+                })
+
+            # Legacy simple update
             if 'progress' in data:
                 career_path.progress = int(data['progress'])
             if 'status' in data:
                 career_path.status = data['status']
             career_path.save()
             return JsonResponse({'success': True})
+            
         except CareerPath.DoesNotExist:
             return JsonResponse({'error': 'Path not found'}, status=404)
     return JsonResponse({'error': 'Invalid method'}, status=405)
@@ -707,8 +777,45 @@ def view_career_path(request, path_id):
         'is_saved_path': is_owner
     }
     
-    # Render the specific detail view for standard paths
-    if career_path.is_predefined:
-        return render(request, 'pathfinder/view_career_path.html', context)
+    # Use the rich view for all paths now, as we want the new UI
+    # If it's a legacy path without 'steps' in roadmap_data, we might need a fallback or just let the template handle empty state
+    return render(request, 'pathfinder/view_career_path.html', context)
+
+@login_required
+def career_step_detail_view(request, path_id, step_id):
+    try:
+        # Try finding a user path first, then predefined (preview mode)
+        try:
+            career_path = CareerPath.objects.get(id=path_id, user=request.user)
+            is_owner = True
+        except CareerPath.DoesNotExist:
+            career_path = CareerPath.objects.get(id=path_id, is_predefined=True)
+            is_owner = False
+
+        roadmap = career_path.roadmap_data
+        steps = roadmap.get('steps', [])
         
-    return render(request, 'pathfinder/result.html', context)
+        node = None
+        for step in steps:
+            # Flexible camparison
+            if str(step.get('step_id')) == str(step_id):
+                node = step
+                break
+        
+        if not node:
+             return redirect('view_career_path', path_id=path_id)
+
+        # Ensure resources is a list
+        if 'resources' not in node:
+            node['resources'] = []
+
+        context = {
+            'node': node,
+            'path': career_path,
+            'is_owner': is_owner,
+            'algo_score': 85 # Mock for now
+        }
+        return render(request, 'pathfinder/node_detail.html', context)
+
+    except CareerPath.DoesNotExist:
+        return redirect('profile')
