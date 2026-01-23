@@ -200,7 +200,7 @@ a {
 
 a:hover {
     color: var(--primary-hover);
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 /* --- Auth Pages (Login/Signup) --- */
@@ -236,7 +236,7 @@ a:hover {
 
 .form-container p a:hover {
     color: var(--primary-hover);
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .footer-link {
@@ -252,7 +252,7 @@ a:hover {
 }
 
 .footer-link a:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 /* --- Interview Co-Pilot (Chat) --- */
@@ -1214,7 +1214,7 @@ a:hover {
     margin-top: 15px;
     font-size: 0.9rem;
     color: var(--primary-color);
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .empty-state {

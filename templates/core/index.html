@@ -52,46 +52,46 @@
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
 
             <!-- Personality Test -->
-            <div class="feature-card" style="text-align: center;">
+            <a href="{% url 'personality_test' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
                 <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🧠</div>
                 <h3>Personality Archetype</h3>
                 <p>Understand your core traits using our MBTI-inspired assessment. Know yourself before you sell
                     yourself.</p>
-                <a href="{% url 'personality_test' %}" class="btn-small">Take the Test →</a>
-            </div>
+                <span class="btn-small">Take the Test →</span>
+            </a>
 
             <!-- Pathfinder -->
-            <div class="feature-card" style="text-align: center;">
+            <a href="{% url 'pathfinder' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
                 <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🗺️</div>
                 <h3>Career Pathfinder</h3>
                 <p>Generate a personalized career roadmap based on your personality and skills. Visualize your future.
                 </p>
-                <a href="{% url 'pathfinder' %}" class="btn-small">Explore Paths →</a>
-            </div>
+                <span class="btn-small">Explore Paths →</span>
+            </a>
 
             <!-- Match Analyzer -->
-            <div class="feature-card" style="text-align: center;">
+            <a href="{% url 'matcher' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
                 <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">📊</div>
                 <h3>Match Analyzer</h3>
                 <p>Beat the ATS. Compare your resume against potential employers and get a compatibility score.</p>
-                <a href="{% url 'matcher' %}" class="btn-small">Analyze Match →</a>
-            </div>
+                <span class="btn-small">Analyze Match →</span>
+            </a>
 
             <!-- Interview Prep -->
-            <div class="feature-card" style="text-align: center;">
+            <a href="{% url 'interview_prep' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
                 <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🎙️</div>
                 <h3>Interview Co-Pilot</h3>
                 <p>Practice with AI-driven text or voice interviews tailored to specific job descriptions.</p>
-                <a href="{% url 'interview_prep' %}" class="btn-small">Start Practicing →</a>
-            </div>
+                <span class="btn-small">Start Practicing →</span>
+            </a>
 
             <!-- Mental Wellness -->
-            <div class="feature-card" style="text-align: center;">
+            <a href="{% url 'therapy_landing' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
                 <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🧘‍♂️</div>
                 <h3>Mental Wellness</h3>
                 <p>Manage stress with expert counseling or instant AI support. Your mental health matters.</p>
-                <a href="{% url 'therapy_landing' %}" class="btn-small">Find Balance →</a>
-            </div>
+                <span class="btn-small">Find Balance →</span>
+            </a>
 
         </div>
     </section>
