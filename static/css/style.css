@@ -1,24 +1,15 @@
+/* --- Global Variables & Reset --- */
 :root {
-    /* Soft Red & Noir Theme */
-    --primary-color: #FF6B6B;
-    /* Soft Red */
-    --primary-hover: #d63384;
-    /* Deep Pink */
+    --primary-color: #ff6b6b;
+    --primary-hover: #fa5252;
     --background-dark: #121212;
-    /* Very Dark Grey/Black */
-    --background-card: #1E1E1E;
-    /* Dark Grey for cards */
-    --background-input: #2C2C2C;
-    /* Slightly lighter for inputs */
-    --text-main: #E0E0E0;
-    /* Off-white for main text */
-    --text-muted: #A0A0A0;
-    /* Light Grey for secondary text */
-    --border-color: #333333;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    /* Stronger shadow for dark mode */
-    --accent-glow: 0 0 15px rgba(255, 107, 107, 0.3);
-    /* Soft Red glow */
+    --background-card: #1e1e1e;
+    --background-input: #252525;
+    --text-main: #f8f9fa;
+    --text-muted: #adb5bd;
+    --border-color: #343a40;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.16);
+    --border-radius: 12px;
 }
 
 body {
@@ -29,178 +20,73 @@ body {
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
+    line-height: 1.6;
 }
 
-/* --- General Layout --- */
-
-.main-container {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 60px;
-    background: var(--background-card);
-    padding: 50px;
-    border-radius: 16px;
-    box-shadow: var(--card-shadow);
-    width: 100%;
-    max-width: 1100px;
-    align-items: center;
-    border: 1px solid var(--border-color);
-    margin: 40px auto;
-}
-
-/* --- Left Column (Info) --- */
-
-.info-column h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--text-main);
-    line-height: 1.1;
-    margin-bottom: 25px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.info-column .brand-highlight {
-    color: var(--primary-color);
-    text-shadow: var(--accent-glow);
-}
-
-.info-column p {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    line-height: 1.7;
-}
-
-/* --- Right Column (Form) --- */
-
-.form-column {
-    padding: 40px;
-    background-color: #181818;
-    /* Slightly darker than card */
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-
-.form-column h2 {
-    text-align: left;
-    font-size: 1.8rem;
-    margin-bottom: 25px;
-    color: var(--text-main);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
     font-weight: 600;
-}
-
-/* --- Navigation --- */
-
-nav {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 20px;
-}
-
-nav a,
-nav button {
-    background-color: transparent;
-    border: 1px solid var(--primary-color);
-    border-radius: 25px;
-    padding: 8px 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: all 0.3s ease;
-    margin-left: 10px;
-}
-
-nav a:hover,
-nav button:hover {
-    background-color: var(--primary-color);
-    color: #ffffff !important;
-    /* Force white text */
-    box-shadow: var(--accent-glow);
-    transform: translateY(-2px);
-}
-
-/* --- Forms --- */
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    text-align: left;
-}
-
-form label {
-    font-size: 0.95rem;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: var(--text-muted);
-    display: block;
-}
-
-form input,
-form textarea {
-    padding: 14px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background-color: var(--background-input);
     color: var(--text-main);
-    font-size: 1rem;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.3s ease;
-    width: 100%;
-    box-sizing: border-box;
-    /* Important for padding */
 }
 
-form input:focus,
-form textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.2);
-    background-color: #333;
-}
-
-/* Hide default password labels */
-label[for="id_password1"],
-label[for="id_password2"],
-label[for="id_password"] {
-    display: none;
-}
-
-button[type="submit"] {
-    background: linear-gradient(135deg, #FF6B6B 0%, #d63384 100%);
-    color: white;
-    padding: 16px 24px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    font-family: 'Poppins', sans-serif;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 15px;
-    box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
-}
-
-button[type="submit"]:hover {
-    opacity: 0.9;
-    color: #ffffff !important;
-    /* Force white text */
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(214, 51, 132, 0.6);
-}
-
-/* --- Global Links --- */
 a {
     color: var(--primary-color);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
 }
 
 a:hover {
     color: var(--primary-hover);
-    text-decoration: none;
+}
+
+/* --- Utility Classes --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    border-color: var(--primary-color);
+}
+
+.btn-primary {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white !important;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #fff 0%, var(--primary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* --- Auth Pages (Login/Signup) --- */
@@ -862,6 +748,8 @@ a:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 80px;
+    /* Global bottom spacing */
 }
 
 .section-container {
@@ -1243,4 +1131,71 @@ a:hover {
 
 .cancel-link:hover {
     color: white;
+}
+
+/* --- Tag Input System --- */
+.tag-input-wrapper {
+    background: var(--background-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tag-pill {
+    background: rgba(255, 107, 107, 0.15);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-remove {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.tag-remove:hover {
+    color: #fff;
+}
+
+.tag-input-field {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    padding: 5px;
+    flex: 1;
+    min-width: 150px;
+    outline: none;
+}
+
+.tag-input-field:focus {
+    box-shadow: none;
+}
+
+.add-tag-btn {
+    padding: 8px 16px;
+    background: #333;
+    border: 1px solid #444;
+    color: var(--text-main);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.add-tag-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }

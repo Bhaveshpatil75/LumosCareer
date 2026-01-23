@@ -4,124 +4,139 @@
 {% block title %}{{ user.username }}'s Profile | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="main-container profile-container" style="max-width: 1200px;">
+<div class="container" style="padding-top: 60px; padding-bottom: 80px;">
+    
     <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="profile-avatar-large">
+    <div class="card" style="margin-bottom: 30px; display: flex; align-items: center; gap: 30px; flex-wrap: wrap;">
+        <div class="profile-avatar-large" style="width: 120px; height: 120px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: white; font-weight: 700;">
             {{ user.username|slice:":1"|upper }}
         </div>
-        <div class="profile-info">
-            <h1>{{ user.username }}</h1>
-            {% if profile.bio %}
-            <p class="profile-bio">{{ profile.bio }}</p>
-            {% else %}
-            <p class="profile-bio placeholder">No bio added yet.</p>
-            {% endif %}
-
-            <div class="profile-links">
-                {% if profile.linkedin_url %}
-                <a href="{{ profile.linkedin_url }}" target="_blank" class="social-link linkedin">LinkedIn</a>
-                {% endif %}
-                {% if profile.github_url %}
-                <a href="{{ profile.github_url }}" target="_blank" class="social-link github">GitHub</a>
-                {% endif %}
-                {% if profile.leetcode_url %}
-                <a href="{{ profile.leetcode_url }}" target="_blank" class="social-link leetcode">LeetCode</a>
-                {% endif %}
+        
+        <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1 style="margin-bottom: 10px;">{{ user.username }}</h1>
+                    {% if profile.bio %}
+                        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin-bottom: 20px;">{{ profile.bio }}</p>
+                    {% else %}
+                        <p style="color: var(--text-muted); font-style: italic; margin-bottom: 20px;">No bio added yet.</p>
+                    {% endif %}
+                </div>
+                <a href="{% url 'edit_profile' %}" style="display: inline-block; padding: 8px 20px; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-muted); font-size: 0.9rem; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)'">
+                    Edit Profile
+                </a>
             </div>
 
-            <a href="{% url 'edit_profile' %}" class="edit-profile-btn">Edit Profile</a>
+            <!-- Social Links -->
+            <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                {% if profile.linkedin_url %}
+                    <a href="{{ profile.linkedin_url }}" target="_blank" class="tag" style="text-decoration: none; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid #fff;">LinkedIn ↗</a>
+                {% endif %}
+                {% if profile.github_url %}
+                    <a href="{{ profile.github_url }}" target="_blank" class="tag" style="text-decoration: none; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid #fff;">GitHub ↗</a>
+                {% endif %}
+                {% if profile.leetcode_url %}
+                    <a href="{{ profile.leetcode_url }}" target="_blank" class="tag" style="text-decoration: none; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid #fff;">LeetCode ↗</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 
     <!-- Dashboard Tabs -->
-    <div class="dashboard-tabs">
-        <button class="tab-btn active" onclick="openTab(event, 'overview')">Overview</button>
-        <button class="tab-btn" onclick="openTab(event, 'career-paths')">Career Paths</button>
-        <button class="tab-btn" onclick="openTab(event, 'companies')">Saved Companies</button>
-        <button class="tab-btn" onclick="openTab(event, 'interviews')">Interview History</button>
+    <div class="dashboard-tabs" style="margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 0;">
+        <button class="tab-btn active" onclick="openTab(event, 'overview')" style="padding: 15px 25px; background: none; border: none; border-bottom: 2px solid var(--primary-color); color: var(--primary-color); font-weight: 500; cursor: pointer;">Overview</button>
+        <button class="tab-btn" onclick="openTab(event, 'career-paths')" style="padding: 15px 25px; background: none; border: none; color: var(--text-muted); font-weight: 500; cursor: pointer;">Career Paths</button>
+        <button class="tab-btn" onclick="openTab(event, 'companies')" style="padding: 15px 25px; background: none; border: none; color: var(--text-muted); font-weight: 500; cursor: pointer;">Saved Companies</button>
+        <button class="tab-btn" onclick="openTab(event, 'interviews')" style="padding: 15px 25px; background: none; border: none; color: var(--text-muted); font-weight: 500; cursor: pointer;">Interview History</button>
     </div>
 
     <!-- Tab Content: Overview -->
-    <div id="overview" class="tab-content active">
-        <div class="profile-grid">
-            <!-- Resume Section -->
-            <div class="profile-card resume-card">
-                <h2>Resume</h2>
-                {% if profile.resume_file %}
-                <div class="resume-file-preview">
-                    <a href="{{ profile.resume_file.url }}" target="_blank" class="resume-file-link">
-                        <span class="file-icon">📄</span>
-                        <span class="file-name">Resume</span>
-                    </a>
+    <div id="overview" class="tab-content active" style="display: block;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+            
+            <!-- Left Column -->
+            <div style="display: flex; flex-direction: column; gap: 30px;">
+                <!-- Resume Section -->
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Resume</h3>
+                    {% if profile.filename %}
+                    <div style="background: var(--background-input); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+                        <span style="font-size: 2rem;">📄</span>
+                        <div>
+                            <div style="font-weight: 500; margin-bottom: 5px;">{{ profile.filename }}</div>
+                            <a href="{{ profile.resume_file.url }}" target="_blank" style="font-size: 0.85rem; color: var(--primary-color);">View Resume</a>
+                        </div>
+                    </div>
+                    {% elif profile.resume_text %}
+                    <div style="background: var(--background-input); padding: 15px; border-radius: 8px; color: var(--text-muted); font-size: 0.9rem;">
+                        {{ profile.resume_text|linebreaks|truncatewords:50 }}
+                    </div>
+                    {% else %}
+                    <p style="color: var(--text-muted);">No resume uploaded.</p>
+                    {% endif %}
                 </div>
-                {% elif profile.resume_text %}
-                <div class="resume-preview">
-                    {{ profile.resume_text|linebreaks|truncatewords:50 }}
+
+                <!-- Target Roles -->
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Target Roles</h3>
+                    {% if profile.roles_list %}
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        {% for role in profile.roles_list %}
+                             <span style="background: rgba(255, 107, 107, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">{{ role }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p style="color: var(--text-muted);">No target roles specified.</p>
+                    {% endif %}
                 </div>
-                {% else %}
-                <p class="empty-state">No resume uploaded.</p>
-                {% endif %}
             </div>
 
-            <!-- Target Roles -->
-            <div class="profile-card roles-card">
-                <h2>Target Roles</h2>
-                {% if profile.target_job_titles %}
-                <div class="tags-container">
-                    {% for role in profile.target_job_titles.split %}
-                    <span class="tag role-tag">{{ role }}</span>
-                    {% endfor %}
+            <!-- Right Column (Personality) -->
+            <div>
+                <div class="card" style="text-align: center;">
+                    <h3 style="margin-bottom: 20px;">Personality Archetype</h3>
+                    {% if assessment %}
+                        <div id="type-badge" style="font-size: 3.5rem; font-weight: 800; color: var(--primary-color); margin-bottom: 5px; text-shadow: 0 0 20px rgba(255, 107, 107, 0.4);">
+                            {{ assessment.result_type }}
+                        </div>
+                        <div id="type-name" style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;"></div>
+                        <p id="type-desc" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+                            <!-- Description injected by JS -->
+                        </p>
+                        <a href="{% url 'pathfinder' %}" style="font-size: 0.85rem; text-decoration: underline;">Retake Test</a>
+                    {% else %}
+                        <p style="color: var(--text-muted); margin-bottom: 20px;">Discover your work style.</p>
+                        <a href="{% url 'pathfinder' %}" class="btn-primary" style="font-size: 0.9rem; padding: 10px 20px;">Take Test</a>
+                    {% endif %}
                 </div>
-                {% else %}
-                <p class="empty-state">No target roles specified.</p>
-                {% endif %}
-            </div>
-
-            <!-- Assessment Results -->
-            <div class="profile-card assessment-card">
-                <h2>Personality Type</h2>
-                {% if assessment %}
-                <div class="personality-result">
-                    <span class="type-badge">{{ assessment.result_type }}</span>
-                    <p>Taken on: {{ assessment.date_taken|date:"M d, Y" }}</p>
-                    <a href="{% url 'pathfinder' %}" class="btn-small">Retake Test</a>
-                </div>
-                {% else %}
-                <p class="empty-state">Not yet assessed.</p>
-                <a href="{% url 'pathfinder' %}" class="btn-small">Start Pathfinder</a>
-                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Tab Content: Career Paths -->
-    <div id="career-paths" class="tab-content">
-        <div class="items-grid">
+    <div id="career-paths" class="tab-content" style="display: none;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
             {% for path in career_paths %}
-            <div class="item-card path-card">
-                <div class="card-header">
-                    <h3>{{ path.title }}</h3>
-                    <span class="status-badge {{ path.status|lower }}">{{ path.status }}</span>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <h3 style="font-size: 1.2rem;">{{ path.title }}</h3>
+                    <span style="font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.1);">{{ path.status }}</span>
                 </div>
-                <p class="card-desc">{{ path.description|truncatewords:20 }}</p>
-
-                <div class="progress-section">
-                    <div class="progress-bar-bg">
-                        <div class="progress-fill" style="width: {{ path.progress }}%;"></div>
-                    </div>
-                    <span class="progress-text">{{ path.progress }}% Complete</span>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">{{ path.description|truncatewords:20 }}</p>
+                
+                <div style="background: #333; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 5px;">
+                    <div style="background: var(--primary-color); height: 100%; width: {{ path.progress }}%;"></div>
                 </div>
-
-                <div class="card-actions">
-                    <!-- Assuming roadmap view can take path data or just linking to generic roadmap for now -->
-                    <a href="{% url 'view_career_path' path.id %}" class="action-btn view">View Path</a>
-                    <button onclick="deleteItem('path', {{ path.id }})" class="action-btn delete">Delete</button>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">{{ path.progress }}% Complete</div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <a href="{% url 'view_career_path' path.id %}" style="flex: 1; text-align: center; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: var(--text-muted); text-decoration: none;">View</a>
+                    <button onclick="deleteItem('path', {{ path.id }})" style="flex: 1; background: none; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: #ff4444; cursor: pointer;">Delete</button>
                 </div>
             </div>
             {% empty %}
-            <div class="empty-state-large">
-                <p>No career paths saved yet. Take the test to generate one!</p>
+            <div class="card" style="grid-column: 1/-1; text-align: center; padding: 50px;">
+                <p style="color: var(--text-muted); margin-bottom: 20px;">No career paths generated yet.</p>
                 <a href="{% url 'pathfinder' %}" class="btn-primary">Start Pathfinder</a>
             </div>
             {% endfor %}
@@ -129,58 +144,56 @@
     </div>
 
     <!-- Tab Content: Saved Companies -->
-    <div id="companies" class="tab-content">
-        <div class="items-grid">
+    <div id="companies" class="tab-content" style="display: none;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
             {% for company in saved_companies %}
-            <div class="item-card company-card">
-                <div class="card-header">
-                    <h3>{{ company.company_name }}</h3>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <h3 style="font-size: 1.2rem;">{{ company.company_name }}</h3>
                     {% if company.compatibility_score %}
-                    <span class="score-badge">{{ company.compatibility_score }}% Match</span>
+                    <span style="color: var(--primary-color); font-weight: bold;">{{ company.compatibility_score }}% Match</span>
                     {% endif %}
                 </div>
-                <p class="date-saved">Saved on {{ company.date_saved|date:"M d, Y" }}</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Saved on {{ company.date_saved|date:"M d, Y" }}</p>
 
-                <div class="card-actions">
-                    <!-- Could implement a modal to view full report -->
-                    <button class="action-btn view" onclick="alert('Full report view coming soon!')">View
-                        Analysis</button>
-                    <button onclick="deleteItem('company', {{ company.id }})" class="action-btn delete">Delete</button>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="alert('Full report view coming soon!')" style="flex: 1; background: none; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: var(--text-muted); cursor: pointer;">View Analysis</button>
+                    <button onclick="deleteItem('company', {{ company.id }})" style="flex: 1; background: none; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: #ff4444; cursor: pointer;">Delete</button>
                 </div>
             </div>
             {% empty %}
-            <div class="empty-state-large">
-                <p>No companies saved.</p>
-                <a href="{% url 'home' %}" class="btn-primary">Analyze a Company</a>
+            <div class="card" style="grid-column: 1/-1; text-align: center; padding: 50px;">
+                <p style="color: var(--text-muted); margin-bottom: 20px;">No companies saved.</p>
+                <a href="{% url 'home' %}#matcher" class="btn-primary">Analyze a Company</a>
             </div>
             {% endfor %}
         </div>
     </div>
 
     <!-- Tab Content: Interviews -->
-    <div id="interviews" class="tab-content">
-        <div class="timeline-container">
+    <div id="interviews" class="tab-content" style="display: none;">
+         <div style="max-width: 800px; margin: 0 auto;">
             {% for interview in interviews %}
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content">
-                    <div class="timeline-header">
-                        <h3>{{ interview.company_name }}</h3>
-                        <span class="interview-type-badge {{ interview.interview_type }}">{{
-                            interview.get_interview_type_display }}</span>
+            <div style="position: relative; padding-left: 30px; margin-bottom: 30px; border-left: 2px solid var(--border-color);">
+                <div style="position: absolute; left: -9px; top: 0; width: 16px; height: 16px; background: var(--background-dark); border: 2px solid var(--primary-color); border-radius: 50%;"></div>
+                
+                <div class="card" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <h3 style="font-size: 1.1rem;">{{ interview.company_name }}</h3>
+                        <span style="font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">{{ interview.get_interview_type_display }}</span>
                     </div>
-                    <p class="timeline-date">{{ interview.date_logged|date:"F j, Y, P" }}</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">{{ interview.date_logged|date:"F j, Y, P" }}</p>
                     {% if interview.notes %}
-                    <div class="timeline-notes">
-                        <strong>Notes:</strong> {{ interview.notes }}
-                    </div>
+                        <div style="background: var(--background-input); padding: 10px; border-radius: 6px; font-size: 0.9rem; color: var(--text-main);">
+                            <strong>Notes:</strong> {{ interview.notes }}
+                        </div>
                     {% endif %}
-                    <button onclick="deleteItem('interview', {{ interview.id }})" class="delete-link">Remove</button>
+                    <button onclick="deleteItem('interview', {{ interview.id }})" style="background: none; border: none; color: #ff4444; font-size: 0.85rem; margin-top: 10px; cursor: pointer; text-decoration: underline;">Remove</button>
                 </div>
             </div>
             {% empty %}
-            <div class="empty-state-large">
-                <p>No interviews logged yet.</p>
+            <div class="card" style="text-align: center; padding: 50px;">
+                <p style="color: var(--text-muted); margin-bottom: 20px;">No interviews logged.</p>
                 <a href="{% url 'interview_prep' %}" class="btn-primary">Prep for Interview</a>
             </div>
             {% endfor %}
@@ -189,259 +202,27 @@
 
 </div>
 
-<style>
-    /* Tab Styles */
-    .dashboard-tabs {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 30px;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 10px;
-    }
-
-    .tab-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-muted);
-        padding: 10px 20px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border-radius: 8px;
-    }
-
-    .tab-btn:hover {
-        color: var(--primary-color);
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .tab-btn.active {
-        color: #fff;
-        background: var(--primary-color);
-        box-shadow: 0 4px 12px rgba(76, 145, 150, 0.3);
-    }
-
-    .tab-content {
-        display: none;
-        animation: fadeIn 0.4s ease;
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-
-    /* Grid for Items */
-    .items-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-    }
-
-    .item-card {
-        background: #1E1E1E;
-        border: 1px solid #333;
-        border-radius: 12px;
-        padding: 20px;
-        transition: transform 0.2s;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .item-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--primary-color);
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .card-header h3 {
-        margin: 0;
-        font-size: 1.2rem;
-        color: #fff;
-    }
-
-    .status-badge,
-    .score-badge,
-    .interview-type-badge {
-        font-size: 0.8rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-    }
-
-    .status-badge.active {
-        background: rgba(76, 175, 80, 0.2);
-        color: #4CAF50;
-    }
-
-    .status-badge.completed {
-        background: rgba(33, 150, 243, 0.2);
-        color: #2196F3;
-    }
-
-    .score-badge {
-        background: rgba(76, 145, 150, 0.2);
-        color: #4C9196;
-    }
-
-    .progress-section {
-        margin: 15px 0;
-    }
-
-    .progress-bar-bg {
-        background: #333;
-        height: 6px;
-        border-radius: 3px;
-        overflow: hidden;
-    }
-
-    .progress-fill {
-        background: var(--primary-color);
-        height: 100%;
-    }
-
-    .progress-text {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-top: 5px;
-        display: block;
-    }
-
-    .card-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-    }
-
-    .action-btn {
-        flex: 1;
-        padding: 8px;
-        border: 1px solid var(--border-color);
-        background: transparent;
-        color: var(--text-muted);
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .action-btn.view:hover {
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-    }
-
-    .action-btn.delete:hover {
-        border-color: #ff4444;
-        color: #ff4444;
-    }
-
-    /* Timeline */
-    .timeline-container {
-        position: relative;
-        padding-left: 20px;
-        border-left: 2px solid #333;
-    }
-
-    .timeline-item {
-        position: relative;
-        margin-bottom: 30px;
-        padding-left: 20px;
-    }
-
-    .timeline-marker {
-        position: absolute;
-        left: -26px;
-        top: 5px;
-        width: 14px;
-        height: 14px;
-        background: var(--background-dark);
-        border: 2px solid var(--primary-color);
-        border-radius: 50%;
-    }
-
-    .timeline-content {
-        background: #1E1E1E;
-        padding: 15px;
-        border-radius: 8px;
-    }
-
-    .timeline-header h3 {
-        margin: 0;
-        font-size: 1.1rem;
-    }
-
-    .timeline-date {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin: 5px 0;
-    }
-
-    .delete-link {
-        background: none;
-        border: none;
-        color: #ff4444;
-        font-size: 0.8rem;
-        cursor: pointer;
-        padding: 0;
-        margin-top: 10px;
-        text-decoration: underline;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .resume-file-link {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-    }
-
-    .resume-file-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    .file-icon {
-        font-size: 24px;
-    }
-
-    .file-name {
-        font-weight: 500;
-        color: var(--text-color);
-    }
-</style>
-
 <script>
+    // Tab Logic
     function openTab(evt, tabName) {
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab-content");
         for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].classList.remove("active");
+            tabcontent[i].style.display = "none";
         }
         tablinks = document.getElementsByClassName("tab-btn");
         for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active");
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+            tablinks[i].style.color = "var(--text-muted)";
+            tablinks[i].style.borderBottom = "none";
         }
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("active");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        evt.currentTarget.style.color = "var(--primary-color)";
+        evt.currentTarget.style.borderBottom = "2px solid var(--primary-color)";
     }
 
+    // Delete Logic
     function deleteItem(type, id) {
         if (confirm('Are you sure you want to delete this item?')) {
             fetch(`/profile/delete/${type}/${id}/`, {
@@ -450,15 +231,41 @@
                     'X-CSRFToken': '{{ csrf_token }}'
                 }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error deleting item');
-                    }
-                });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deleting item');
+                }
+            });
         }
+    }
+
+    // Personality Map
+    const types = {
+        "INTJ": { name: "The Architect", desc: "Imaginative and strategic thinkers, with a plan for everything." },
+        "INTP": { name: "The Logician", desc: "Innovative inventors with an unquenchable thirst for knowledge." },
+        "ENTJ": { name: "The Commander", desc: "Bold, imaginative and strong-willed leaders." },
+        "ENTP": { name: "The Debater", desc: "Smart and curious thinkers who cannot resist an intellectual challenge." },
+        "INFJ": { name: "The Advocate", desc: "Quiet and mystical, yet very inspiring and tireless idealists." },
+        "INFP": { name: "The Mediator", desc: "Poetic, kind and altruistic people, always eager to help a good cause." },
+        "ENFJ": { name: "The Protagonist", desc: "Charismatic and inspiring leaders, able to mesmerize their listeners." },
+        "ENFP": { name: "The Campaigner", desc: "Enthusiastic, creative and sociable free spirits." },
+        "ISTJ": { name: "The Logistician", desc: "Practical and fact-minded individuals, whose reliability cannot be doubted." },
+        "ISFJ": { name: "The Defender", desc: "Very dedicated and warm protectors, always ready to defend their loved ones." },
+        "ESTJ": { name: "The Executive", desc: "Excellent administrators, unsurpassed at managing things - or people." },
+        "ESFJ": { name: "The Consul", desc: "Extraordinarily caring, social and popular people, always eager to help." },
+        "ISTP": { name: "The Virtuoso", desc: "Bold and practical experimenters, masters of all kinds of tools." },
+        "ISFP": { name: "The Adventurer", desc: "Flexible and charming artists, always ready to explore and experience something new." },
+        "ESTP": { name: "The Entrepreneur", desc: "Smart, energetic and very perceptive people, who truly enjoy living on the edge." },
+        "ESFP": { name: "The Entertainer", desc: "Spontaneous, energetic and enthusiastic people - life is never boring around them." }
+    };
+
+    const userType = "{{ assessment.result_type }}";
+    if (userType && types[userType]) {
+        document.getElementById('type-name').innerText = types[userType].name;
+        document.getElementById('type-desc').innerText = types[userType].desc;
     }
 </script>
 {% endblock %}

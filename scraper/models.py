@@ -88,6 +88,12 @@ class UserProfile(models.Model):
             return os.path.basename(self.resume_file.name)
         return ""
 
+    @property
+    def roles_list(self):
+        if not self.target_job_titles:
+            return []
+        return [r.strip() for r in self.target_job_titles.split(',') if r.strip()]
+
     def __str__(self):
         return f"{self.user.username}'s Profile"
 

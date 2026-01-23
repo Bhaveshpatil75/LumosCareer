@@ -3,35 +3,43 @@
 {% block title %}Match Analyzer | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="main-container" style="max-width: 800px; margin: 40px auto;">
-    <div class="info-column" style="text-align: center; margin-bottom: 40px;">
-        <h1 style="font-size: 2.5rem;">Match <span class="brand-highlight">Analyzer</span></h1>
-        <p>Paste a job description and company name to get a detailed ATS and cultural compatibility report.</p>
+<div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+    <div style="text-align: center; margin-bottom: 50px;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 15px;">Match <span class="text-gradient">Analyzer</span></h1>
+        <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+            Paste a job description and company name to get a detailed ATS and cultural compatibility report.
+        </p>
     </div>
 
-    <div class="form-column">
-        <h2>Generate Your Report</h2>
+    <div class="card" style="max-width: 700px; margin: 0 auto;">
+        <h2 style="margin-bottom: 25px; font-size: 1.5rem;">Generate Report</h2>
         <form action="{% url 'match_submit' %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <div class="resume-status" style="margin-bottom: 20px; text-align: center;">
-                <p style="margin-bottom: 10px; color: var(--text-muted);">Using resume from your
-                    <strong>Profile</strong>.</p>
-                <a href="{% url 'edit_profile' %}"
-                    style="font-size: 0.9em; text-decoration: underline; color: var(--primary-color);">Change Resume
-                    in Profile</a>
+            <div class="resume-status" style="margin-bottom: 25px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                <p style="margin-bottom: 5px; color: var(--text-main); font-size: 0.9rem;">
+                    Using resume from <strong>Profile</strong>
+                </p>
+                <a href="{% url 'edit_profile' %}" style="font-size: 0.85rem; text-decoration: none; color: var(--primary-color);">
+                    Change Resume →
+                </a>
             </div>
 
-            <label for="company">Company Name:</label>
-            <input type="text" id="company" name="company_name" required placeholder="e.g., Google, Microsoft, etc."
-                style="margin-bottom: 20px;">
+            <div style="margin-bottom: 20px;">
+                <label for="company" style="display: block; margin-bottom: 8px; font-weight: 500;">Company Name</label>
+                <input type="text" id="company" name="company_name" required placeholder="e.g., Google, Microsoft" 
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--background-input); color: white;">
+            </div>
 
-            <label for="jd">Job Description (Optional but Recommended):</label>
-            <textarea id="jd" name="job_description"
-                placeholder="Paste the Job Description or Company 'About Us' text here for a mathematical match score..."
-                style="height: 150px;"></textarea>
+            <div style="margin-bottom: 30px;">
+                <label for="jd" style="display: block; margin-bottom: 8px; font-weight: 500;">Job Description (Optional)</label>
+                <textarea id="jd" name="job_description" placeholder="Paste JD here for ATS keyword matching..." 
+                    style="width: 100%; height: 150px; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--background-input); color: white; resize: vertical;"></textarea>
+            </div>
 
-            <button type="submit" style="width: 100%; margin-top: 30px;">Find My Match</button>
+            <button type="submit" class="btn-primary" style="width: 100%; border-radius: 8px;">
+                Analyze Match
+            </button>
         </form>
     </div>
 </div>

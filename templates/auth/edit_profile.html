@@ -1,42 +1,128 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Edit Profile | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="form-container edit-profile-container">
-    <h2>Edit Profile</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+<div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+    
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <h2 style="margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">Edit Profile</h2>
+        
+        <form method="post" enctype="multipart/form-data" id="edit-profile-form">
+            {% csrf_token %}
 
-        <label for="bio">Bio</label>
-        <textarea name="bio" id="bio" rows="3" placeholder="Tell us about yourself">{{ profile.bio }}</textarea>
+            <!-- Bio -->
+            <div style="margin-bottom: 25px;">
+                <label for="bio" style="display: block; margin-bottom: 8px; font-weight: 500;">Bio</label>
+                <textarea name="bio" id="bio" rows="4" placeholder="Tell us about yourself..." 
+                    style="width: 100%; padding: 12px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; resize: vertical; box-sizing: border-box;">{{ profile.bio }}</textarea>
+            </div>
 
-        <label for="target_job_titles">Target Job Titles (Comma separated)</label>
-        <input type="text" name="target_job_titles" id="target_job_titles" value="{{ profile.target_job_titles }}"
-            placeholder="e.g. Full Stack Developer, Data Scientist">
+            <!-- Tag Input System -->
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Target Job Titles</label>
+                
+                <div class="tag-input-wrapper">
+                    <div id="tags-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <!-- Tags will be injected here via JS -->
+                    </div>
+                    <input type="text" id="tag-input" class="tag-input-field" placeholder="Type a role (e.g. Developer)...">
+                    <button type="button" id="add-tag-btn" class="add-tag-btn">Add</button>
+                </div>
+                
+                <!-- Hidden input stores the actual comma separated value -->
+                <input type="hidden" name="target_job_titles" id="hidden-roles-input" value="{{ profile.target_job_titles }}">
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Press Enter or click Add to save a role.</p>
+            </div>
 
-        <label for="resume_file">Upload Resume (PDF, max 5MB)</label>
-        <input type="file" name="resume_file" id="resume_file" accept=".pdf"
-            style="display: block; margin-bottom: 15px;">
+            <!-- Resume Upload -->
+            <div style="margin-bottom: 25px;">
+                <label for="resume_file" style="display: block; margin-bottom: 8px; font-weight: 500;">Upload Resume (PDF)</label>
+                <input type="file" name="resume_file" id="resume_file" accept=".pdf"
+                    style="display: block; width: 100%; padding: 10px; background: var(--background-input); border-radius: 8px; color: var(--text-muted); box-sizing: border-box;">
+            </div>
 
-        <label for="resume_text">Resume Text</label>
-        <textarea name="resume_text" id="resume_text" rows="10"
-            placeholder="Paste your resume text here, or it will be auto-filled from the uploaded file.">{{ profile.resume_text }}</textarea>
+            <!-- Links -->
+            <div style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    <label for="linkedin_url" style="display: block; margin-bottom: 8px;">LinkedIn URL</label>
+                    <input type="url" name="linkedin_url" value="{{ profile.linkedin_url }}" placeholder="https://linkedin.com/in/..."
+                        style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label for="github_url" style="display: block; margin-bottom: 8px;">GitHub URL</label>
+                    <input type="url" name="github_url" value="{{ profile.github_url }}" placeholder="https://github.com/..."
+                        style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label for="leetcode_url" style="display: block; margin-bottom: 8px;">LeetCode URL</label>
+                    <input type="url" name="leetcode_url" value="{{ profile.leetcode_url }}" placeholder="https://leetcode.com/..."
+                        style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                </div>
+            </div>
 
-        <label for="linkedin_url">LinkedIn URL</label>
-        <input type="url" name="linkedin_url" id="linkedin_url" value="{{ profile.linkedin_url }}"
-            placeholder="https://linkedin.com/in/...">
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <button type="submit" class="btn-primary" style="padding: 12px 30px;">Save Changes</button>
+                <a href="{% url 'profile' %}" style="color: var(--text-muted); text-decoration: none;">Cancel</a>
+            </div>
 
-        <label for="github_url">GitHub URL</label>
-        <input type="url" name="github_url" id="github_url" value="{{ profile.github_url }}"
-            placeholder="https://github.com/...">
-
-        <label for="leetcode_url">LeetCode URL</label>
-        <input type="url" name="leetcode_url" id="leetcode_url" value="{{ profile.leetcode_url }}"
-            placeholder="https://leetcode.com/...">
-
-        <button type="submit">Save Changes</button>
-        <a href="{% url 'profile' %}" class="cancel-link">Cancel</a>
-    </form>
+        </form>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tagInput = document.getElementById('tag-input');
+        const addBtn = document.getElementById('add-tag-btn');
+        const tagsList = document.getElementById('tags-list');
+        const hiddenInput = document.getElementById('hidden-roles-input');
+
+        // Initial loading of tags
+        let tags = hiddenInput.value.split(',').map(t => t.trim()).filter(t => t !== "");
+        renderTags();
+
+        function renderTags() {
+            tagsList.innerHTML = '';
+            tags.forEach((tag, index) => {
+                const tagEl = document.createElement('div');
+                tagEl.className = 'tag-pill';
+                tagEl.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" data-index="${index}">×</span>
+                `;
+                tagsList.appendChild(tagEl);
+            });
+            // Update hidden input
+            hiddenInput.value = tags.join(',');
+        }
+
+        function addTag() {
+            const val = tagInput.value.trim();
+            if (val && !tags.includes(val)) {
+                tags.push(val);
+                renderTags();
+                tagInput.value = '';
+            }
+        }
+
+        addBtn.addEventListener('click', addTag);
+
+        tagInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submit
+                addTag();
+            }
+        });
+
+        // Event delegation for remove
+        tagsList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('tag-remove')) {
+                const index = e.target.getAttribute('data-index');
+                tags.splice(index, 1);
+                renderTags();
+            }
+        });
+    });
+</script>
 {% endblock %}

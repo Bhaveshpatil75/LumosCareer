@@ -9,7 +9,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
@@ -33,31 +33,38 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">
-            <a href="{% url 'home' %}">Lumos Career</a>
-        </div>
-        <div class="nav-links">
-            <!-- Navigation items moved to Homepage Dashboard -->
-        </div>
-        <div class="nav-profile">
-            {% if user.is_authenticated %}
-            <div class="profile-dropdown">
-                <div class="profile-avatar" onclick="toggleDropdown()">
-                    {{ user.username|slice:":1"|upper }}
-                </div>
-                <div class="dropdown-menu" id="profileDropdown">
-                    <a href="{% url 'profile' %}">My Profile</a>
-                    <form action="{% url 'logout' %}" method="POST">
+    <!-- Navigation -->
+    <nav style="background: var(--background-card); border-bottom: 1px solid var(--border-color); padding: 20px 0;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; position: relative;">
+            
+            <!-- Left Spacer -->
+            <div style="flex: 1;"></div>
+
+            <!-- Center Logo -->
+            <a href="{% url 'home' %}" style="text-decoration: none; color: var(--text-main); font-family: 'Cinzel Decorative', cursive; font-weight: 700; font-size: 2.2rem; letter-spacing: 1px; text-align: center;">
+                <span style="color: var(--primary-color);">✦</span> Lumos Career
+            </a>
+
+            <!-- Right Side (Auth) -->
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 20px;">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" title="My Profile" style="text-decoration: none;">
+                        <div class="profile-avatar" style="width: 45px; height: 45px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 1.4rem; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 0 10px rgba(255, 107, 107, 0.4);">
+                            {{ user.username|slice:":1"|upper }}
+                        </div>
+                    </a>
+                    
+                    <form action="{% url 'logout' %}" method="POST" style="margin: 0;">
                         {% csrf_token %}
-                        <button type="submit">Logout</button>
+                        <button type="submit" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;">
+                            Sign Out
+                        </button>
                     </form>
-                </div>
+                {% else %}
+                    <a href="{% url 'login' %}" style="color: var(--text-muted); font-weight: 500; text-decoration: none;">Log In</a>
+                    <a href="{% url 'signup' %}" class="btn-primary" style="padding: 10px 25px; font-size: 0.95rem; text-decoration: none;">Sign Up</a>
+                {% endif %}
             </div>
-            {% else %}
-            <a href="{% url 'login' %}" class="auth-btn">Log In</a>
-            <a href="{% url 'signup' %}" class="auth-btn">Sign Up</a>
-            {% endif %}
         </div>
     </nav>
 

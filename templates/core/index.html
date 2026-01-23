@@ -2,140 +2,123 @@
 {% load static %}
 
 {% block content %}
-<div class="homepage-container">
+<div class="container" style="padding-top: 60px;">
+
     <!-- Hero Section -->
-    <section class="hero-section" style="text-align: center; padding: 60px 20px;">
-        <h1 style="font-size: 3.5rem; margin-bottom: 20px;">Unlock Your <span class="brand-highlight">True
-                Potential</span></h1>
-        <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto; line-height: 1.6; color: var(--text-muted);">
+    <div style="text-align: center; max-width: 800px; margin: 0 auto 80px auto;">
+        <h1 style="font-size: 3.5rem; line-height: 1.2; margin-bottom: 25px;">
+            Unlock Your <span class="text-gradient">True Potential</span>
+        </h1>
+        <p style="font-size: 1.25rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 40px;">
             Lumos Career is your AI-powered career co-pilot. From discovering your personality type to acing the
-            interview,
-            we provide the tools you need to navigate the modern job market with confidence.
+            interview, we provide the tools you need to navigate the modern job market with confidence.
         </p>
-        <div style="margin-top: 40px;">
-            <a href="{% url 'pathfinder' %}" class="btn-primary"
-                style="padding: 15px 30px; font-size: 1.1rem; border-radius: 30px; text-decoration: none; display: inline-block;">Start
-                Your Journey</a>
+        <div>
+            <a href="{% url 'pathfinder' %}" class="btn-primary" style="font-size: 1.1rem; padding: 15px 40px;">
+                Start Your Journey
+            </a>
         </div>
-    </section>
+    </div>
 
     <!-- Brand Meaning Section -->
-    <section class="brand-meaning-section"
-        style="text-align: center; padding: 40px 20px; max-width: 900px; margin: 0 auto;">
-        <div style="font-size: 3rem; margin-bottom: 10px;">✨ <i>Lumos!</i></div>
+    <div style="text-align: center; max-width: 900px; margin: 0 auto 80px auto; padding: 40px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px solid var(--border-color);">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">✨ <i>Lumos!</i></div>
         <h2 style="font-size: 2rem; margin-bottom: 20px;">Illuminating Your Path</h2>
         <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-muted);">
             In the wizarding world, <strong>"Lumos"</strong> is the spell that lights up the wand, casting away darkness
-            to reveal the path ahead.
-            At <span class="brand-highlight">Lumos Career</span>, we believe your professional journey shouldn't be a
-            shot in the dark.
-            We are here to <strong>shed light</strong> on your true potential, illuminating opportunities and guiding
+            to reveal the path ahead. At <span style="color: var(--primary-color);">Lumos Career</span>, we believe your professional journey shouldn't be a
+            shot in the dark. We are here to <strong>shed light</strong> on your true potential, illuminating opportunities and guiding
             you through the obscurity of the modern job market with clarity and precision.
         </p>
-    </section>
+    </div>
 
     <!-- Quote Section -->
-    <section class="quote-section"
-        style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.02); margin: 40px 0;">
-        <blockquote style="font-size: 1.5rem; font-style: italic; color: var(--primary-color);">
+    <div style="text-align: center; margin-bottom: 80px;">
+        <blockquote style="font-size: 1.5rem; font-style: italic; color: var(--primary-color); border-left: none; padding: 0;">
             "Smart work is not about shortcuts, but about leverage."
         </blockquote>
         <p style="margin-top: 10px; color: var(--text-muted);">- Anonymous</p>
-    </section>
+    </div>
 
-    <!-- Features Grid -->
-    <section class="features-overview" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
-        <h2 style="text-align: center; margin-bottom: 50px; font-size: 2.5rem;">Our <span
-                class="brand-highlight">Ecosystem</span></h2>
+    <!-- Features Section -->
+    <h2 style="text-align: center; margin-bottom: 50px; font-size: 2.5rem;">Our <span style="color: var(--primary-color);">Ecosystem</span></h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        
+        <!-- Personality Test -->
+        <a href="{% url 'personality_test' %}" class="card" style="display: block; text-decoration: none; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🧠</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Personality Archetype</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                Understand your core traits using our MBTI-inspired assessment. Know yourself before you sell yourself.
+            </p>
+            <div style="font-size: 0.85rem; color: var(--primary-color); font-weight: 500;">
+                Take the Test →
+            </div>
+        </a>
 
-        <div class="features-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        <!-- Pathfinder -->
+        <a href="{% url 'pathfinder' %}" class="card" style="display: block; text-decoration: none; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🗺️</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Career Pathfinder</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                Generate a personalized career roadmap based on your personality and skills. Visualize your future.
+            </p>
+            <div style="font-size: 0.85rem; color: var(--primary-color); font-weight: 500;">
+                Explore Paths →
+            </div>
+        </a>
 
-            <!-- Personality Test -->
-            <a href="{% url 'personality_test' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
-                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🧠</div>
-                <h3>Personality Archetype</h3>
-                <p>Understand your core traits using our MBTI-inspired assessment. Know yourself before you sell
-                    yourself.</p>
-                <span class="btn-small">Take the Test →</span>
-            </a>
+        <!-- Match Analyzer -->
+        <a href="{% url 'matcher' %}" class="card" style="display: block; text-decoration: none; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">📊</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Match Analyzer</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                Beat the ATS. Compare your resume against potential employers and get a compatibility score.
+            </p>
+            <div style="font-size: 0.85rem; color: var(--primary-color); font-weight: 500;">
+                Analyze Match →
+            </div>
+        </a>
 
-            <!-- Pathfinder -->
-            <a href="{% url 'pathfinder' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
-                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🗺️</div>
-                <h3>Career Pathfinder</h3>
-                <p>Generate a personalized career roadmap based on your personality and skills. Visualize your future.
-                </p>
-                <span class="btn-small">Explore Paths →</span>
-            </a>
+        <!-- Interview Prep -->
+        <a href="{% url 'interview_prep' %}" class="card" style="display: block; text-decoration: none; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🎙️</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Interview Co-Pilot</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                Practice with AI-driven text or voice interviews tailored to specific job descriptions.
+            </p>
+            <div style="font-size: 0.85rem; color: var(--primary-color); font-weight: 500;">
+                Start Practicing →
+            </div>
+        </a>
 
-            <!-- Match Analyzer -->
-            <a href="{% url 'matcher' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
-                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">📊</div>
-                <h3>Match Analyzer</h3>
-                <p>Beat the ATS. Compare your resume against potential employers and get a compatibility score.</p>
-                <span class="btn-small">Analyze Match →</span>
-            </a>
+        <!-- Mental Wellness -->
+        <a href="{% url 'therapy_landing' %}" class="card" style="display: block; text-decoration: none; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🧘‍♂️</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Mental Wellness</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                Manage stress with expert counseling or instant AI support. Your mental health matters.
+            </p>
+            <div style="font-size: 0.85rem; color: var(--primary-color); font-weight: 500;">
+                Find Balance →
+            </div>
+        </a>
 
-            <!-- Interview Prep -->
-            <a href="{% url 'interview_prep' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
-                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🎙️</div>
-                <h3>Interview Co-Pilot</h3>
-                <p>Practice with AI-driven text or voice interviews tailored to specific job descriptions.</p>
-                <span class="btn-small">Start Practicing →</span>
-            </a>
+    </div>
 
-            <!-- Mental Wellness -->
-            <a href="{% url 'therapy_landing' %}" class="feature-card" style="text-align: center; text-decoration: none; display: block; color: inherit;">
-                <div class="feature-icon" style="font-size: 3rem; margin-bottom: 20px;">🧘‍♂️</div>
-                <h3>Mental Wellness</h3>
-                <p>Manage stress with expert counseling or instant AI support. Your mental health matters.</p>
-                <span class="btn-small">Find Balance →</span>
-            </a>
-
-        </div>
-    </section>
-
-    <!-- Profile System Promo -->
-    <section class="profile-promo"
-        style="background: #181818; padding: 60px 40px; border-radius: 16px; margin: 60px auto; max-width: 1000px; text-align: center; border: 1px solid var(--border-color);">
-        <h2 style="margin-bottom: 20px;">Your Central Hub</h2>
-        <p
-            style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto;">
-            Track your progress with our detailed Profile System. Save your career paths, keep a library of analyzed
-            companies, and review your interview history all in one place.
+    <!-- Profile Promo -->
+    <div style="margin-top: 80px; padding: 50px; background: #181818; border-radius: 16px; border: 1px solid var(--border-color); text-align: center;">
+        <h2 style="margin-bottom: 20px; font-size: 1.8rem;">Your Central Hub</h2>
+        <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto;">
+            Track your progress with our detailed Profile System. Save your career paths, keep a library of analyzed companies, and review your interview history all in one place.
         </p>
-        <a href="{% url 'profile' %}" class="btn-outline"
-            style="border: 1px solid var(--primary-color); padding: 10px 25px; border-radius: 20px; color: var(--primary-color); text-decoration: none; transition: all 0.3s;">
+        <a href="{% url 'profile' %}" class="btn-primary" style="background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color) !important;">
             Go to Profile
         </a>
-    </section>
+    </div>
 
+    <!-- Footer Removed -->
+    
 </div>
-
-<style>
-    .btn-primary {
-        background-color: var(--primary-color);
-        color: white !important;
-    }
-
-    .btn-primary:hover {
-        background-color: var(--primary-hover) !important;
-        transform: translateY(-2px);
-    }
-
-    .btn-outline:hover {
-        background-color: var(--primary-color) !important;
-        color: white !important;
-    }
-
-    .feature-card {
-        transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--primary-color);
-    }
-</style>
 {% endblock %}

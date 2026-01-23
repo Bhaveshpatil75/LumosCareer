@@ -3,15 +3,15 @@
 {% block title %}Work Style Assessment | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="assessment-wrapper">
-    <div class="assessment-header">
-        <h1>Uncover Your<br><span class="brand-highlight">Work Persona</span></h1>
-        <p>Answer honestly to reveal your base archetype.</p>
+<div class="container" style="padding-top: 60px; padding-bottom: 60px; max-width: 800px;">
+    <div class="assessment-header" style="text-align: center; margin-bottom: 40px;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Uncover Your <span class="text-gradient">Work Persona</span></h1>
+        <p style="color: var(--text-muted);">Answer honestly to reveal your base archetype.</p>
     </div>
 
     <!-- Progress Bar -->
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-container" style="background: #333; border-radius: 10px; height: 8px; margin-bottom: 40px; overflow: hidden;">
+        <div class="progress-bar" id="progressBar" style="background: var(--primary-color); width: 0%; height: 100%; transition: width 0.3s ease;"></div>
     </div>
 
     <form id="pathfinder-form" method="POST" action="{% url 'personality_test' %}">
@@ -19,33 +19,44 @@
         <input type="hidden" name="step" value="personality">
 
         {% for question in questions %}
-        <div class="question-card">
-            <p>{{ question.question_text }}</p>
+        <div class="card" style="margin-bottom: 30px; animation: fadeInUp 0.5s ease forwards; opacity: 0; animation-delay: {{ forloop.counter0|add:1 }}00ms;">
+            <p style="font-size: 1.2rem; margin-bottom: 20px; font-weight: 500;">{{ question.question_text }}</p>
 
-            <div class="options-grid">
+            <div class="options-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <!-- Option A -->
-                <label class="option-card">
-                    <input type="radio" name="question_{{ question.id }}" value="A" required
-                        onchange="updateProgress()">
-                    <div class="option-content">
+                <label class="option-card" style="cursor: pointer;">
+                    <input type="radio" name="question_{{ question.id }}" value="A" required onchange="updateProgress()" style="display: none;">
+                    <div class="option-content" style="padding: 20px; background: var(--background-input); border: 1px solid var(--border-color); border-radius: 8px; text-align: center; transition: all 0.2s;">
                         {{ question.choice_a }}
                     </div>
                 </label>
 
                 <!-- Option B -->
-                <label class="option-card">
-                    <input type="radio" name="question_{{ question.id }}" value="B" required
-                        onchange="updateProgress()">
-                    <div class="option-content">
+                <label class="option-card" style="cursor: pointer;">
+                    <input type="radio" name="question_{{ question.id }}" value="B" required onchange="updateProgress()" style="display: none;">
+                    <div class="option-content" style="padding: 20px; background: var(--background-input); border: 1px solid var(--border-color); border-radius: 8px; text-align: center; transition: all 0.2s;">
                         {{ question.choice_b }}
                     </div>
                 </label>
             </div>
+            
+            <style>
+                .option-card input:checked + .option-content {
+                    background: rgba(255, 107, 107, 0.1);
+                    border-color: var(--primary-color);
+                    color: var(--primary-color);
+                }
+                .option-content:hover {
+                    background: #333;
+                }
+            </style>
         </div>
         {% endfor %}
 
-        <div class="submit-btn-container">
-            <button type="submit">Submit<i class="fas fa-arrow-right"></i></button>
+        <div class="submit-btn-container" style="text-align: center; margin-top: 40px;">
+            <button type="submit" class="btn-primary" style="padding: 15px 50px; font-size: 1.1rem;">
+                Submit Assessment
+            </button>
         </div>
     </form>
 </div>
