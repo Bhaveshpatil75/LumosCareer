@@ -4,6 +4,11 @@ import os
 
 class Company(models.Model):
     name = models.CharField(max_length=200, unique=True)
+    industry = models.CharField(max_length=100, blank=True, help_text="Industry sector (e.g. Tech, Finance, Healthcare)")
+    tech_stack = models.TextField(
+        blank=True,
+        help_text="Comma-separated list of technologies used (e.g. Python, React, AWS)."
+    )
     interview_notes = models.TextField(
         blank=True, 
         help_text="Common interview questions, key cultural topics, or technical areas to focus on for this company."

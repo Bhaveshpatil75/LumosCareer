@@ -143,9 +143,8 @@ def matcher_view(request):
             
             # --- ALGORITHMIC INSIGHTS FOR MATCHER ---
             # Using Apriori for "Missing Skill Suggestions"
-            # In production, we'd mine real DB. Here we use mock.
             ap = AprioriGenerator()
-            rules = ap.generate_rules() # Generate general rules
+            rules = ap.generate_rules() # Now correctly exposed
             
             # Filter recommendations based on what the user currently has (matching_keywords)
             recommendations = []
@@ -234,6 +233,7 @@ def interview_prep_view(request):
 
         # Get Recommendations
         recommender = RecommenderSystem()
+        # Changed: passing company_name to find similar companies
         recommendations = recommender.get_recommendations(company_name)
 
         try:
@@ -396,6 +396,7 @@ def pathfinder_view(request):
             # If nothing extracted, use defaults for demo
             if not extracted_skills: extracted_skills = ['Python', 'React', 'Algorithms']
                 
+            # Changed: using updated method name
             prob, prob_details = bp.predict_success_probability(extracted_skills)
             
             # 3. Simulated Annealing Schedule
@@ -418,7 +419,7 @@ def pathfinder_view(request):
                 'algorithmic_insights': result_extra
             }
             return render(request, 'pathfinder/result.html', context)
-
+            
         except (requests.exceptions.RequestException, json.JSONDecodeError, KeyError) as e:
             return HttpResponseServerError(f"Error processing AI report: {e}")
 
@@ -464,13 +465,25 @@ def path_node_detail_view(request, step_index):
              return render(request, 'pathfinder/result.html', {'error': 'Step not found'})
 
         # --- ALGO DEPTH ---
-        # Get PageRank for this specific node/skill if possible
-        # Mocking mapping for demo
-        pr = PageRank()
-        # Create a mock graph just to get context, or reuse main graph
-        # For now, just generate a demo score based on node length to be deterministic
-        # In prod, this would look up the node in the centralized Graph DB
-        algo_score = 65 + (len(node.get('title', '')) % 30) 
+        # Get PageRank for this specific node/skill
+        from .models import SkillNode
+        
+        node_title = node.get('title', '')
+        algo_score = 50 # Default
+        
+        # Try to find exactly matching skill node or contains match
+        try:
+             # Exact match
+             skill_node = SkillNode.objects.get(name__iexact=node_title)
+             algo_score = skill_node.importance_score
+        except SkillNode.DoesNotExist:
+             # Fallback: try contains
+             possible = SkillNode.objects.filter(name__icontains=node_title).first()
+             if possible:
+                 algo_score = possible.importance_score
+             else:
+                 # Generate a pseudo score if not in DB to show something
+                 algo_score = 65 + (len(node_title) % 30) 
         
         return render(request, 'pathfinder/node_detail.html', {'node': node, 'algo_score': algo_score})
 
