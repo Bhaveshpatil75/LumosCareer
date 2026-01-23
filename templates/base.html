@@ -13,6 +13,23 @@
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
+    <style>
+        .auth-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color) !important;
+        }
+        
+        .auth-btn:hover {
+            background: var(--primary-color);
+            color: white !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,11 +38,7 @@
             <a href="{% url 'home' %}">Lumos Career</a>
         </div>
         <div class="nav-links">
-            <a href="{% url 'pathfinder' %}">Pathfinder</a>
-            <a href="{% url 'personality_test' %}">Personality Test</a>
-            <a href="{% url 'matcher' %}">Match Analyzer</a>
-            <a href="{% url 'interview_prep' %}">Interview Prep</a>
-            <a href="{% url 'therapy_landing' %}">Wellness</a>
+            <!-- Navigation items moved to Homepage Dashboard -->
         </div>
         <div class="nav-profile">
             {% if user.is_authenticated %}
@@ -42,8 +55,8 @@
                 </div>
             </div>
             {% else %}
-            <a href="{% url 'login' %}" class="auth-link">Log In</a>
-            <a href="{% url 'signup' %}" class="auth-link signup">Sign Up</a>
+            <a href="{% url 'login' %}" class="auth-btn">Log In</a>
+            <a href="{% url 'signup' %}" class="auth-btn">Sign Up</a>
             {% endif %}
         </div>
     </nav>
