@@ -1,9 +1,9 @@
 :root {
-    /* Muted Teal & Noir Theme */
-    --primary-color: #4C9196;
-    /* Muted Teal */
-    --primary-hover: #3A6F73;
-    /* Darker Muted Teal */
+    /* Soft Red & Noir Theme */
+    --primary-color: #FF6B6B;
+    /* Soft Red */
+    --primary-hover: #d63384;
+    /* Deep Pink */
     --background-dark: #121212;
     /* Very Dark Grey/Black */
     --background-card: #1E1E1E;
@@ -17,8 +17,8 @@
     --border-color: #333333;
     --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     /* Stronger shadow for dark mode */
-    --accent-glow: 0 0 15px rgba(76, 145, 150, 0.3);
-    /* Muted Teal glow */
+    --accent-glow: 0 0 15px rgba(255, 107, 107, 0.3);
+    /* Soft Red glow */
 }
 
 body {
@@ -169,7 +169,7 @@ label[for="id_password"] {
 }
 
 button[type="submit"] {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, #FF6B6B 0%, #d63384 100%);
     color: white;
     padding: 16px 24px;
     border: none;
@@ -180,15 +180,15 @@ button[type="submit"] {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 15px;
-    box-shadow: 0 4px 15px rgba(220, 20, 60, 0.4);
+    box-shadow: 0 4px 15px rgba(214, 51, 132, 0.4);
 }
 
 button[type="submit"]:hover {
-    background-color: var(--primary-hover);
+    opacity: 0.9;
     color: #ffffff !important;
     /* Force white text */
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(220, 20, 60, 0.6);
+    box-shadow: 0 6px 20px rgba(214, 51, 132, 0.6);
 }
 
 /* --- Global Links --- */
@@ -473,12 +473,12 @@ a:hover {
 }
 
 .tag.match {
-    background-color: rgba(76, 145, 150, 0.2);
-    /* Muted Teal background */
-    color: #4C9196;
-    /* Muted Teal text */
-    border-color: #3A6F73;
-    /* Darker Muted Teal border */
+    background-color: rgba(255, 107, 107, 0.15);
+    /* Soft Red background */
+    color: #FF6B6B;
+    /* Soft Red text */
+    border-color: #d63384;
+    /* Deep Pink border */
 }
 
 /* --- Improved Assessment UI --- */
@@ -561,18 +561,18 @@ a:hover {
 }
 
 .option-card:hover .option-content {
-    border-color: #4C9196;
-    /* Muted Teal Hover */
+    border-color: var(--primary-color);
+    /* Soft Red Hover */
     background: #2A2A2A;
     color: white;
-    box-shadow: 0 5px 15px rgba(76, 145, 150, 0.2);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
 }
 
 .option-card input:checked+.option-content {
-    background-color: rgba(76, 145, 150, 0.15);
-    border-color: #4C9196;
-    color: #4C9196;
-    box-shadow: 0 0 20px rgba(76, 145, 150, 0.3);
+    background-color: rgba(255, 107, 107, 0.15);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
 }
 
 @keyframes fadeInUp {
