@@ -172,27 +172,27 @@
 
     <!-- Tab Content: Interviews -->
     <div id="interviews" class="tab-content" style="display: none;">
-         <div style="max-width: 800px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
             {% for interview in interviews %}
-            <div style="position: relative; padding-left: 30px; margin-bottom: 30px; border-left: 2px solid var(--border-color);">
-                <div style="position: absolute; left: -9px; top: 0; width: 16px; height: 16px; background: var(--background-dark); border: 2px solid var(--primary-color); border-radius: 50%;"></div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <h3 style="font-size: 1.1rem; margin:0;">{{ interview.company_name }}</h3>
+                    <span style="font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">{{ interview.get_interview_type_display }}</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">{{ interview.date_logged|date:"F j, Y, P" }}</p>
                 
-                <div class="card" style="padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <h3 style="font-size: 1.1rem;">{{ interview.company_name }}</h3>
-                        <span style="font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">{{ interview.get_interview_type_display }}</span>
+                {% if interview.notes %}
+                    <div style="background: var(--background-input); padding: 10px; border-radius: 6px; font-size: 0.9rem; color: var(--text-main); margin-bottom: 15px;">
+                        <strong>Notes:</strong> {{ interview.notes|truncatewords:20 }}
                     </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">{{ interview.date_logged|date:"F j, Y, P" }}</p>
-                    {% if interview.notes %}
-                        <div style="background: var(--background-input); padding: 10px; border-radius: 6px; font-size: 0.9rem; color: var(--text-main);">
-                            <strong>Notes:</strong> {{ interview.notes }}
-                        </div>
-                    {% endif %}
-                    <button onclick="deleteItem('interview', {{ interview.id }})" style="background: none; border: none; color: #ff4444; font-size: 0.85rem; margin-top: 10px; cursor: pointer; text-decoration: underline;">Remove</button>
+                {% endif %}
+                
+                <div style="display: flex; justify-content: flex-end;">
+                    <button onclick="deleteItem('interview', {{ interview.id }})" style="background: none; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; color: #ff4444; font-size: 0.85rem; cursor: pointer;">Delete</button>
                 </div>
             </div>
             {% empty %}
-            <div class="card" style="text-align: center; padding: 50px;">
+            <div class="card" style="grid-column: 1/-1; text-align: center; padding: 50px;">
                 <p style="color: var(--text-muted); margin-bottom: 20px;">No interviews logged.</p>
                 <a href="{% url 'interview_prep' %}" class="btn-primary">Prep for Interview</a>
             </div>

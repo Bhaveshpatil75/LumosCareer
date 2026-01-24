@@ -4,20 +4,25 @@
 
 {% block content %}
 <style>
+    /* Container for the whole layout */
     .interview-container {
         max-width: 900px;
         margin: 40px auto;
-        padding: 40px;
-        background: var(--background-card);
+        /* Using therapy-like card style */
+        background: var(--bg-card);
         border-radius: 16px;
-        box-shadow: var(--card-shadow);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         border: 1px solid var(--border-color);
         animation: fadeIn 0.5s ease-out;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 80vh; /* Ensure height for chat */
     }
 
     .header-section {
         text-align: center;
-        margin-bottom: 40px;
+        padding: 40px;
     }
 
     .header-section h1 {
@@ -32,6 +37,11 @@
     .header-section p {
         color: var(--text-muted);
         font-size: 1.1rem;
+    }
+
+    /* Setup Form specific padding */
+    .setup-interface {
+        padding: 0 40px 40px 40px;
     }
 
     .input-group {
@@ -157,51 +167,168 @@
         box-shadow: 0 8px 25px rgba(76, 145, 150, 0.5);
     }
 
-    /* Chat Interface Styles (Initially Hidden) */
-    .chat-interface {
-        display: none;
-        animation: slideUp 0.5s ease-out;
+    /* --- Chat Interface Styles (Exact Copy of Therapy Chat with Blue Theme) --- */
+    .chat-layout {
+        max-width: 800px;
+        margin: 20px auto;
+        height: 80vh;
+        display: none; /* Hidden by default */
+        flex-direction: column;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
-
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .chat-header {
+        padding: 20px;
+        background: linear-gradient(to right, #2c3e50, #000000); /* Darker header matching therapy */
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
+    .bot-avatar {
+        width: 40px;
+        height: 40px;
+        background: #00b4db; /* Blue for Interview */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+    }
 
-        to {
-            opacity: 1;
-        }
+    .header-info h3 {
+        margin: 0;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .header-info p {
+        margin: 2px 0 0;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.8rem;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: var(--bg-main);
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        line-height: 1.5;
+        font-size: 0.95rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .message.ai-message { /* Using standard 'bot' class from therapy if I can, but JS uses ai-message. Let's map it. */
+        background: #2d2d2d;
+        color: #e0e0e0;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+    
+    /* Mapping 'bot' to 'ai-message' for consistency if JS uses that, or adjust CSS to match JS */
+    /* Therapy uses .message.bot and .message.user. Interview JS uses .ai-message and .user-message. */
+    /* Let's double support both to be safe */
+    .message.bot, .message.ai-message {
+        background: #2d2d2d;
+        color: #e0e0e0;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+
+    .message.user, .message.user-message {
+        background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); /* Blue Theme */
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
+    
+    .message strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.85rem;
+        opacity: 0.8;
     }
 
     .recommendations-glass {
-        margin-top: 20px;
+        margin: 10px 20px;
         padding: 15px;
         background: rgba(255, 255, 255, 0.03);
-        border-radius: 12px;
+        border-radius: 8px;
         border: 1px solid var(--border-color);
         display: none;
     }
+
+    .chat-input-area {
+        padding: 20px;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 14px;
+        border-radius: 30px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-main);
+        color: var(--text-primary);
+        font-family: inherit;
+    }
+    
+    .chat-input:focus {
+        outline: none;
+        border-color: #00b4db;
+    }
+    
+    .send-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #00b4db;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
+
+    .send-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 
-<div class="interview-container">
+<div class="interview-container" id="setup-view">
 
 
-    <!-- Setup Interface -->
-    <div id="setup-view" class="setup-interface">
+    <!-- Setup Interface (Uses .interview-container) -->
+    <div>
         <div class="header-section">
             <h1>Interview Co-Pilot 🚀</h1>
             <p>Master your upcoming interview with AI-tailored simulations using your profile & resume.</p>
@@ -250,37 +377,46 @@
             <button type="button" id="start-btn" class="action-btn" onclick="startSession()" style="display:none;">Start Preparation</button>
         </form>
     </div>
+</div>
 
-    <!-- Active Chat Interface -->
-    <div id="chat-view" class="chat-interface">
-        <div class="chat-header">
-            <h2 id="chat-session-title">Interview @ Company</h2>
-            <button onclick="location.reload()"
-                style="background:none; border:none; color:var(--text-muted); cursor:pointer;">End Session</button>
+<!-- Standalone Chat Layout (Identical DOM to Therapy Chat) -->
+<div id="chat-view" class="chat-layout">
+    <div class="chat-header">
+        <div class="bot-avatar">👔</div>
+        <div class="header-info">
+            <h3 id="chat-session-title">Interview Session</h3>
+            <p>Professional Recruitment Simulation</p>
         </div>
-
-        <div id="recommendations-area" class="recommendations-glass">
-            <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-muted);">Common topics:</h4>
-            <div id="recommendations-list" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-            <small style="color: var(--text-muted); opacity: 0.7; margin-top: 5px; display: block;">Generated by Content-Based Filtering (Recommender System)</small>
-        </div>
-
-        <div class="chat-messages" id="chat-messages-container">
-            <!-- Messages go here -->
-        </div>
-
-        <form id="chat-form" method="POST" style="margin-top: 20px; display: flex; gap: 10px;">
-            {% csrf_token %}
-            <input type="text" id="user-message" name="user_message" placeholder="Type your answer..."
-                autocomplete="off" required style="flex-grow:1;">
-            <button type="submit" style="margin-top:0; padding: 14px 25px;">Send</button>
-        </form>
+        <a onclick="location.reload()" style="margin-left: auto; color: #888; text-decoration: none; cursor: pointer; font-size: 1.2rem;">✕</a>
     </div>
+
+    <!-- We can insert recommendations here if needed, but for 'exact' match, we keep it simple or append as a message -->
+    <div id="recommendations-area" class="recommendations-glass" style="margin: 10px 20px;">
+        <small style="color: var(--text-muted);">Recommended Topics:</small>
+        <div id="recommendations-list" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top:5px;"></div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages-container">
+        <!-- Messages go here -->
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="user-message" class="chat-input" placeholder="Type your answer..." autocomplete="off">
+        <button class="send-btn" onclick="sendInterviewMessage()">➤</button>
+    </div>
+</div>
+<!-- End Standalone -->
+
+<style>
+    /* HACK: Hide the main interview container when chat is active */
+    /* Handled by JS toggling display */
+</style>
 
 </div>
 
 <script>
     let currentMode = '';
+    let chatHistory = []; // Initialize history
 
     function selectMode(mode, cardElement) {
         currentMode = mode;
@@ -355,18 +491,22 @@
                 }
 
                 // Switch Views
-                document.getElementById('setup-view').style.display = 'none';
-                document.getElementById('chat-view').style.display = 'block';
+                document.querySelector('.interview-container').style.display = 'none'; // Hide setup card
+                const chatView = document.getElementById('chat-view');
+                chatView.style.display = 'flex'; // Show flex chat
                 document.getElementById('chat-session-title').innerText = 'Interview @ ' + companyName;
 
                 // Add Initial Bot Message
                 const messagesDiv = document.getElementById('chat-messages-container');
+                const initialMsg = `Hello! I see you're preparing for ${companyName}. I've reviewed your resume and I'm ready to help you prepare. Let's start with a simple question: tell me about yourself?`;
                 messagesDiv.innerHTML = `
                 <div class="message ai-message">
                     <strong>AI Recruiter:</strong><br>
-                    Hello! I see you're preparing for ${companyName}. I've reviewed your resume and I'm ready to help you prepare. Let's start with a simple question: tell me about yourself?
+                    ${initialMsg}
                 </div>
             `;
+                // Add to history
+                chatHistory = [{ role: 'model', content: initialMsg }];
 
                 // Show recommendations if any
                 if (data.recommendations && data.recommendations.length > 0) {
@@ -394,50 +534,55 @@
             });
     }
 
-    // Handle Chat Messages
-    document.getElementById('chat-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const input = document.getElementById('user-message');
-        const message = input.value.trim();
+    // Unified Chat Logic matching Therapy Chat
+    const chatInput = document.getElementById('user-message');
+    
+    chatInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            sendInterviewMessage();
+        }
+    });
+
+    function sendInterviewMessage() {
+        const message = chatInput.value.trim();
         if (!message) return;
 
-        // Add User Message
+        // Add User Message locally
         const messagesDiv = document.getElementById('chat-messages-container');
         messagesDiv.innerHTML += `<div class="message user-message">${message}</div>`;
-        input.value = '';
+        chatInput.value = '';
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        // Add to history
+        chatHistory.push({ role: 'user', content: message });
 
         // Send to backend
         const formData = new FormData();
         formData.append('user_message', message);
+        formData.append('history', JSON.stringify(chatHistory));
         formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
-        // Show typing indicator?
-        // For now just wait
-
-        fetch('chat/', { // Using relative path to the chat endpoint
-            method: 'POST',
-            body: formData
-        })
+        // Simulated Lag for realism
+        setTimeout(() => {
+            fetch('chat/', { 
+                method: 'POST',
+                body: formData
+            })
             .then(response => response.json())
             .then(data => {
                 let reply = "I'm having trouble connecting right now.";
-                if (data.reply) { // Assuming backend returns { reply: "..." } or similar
+                if (data.reply) {
                     reply = data.reply;
-                } else if (data.content) { // N8N structure might differ
-                    reply = data.content;
-                } else if (data.output) {
-                    reply = data.output;
-                } else {
-                    // formatting the whole json if structure is unknown, relying on views.py logic usually
-                    // looking at views.py, it returns response.json() from N8N.
-                    // N8N usually returns JSON. Let's start robust.
-                    reply = data.text || data.reply || data.message || JSON.stringify(data);
+                } else if (data.content && data.content.parts) { 
+                    reply = data.content.parts[0].text;
+                } else if (data.content) {
+                     reply = data.content;
+                } else if (data.text) {
+                    reply = data.text;
                 }
 
-                // Clean up if it's a "parts" object from gemini
-                if (data.content && data.content.parts) {
-                    reply = data.content.parts[0].text;
+                if (reply && typeof reply === 'object' && reply.parts) {
+                    reply = reply.parts[0].text;
                 }
 
                 messagesDiv.innerHTML += `
@@ -445,13 +590,18 @@
                     <strong>AI Recruiter:</strong><br>
                     ${reply}
                 </div>
-            `;
+                `;
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // Add AI response to history
+                chatHistory.push({ role: 'model', content: reply });
             })
             .catch(err => {
+                console.error(err);
                 messagesDiv.innerHTML += `<div class="message system-message">Error connecting to AI.</div>`;
             });
-    });
+        }, 500); 
+    }
 </script>
 
 {% endblock %}

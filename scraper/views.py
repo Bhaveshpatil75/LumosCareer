@@ -14,7 +14,7 @@ from .algorithms import (
     LSAEngine, SkillGraph, PersonalityClassifier, RecommenderSystem, 
     PageRank, BayesianPredictor, SimulatedAnnealingScheduler, AprioriGenerator
 )
-from .utils import extract_text_from_pdf_file, validate_file_size, send_to_n8n_webhook
+from .utils import extract_text_from_pdf_file, validate_file_size, send_to_n8n_webhook, call_gemini_api
 from django.core.exceptions import ValidationError
 
 dotenv.load_dotenv()
@@ -225,29 +225,18 @@ def interview_prep_view(request):
         except UserProfile.DoesNotExist:
             pass
 
-        n8n_webhook_url = os.getenv('INTERVIEW_COPILOT_URL')
-        payload = {
-            "company_name": company_name,
-            "resume": resume_text
-        }
-
-        # Get Recommendations
+        # Get Recommendations (Local Algorithm)
         recommender = RecommenderSystem()
-        # Changed: passing company_name to find similar companies
         recommendations = recommender.get_recommendations(company_name)
 
-        try:
-            response = requests.post(n8n_webhook_url, json=payload, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            
-            # Append recommendations to the response
-            data['recommendations'] = recommendations
-            
-            return JsonResponse(data)
-
-        except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
-            return JsonResponse({'error': f'An error occurred: {e}'}, status=500)
+        # Removed n8n dependency as requested. 
+        # We perform formatting locally.
+        data = {
+            'success': True,
+            'recommendations': recommendations
+        }
+        
+        return JsonResponse(data)
 
     context = {
         'voice_interview_url': os.getenv('VOICE_INTERVIEW_URL', '#')
@@ -257,17 +246,60 @@ def interview_prep_view(request):
 def interview_chat_view(request):
     if request.method == 'POST':
         user_message = request.POST.get('user_message', '')
-        n8n_webhook_url = os.getenv('INTERVIEW_CHAT_URL')
-        payload = {
-            "history": f"User: {user_message}"
-        }
+        
+        # Context Retrieval
+        company_name = "Target Company"
+        job_description = ""
+        resume_text = ""
 
-        try:
-            response = requests.post(n8n_webhook_url, json=payload, timeout=30)
-            response.raise_for_status()
-            return JsonResponse(response.json())
-        except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
-            return JsonResponse({'error': f'An error occurred: {e}'}, status=500)
+        if request.user.is_authenticated:
+            # Get latest session
+            session = InterviewSession.objects.filter(user=request.user).order_by('-date_logged').first()
+            if session:
+                company_name = session.company_name
+                job_description = session.job_description
+            
+            try:
+                resume_text = request.user.profile.resume_text
+            except UserProfile.DoesNotExist:
+                pass
+
+        system_instruction = (
+            f"You are a professional Technical Recruiter and Hiring Manager at {company_name}. "
+            f"JOB CONTEXT: {job_description if job_description else 'General Software Engineering role'}. "
+            f"CANDIDATE: {resume_text[:2000] if resume_text else 'No resume provided'}. "
+            "YOUR MISSION: Conduct a realistic screening interview. "
+            "GUIDELINES: "
+            "1. ask only ONE question at a time. "
+            "2. Do not offer advice or extensive feedback during the interview. "
+            "3. If the candidate gives a short or vague answer, ask a follow-up digging deeper. "
+            "4. Start with a relevant technical question based on their resume or the job. "
+            "5. Be concise. Keep your responses under 3 sentences unless explaining a complex scenario. "
+            "6. Maintain a professional but slightly challenging persona."
+        )
+
+        # For single-turn via POST, we treat it as a new message. 
+        # But if frontend sends history, we use it for context.
+        history_json = request.POST.get('history')
+        messages = []
+        
+        if history_json:
+            try:
+                import json
+                messages = json.loads(history_json)
+            except json.JSONDecodeError:
+                pass
+        
+        # Fallback or ensure user message is added if not in history (usually frontend handles this)
+        if not messages and user_message:
+            messages = [{'role': 'user', 'content': user_message}]
+
+        reply = call_gemini_api(messages, system_instruction)
+        
+        if not reply:
+            return JsonResponse({'error': 'AI did not respond'}, status=500)
+
+        return JsonResponse({'reply': reply})
 
 @login_required
 def personality_view(request):
@@ -879,34 +911,35 @@ def ai_chat_api(request):
         try:
             data = json.loads(request.body)
             user_message = data.get('message', '')
+            history = data.get('history', [])
             
-            # Simple Logic or LSA Integration
-            # For now, let's use a simple keyword matcher + LSA fallback if we had a corpus
+            # Construct messages for Gemini
+            messages = []
+            if history:
+                # Expecting history to be [{'role': 'user'/'model', 'content': '...'}] from frontend
+                # If frontend sends specific format, adapt here. 
+                # For now assume frontend matches our util expectation or we adapt.
+                messages = history
             
-            responses = {
-                'stress': "I understand you're feeling stressed. Remember to take deep breaths. Can you tell me what's causing this stress?",
-                'anxious': "Anxiety can be tough. Try to focus on the present moment. What is one thing you can see right now?",
-                'sad': "I'm sorry to hear you're feeling down. It's okay to feel this way. Do you want to talk about it?",
-                'tired': "Rest is important. Make sure you are getting enough sleep and taking breaks.",
-                'job': "Job hunting is stressful, but you are capable. Let's break it down into small steps.",
-                'interview': "For interviews, preparation is key. Use our different Interview Prep tools to practice!",
-                'hello': "Hello! I am your AI assistant here to listen. How are you feeling today?",
-                'hi': "Hi there! I'm here to support you. What's on your mind?",
-            }
+            # If current message not in history (usually it is if we pass full history), add it.
+            # But usually frontend appends it to history before sending.
+            # Let's assume 'messages' is the full conversation history.
+            if not messages and user_message:
+                messages = [{'role': 'user', 'content': user_message}]
+
+            system_instruction = (
+                "You are 'Lumos', a compassionate, empathetic, and professional AI wellness companion and therapist. "
+                "Your goal is to support the user through stress, anxiety, and career-related challenges. "
+                "Use a warm, calming tone. Validate their feelings. Offer evidence-based advice (Mindfulness, CBT techniques) when appropriate. "
+                "Keep responses concise (max 3-4 sentences) and conversational. "
+                "Do not diagnose. If the user mentions self-harm, gently urge them to seek professional help immediately."
+            )
             
-            reply = "I see. Please tell me more about how that makes you feel."
+            reply = call_gemini_api(messages, system_instruction)
             
-            # Simple keyword matching
-            lower_msg = user_message.lower()
-            for key, val in responses.items():
-                if key in lower_msg:
-                    reply = val
-                    break
-            
-            # Use LSA Engine if no simple match (Mock usage as we need a corpus)
-            # lsa = LSAEngine()
-            # ...
-            
+            if not reply:
+                reply = "I'm here for you, but I'm having trouble thinking of a response right now. Could you rephrase that?"
+
             return JsonResponse({'reply': reply})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
