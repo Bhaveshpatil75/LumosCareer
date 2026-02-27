@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scraper', '0008_savedcompany_interviewsession_careerpath'),
+        ('core', '0008_savedcompany_interviewsession_careerpath'),
     ]
 
     operations = [
@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('success_rate', models.FloatField(default=0.5, help_text='P(Skill|Hired) - Probability appearing in hired profiles')),
                 ('failure_rate', models.FloatField(default=0.1, help_text='P(Skill|Rejected) - Probability appearing in rejected profiles')),
                 ('demand_trend', models.CharField(choices=[('Rising', 'Rising'), ('Stable', 'Stable'), ('Falling', 'Falling')], default='Stable', max_length=20)),
-                ('skill', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='market_signal', to='scraper.skillnode')),
+                ('skill', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='market_signal', to='core.skillnode')),
             ],
         ),
         migrations.CreateModel(
@@ -39,8 +39,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('weight_time', models.IntegerField(default=1, help_text='Transition time cost')),
                 ('weight_difficulty', models.IntegerField(default=1, help_text='Transition difficulty cost')),
-                ('source', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='outgoing_edges', to='scraper.skillnode')),
-                ('target', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='incoming_edges', to='scraper.skillnode')),
+                ('source', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='outgoing_edges', to='core.skillnode')),
+                ('target', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='incoming_edges', to='core.skillnode')),
             ],
             options={
                 'unique_together': {('source', 'target')},

@@ -5,3 +5,5 @@ resumes/
 management/
 db.sqlite3
 populate_db.py
+populate_paths.py
+populate_questions.py

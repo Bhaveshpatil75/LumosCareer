@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scraper', '0005_userprofile_resume_file'),
+        ('core', '0005_userprofile_resume_file'),
     ]
 
     operations = [

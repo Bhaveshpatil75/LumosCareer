@@ -1,5 +1,5 @@
 """
-URL configuration for comp_research project.
+URL configuration for lumos_career project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -22,8 +22,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('scraper.urls')),  # Include the scraper app URLs
-    # path('api/', include('scraper.urls')),
+    path('', include('core.urls')),  # Include the core app URLs
+    # path('api/', include('core.urls')),
 ]
 
 if settings.DEBUG:

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scraper', '0006_assessmentresult_detailed_report'),
+        ('core', '0006_assessmentresult_detailed_report'),
     ]
 
     operations = [

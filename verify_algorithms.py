@@ -3,11 +3,11 @@ import os
 import django
 
 # Context setup
-sys.path.append('c:/Users/bhave/comp_research/comp_research')
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "comp_research.settings")
+sys.path.append('c:/Users/bhave/lumos_career/lumos_career')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lumos_career.settings")
 django.setup()
 
-from scraper.algorithms import (
+from core.algorithms import (
     SkillGraph, LSAEngine, PersonalityClassifier, 
     RecommenderSystem, PageRank, BayesianPredictor, 
     AprioriGenerator, SimulatedAnnealingScheduler

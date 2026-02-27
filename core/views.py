@@ -871,7 +871,7 @@ def career_step_detail_view(request, path_id, step_id):
 @login_required
 def therapy_landing_view(request):
     therapist_url = os.getenv('THERAPY_SESSION_URL', '#')
-    return render(request, 'scraper/therapy_landing.html', {'therapist_url': therapist_url})
+    return render(request, 'core/therapy_landing.html', {'therapist_url': therapist_url})
 
 @login_required
 def book_session_view(request, session_type='therapy'):
@@ -896,13 +896,13 @@ def book_session_view(request, session_type='therapy'):
             additional_notes=final_notes,
             status='Pending'
         )
-        return render(request, 'scraper/session_book.html', {'success': True, 'session_type': session_type})
+        return render(request, 'core/session_book.html', {'success': True, 'session_type': session_type})
         
-    return render(request, 'scraper/session_book.html', {'session_type': session_type, 'current_title': current_title})
+    return render(request, 'core/session_book.html', {'session_type': session_type, 'current_title': current_title})
 
 @login_required
 def ai_therapist_view(request):
-    return render(request, 'scraper/therapy_chat.html')
+    return render(request, 'core/therapy_chat.html')
 
 @login_required
 def ai_chat_api(request):

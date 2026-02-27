@@ -114,8 +114,8 @@
     </div>
 
     <!-- Tab Content: Career Paths -->
-    <div id="career-paths" class="tab-content" style="display: none;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    <div id="career-paths" class="tab-content" style="display: none; width: 100%;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%;">
             {% for path in career_paths %}
             <div class="card">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
@@ -144,8 +144,8 @@
     </div>
 
     <!-- Tab Content: Saved Companies -->
-    <div id="companies" class="tab-content" style="display: none;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    <div id="companies" class="tab-content" style="display: none; width: 100%;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%;">
             {% for company in saved_companies %}
             <div class="card">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
@@ -171,8 +171,8 @@
     </div>
 
     <!-- Tab Content: Interviews -->
-    <div id="interviews" class="tab-content" style="display: none;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    <div id="interviews" class="tab-content" style="display: none; width: 100%;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%;">
             {% for interview in interviews %}
             <div class="card">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">

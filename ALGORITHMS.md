@@ -5,7 +5,7 @@ This document provides a comprehensive overview of the intelligent algorithms po
 ---
 
 ## 1. Latent Semantic Analysis (LSA) Engine
-**Class:** `LSAEngine` in `scraper/algorithms/lsa.py`
+**Class:** `LSAEngine` in `core/algorithms/lsa.py`
 
 ### What it does
 LSA is a Natural Language Processing (NLP) technique. It analyzes relationships between a set of documents and the terms they contain by producing a set of concepts related to the documents and terms.
@@ -13,7 +13,7 @@ LSA is a Natural Language Processing (NLP) technique. It analyzes relationships 
 
 ### Where it is used
 -   **Feature:** **Resume Matcher** & **Job Compatibility**
--   **Code Location:** `scraper/views.py`: `calculate_similarity_score` called by `matcher_view`.
+-   **Code Location:** `core/views.py`: `calculate_similarity_score` called by `matcher_view`.
 
 ### How to use it
 1.  Navigate to **Result Analysis** (Matcher).
@@ -24,7 +24,7 @@ LSA is a Natural Language Processing (NLP) technique. It analyzes relationships 
 ---
 
 ## 2. Recommender System (Content-Based Filtering)
-**Class:** `RecommenderSystem` in `scraper/algorithms/recommender.py`
+**Class:** `RecommenderSystem` in `core/algorithms/recommender.py`
 
 ### What it does
 This algorithm recommends items (Companies) to a user based on the features of items they already like or match their profile.
@@ -32,7 +32,7 @@ This algorithm recommends items (Companies) to a user based on the features of i
 
 ### Where it is used
 -   **Feature:** **Interview Prep**
--   **Code Location:** `scraper/views.py`: `interview_prep_view`.
+-   **Code Location:** `core/views.py`: `interview_prep_view`.
 
 ### How to use it
 1.  Navigate to **Interview Prep**.
@@ -42,7 +42,7 @@ This algorithm recommends items (Companies) to a user based on the features of i
 ---
 
 ## 3. PageRank (Centrality Analysis)
-**Class:** `PageRank` in `scraper/algorithms/pagerank.py`
+**Class:** `PageRank` in `core/algorithms/pagerank.py`
 
 ### What it does
 Initially designed by Google to rank web pages, PageRank measures the importance of nodes in a graph based on the quality and quantity of links pointing to them.
@@ -51,8 +51,8 @@ Initially designed by Google to rank web pages, PageRank measures the importance
 ### Where it is used
 -   **Feature:** **Career Roadmap Visualization**
 -   **Code Location:**
-    -   `scraper/algorithms/pagerank.py`: `update_db_scores` (runs in background/scripts).
-    -   `scraper/views.py`: `path_node_detail_view` (displays the score).
+    -   `core/algorithms/pagerank.py`: `update_db_scores` (runs in background/scripts).
+    -   `core/views.py`: `path_node_detail_view` (displays the score).
 
 ### How to use it
 1.  Navigate to a **Career Path** (Pathfinder Result).
@@ -62,7 +62,7 @@ Initially designed by Google to rank web pages, PageRank measures the importance
 ---
 
 ## 4. Bayesian Predictor (Naive Bayes)
-**Class:** `BayesianPredictor` in `scraper/algorithms/bayesian.py`
+**Class:** `BayesianPredictor` in `core/algorithms/bayesian.py`
 
 ### What it does
 A probabilistic classifier typically used to predict the likelihood of an event based on prior knowledge of conditions.
@@ -70,7 +70,7 @@ A probabilistic classifier typically used to predict the likelihood of an event 
 
 ### Where it is used
 -   **Feature:** **Pathfinder Results**
--   **Code Location:** `scraper/views.py`: `pathfinder_view`.
+-   **Code Location:** `core/views.py`: `pathfinder_view`.
 
 ### How to use it
 1.  Complete the **Pathfinder Quiz**.
@@ -80,7 +80,7 @@ A probabilistic classifier typically used to predict the likelihood of an event 
 ---
 
 ## 5. Simulated Annealing (Scheduler Optimization)
-**Class:** `SimulatedAnnealingScheduler` in `scraper/algorithms/scheduler.py`
+**Class:** `SimulatedAnnealingScheduler` in `core/algorithms/scheduler.py`
 
 ### What it does
 A probabilistic technique for approximating the global optimum of a given function. It is often used for scheduling or logistics problems.
@@ -88,7 +88,7 @@ A probabilistic technique for approximating the global optimum of a given functi
 
 ### Where it is used
 -   **Feature:** **Pathfinder Results**
--   **Code Location:** `scraper/views.py`: `pathfinder_view`.
+-   **Code Location:** `core/views.py`: `pathfinder_view`.
 
 ### How to use it
 1.  Complete the **Pathfinder Quiz**.
@@ -98,7 +98,7 @@ A probabilistic technique for approximating the global optimum of a given functi
 ---
 
 ## 6. Apriori Algorithm (Association Rule Mining)
-**Class:** `AprioriGenerator` in `scraper/algorithms/apriori.py`
+**Class:** `AprioriGenerator` in `core/algorithms/apriori.py`
 
 ### What it does
 A classic data mining algorithm used for mining frequent itemsets and relevant association rules. "People who bought X also bought Y".
@@ -106,7 +106,7 @@ A classic data mining algorithm used for mining frequent itemsets and relevant a
 
 ### Where it is used
 -   **Feature:** **Result Analysis** (Matcher)
--   **Code Location:** `scraper/views.py`: `matcher_view`.
+-   **Code Location:** `core/views.py`: `matcher_view`.
 
 ### How to use it
 1.  Go to **Result Analysis**.
@@ -116,7 +116,7 @@ A classic data mining algorithm used for mining frequent itemsets and relevant a
 ---
 
 ## 7. Multi-Criteria Dijkstra (Graph Search)
-**Class:** `SkillGraph` in `scraper/algorithms/graph.py`
+**Class:** `SkillGraph` in `core/algorithms/graph.py`
 
 ### What it does
 An extension of Dijkstra's shortest path algorithm that considers multiple "weights" (costs) simultaneously, such as Time vs. Difficulty.
@@ -124,7 +124,7 @@ An extension of Dijkstra's shortest path algorithm that considers multiple "weig
 
 ### Where it is used
 -   **Feature:** **Roadmap Explorer** (Legacy/Debug View)
--   **Code Location:** `scraper/views.py`: `roadmap_view` (located at `/roadmap`).
+-   **Code Location:** `core/views.py`: `roadmap_view` (located at `/roadmap`).
 
 ### How to use it
 1.  Navigate to `/roadmap` (manually).
@@ -134,7 +134,7 @@ An extension of Dijkstra's shortest path algorithm that considers multiple "weig
 ---
 
 ## 8. Personality Classifier (Vector-Based)
-**Class:** `PersonalityClassifier` in `scraper/algorithms/classifier.py`
+**Class:** `PersonalityClassifier` in `core/algorithms/classifier.py`
 
 ### What it does
 Uses a simple K-Nearest Neighbors (KNN) style centroid approach to map diverse user answers into one of the 16 MBTI-style personality types.
@@ -142,7 +142,7 @@ Uses a simple K-Nearest Neighbors (KNN) style centroid approach to map diverse u
 
 ### Where it is used
 -   **Feature:** **Personality Assessment**
--   **Code Location:** `scraper/views.py`: `personality_view`.
+-   **Code Location:** `core/views.py`: `personality_view`.
 
 ### How to use it
 1.  Take the **Personality Quiz**.

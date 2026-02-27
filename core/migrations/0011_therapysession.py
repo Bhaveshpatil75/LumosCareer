@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('scraper', '0010_careerpath_is_predefined_alter_careerpath_user'),
+        ('core', '0010_careerpath_is_predefined_alter_careerpath_user'),
     ]
 
     operations = [

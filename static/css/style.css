@@ -46,6 +46,7 @@ a:hover {
 
 /* --- Utility Classes --- */
 .container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
@@ -123,6 +124,86 @@ a:hover {
 .form-container p a:hover {
     color: var(--primary-hover);
     text-decoration: none;
+}
+
+/* --- Form Inputs Base Styles --- */
+.form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.form-container p {
+    margin: 5px 0;
+}
+
+.form-container label {
+    font-weight: 500;
+    color: var(--text-main);
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="password"],
+.form-container select,
+.form-container textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--background-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.form-container input:focus,
+.form-container select:focus,
+.form-container textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+}
+
+.form-container button[type="submit"] {
+    margin-top: 15px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.form-container button[type="submit"]:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+}
+
+/* Django Error messages within forms */
+.errorlist {
+    color: var(--primary-color);
+    list-style-type: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+    font-size: 0.85rem;
+}
+
+.helptext {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 4px;
 }
 
 .footer-link {

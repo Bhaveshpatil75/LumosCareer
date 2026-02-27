@@ -1,5 +1,5 @@
 """
-WSGI config for comp_research project.
+WSGI config for lumos_career project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'comp_research.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lumos_career.settings')
 
 application = get_wsgi_application()

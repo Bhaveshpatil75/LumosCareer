@@ -3,13 +3,13 @@
 {% block title %}Sign Up | Lumos Career{% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h2>Create an Account</h2>
+<div class="form-container" style="margin-top: 60px;">
+    <h2 style="font-weight: 700; margin-bottom: 30px;">Create an Account</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Sign Up</button>
     </form>
-    <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+    <p style="margin-top: 20px;">Already have an account? <a href="{% url 'login' %}">Log In</a></p>
 </div>
 {% endblock %}
