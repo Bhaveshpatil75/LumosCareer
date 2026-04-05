@@ -97,16 +97,17 @@ def call_gemini_api(messages, system_instruction=None, max_tokens=4096):
 
 def call_grok_api(messages, system_instruction=None, max_tokens=4096):
     """
-    Calls xAI Grok API (OpenAI-compatible format).
-    Primary chat LLM — faster and more efficient.
+    Calls Groq API (OpenAI-compatible format) for blazing fast LPU inference.
+    Primary chat LLM — faster and more efficient than Gemini.
     Falls back to None if unavailable so caller can try Gemini.
     """
-    api_key = os.getenv("GROK_API_KEY")
+    api_key = os.getenv("GROK_API_KEY") or os.getenv("GROQ_API_KEY")
     if not api_key:
-        print("GROK_API_KEY not found, skipping Grok.")
+        print("GROQ_API_KEY not found, skipping Groq.")
         return None
 
-    url = "https://api.x.ai/v1/chat/completions"
+    # Using Groq's endpoint instead of xAI
+    url = "https://api.groq.com/openai/v1/chat/completions"
 
     oai_messages = []
     if system_instruction:
@@ -117,10 +118,12 @@ def call_grok_api(messages, system_instruction=None, max_tokens=4096):
         oai_messages.append({"role": role, "content": msg.get('content', '')})
 
     payload = {
-        "model": "grok-3-mini-fast",
+        # Using standard Groq model for speed and quality
+        "model": "llama-3.1-70b-versatile",
         "messages": oai_messages,
         "max_tokens": max_tokens,
         "temperature": 0.7,
+        "stream": False
     }
 
     headers = {
@@ -137,7 +140,9 @@ def call_grok_api(messages, system_instruction=None, max_tokens=4096):
             return choices[0].get('message', {}).get('content', '')
         return None
     except Exception as e:
-        print(f"Error calling Grok: {e}")
+        print(f"Error calling Groq: {e}")
+        if 'response' in locals() and hasattr(response, 'text'):
+            print(f"Response: {response.text}")
         return None
 
 
