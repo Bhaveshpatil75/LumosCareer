@@ -32,60 +32,70 @@
     <div class="glass-card profile-summary-card" style="border: 1px solid rgba(var(--color-accent-rgb), 0.3);">
         <h3 class="card-title" style="color: var(--color-accent);">Scientific Career Analysis</h3>
 
-        <div class="row" style="display: flex; flex-wrap: wrap; gap: 20px;">
-            <!-- Bayesian Success Probability -->
-            <div style="flex: 1; min-width: 300px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h5 style="margin-bottom: 10px;">Hiring Probability</h5>
-                    <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-success); line-height: 1;">
-                        {{ algorithmic_insights.success_probability }}%
-                    </div>
-                    <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">
-                        Calculated using <strong>Bayesian Inference Algorithm</strong> based on market signals for your projected
-                        skills. Only skills with statistical significance are shown below.
-                    </p>
+        <!-- Top Block: Hiring Probability -->
+        <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 40px; background: rgba(0,0,0,0.15); border-radius: 12px; padding: 25px;">
+            <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px;">
+                <h5 style="margin-bottom: 15px; font-size: 1.2rem; color: var(--text-main);">Hiring Probability</h5>
+                <div style="font-size: 4.5rem; font-weight: 800; color: var(--color-success); line-height: 1; text-shadow: 0 0 20px rgba(40,167,69,0.3);">
+                    {{ algorithmic_insights.success_probability }}%
                 </div>
-                <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px;">
-                    <h6 style="font-size: 0.9rem; margin-bottom: 15px; opacity: 0.8;">Key Signal Contributors:</h6>
+                <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 15px; text-align: center; max-width: 300px;">
+                    Calculated using <strong>Bayesian Inference</strong> based on market signals for your projected skills.
+                </p>
+            </div>
+            
+            <div style="flex: 2; min-width: 300px; display: flex; flex-direction: column; justify-content: center;">
+                <h6 style="font-size: 1rem; margin-bottom: 15px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Key Signal Contributors</h6>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     {% for detail in algorithmic_insights.probability_details %}
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
-                        <span>{{ detail.skill }}</span>
-                        <span
-                            class="{% if detail.impact == 'High' %}text-high-impact{% else %}text-medium-impact{% endif %}"
-                            style="font-weight: bold;">
-                            {{ detail.lift }}x Lift
-                        </span>
+                    <div style="background: rgba(255,255,255,0.03); padding: 12px 15px; border-radius: 8px; border-left: 3px solid {% if detail.impact == 'High' %}var(--color-success){% else %}var(--color-warning){% endif %};">
+                        <div style="font-size: 0.95rem; font-weight: 600; margin-bottom: 5px;">{{ detail.skill }}</div>
+                        <div class="{% if detail.impact == 'High' %}text-high-impact{% else %}text-medium-impact{% endif %}" style="font-size: 0.85rem; font-weight: 700; opacity: 0.9;">
+                            <i class="fas fa-arrow-trend-up me-1"></i> {{ detail.lift }}x Lift
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+        </div>
 
-            <!-- Simulated Annealing Schedule -->
-            <div style="flex: 1; min-width: 300px;">
-                <h5 style="text-align: center; margin-bottom: 20px;">Optimized Study Schedule</h5>
-                <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">
-                    Generated dynamically based on chronological roadmap progression.
-                </p>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                    {% for day, details in algorithmic_insights.weekly_schedule.items %}
-                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; font-size: 0.9rem; border-left: 3px solid {% if details.subject == 'Rest' %}#555{% else %}var(--primary-color){% endif %};">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <strong style="opacity: 0.8; font-size: 0.8rem; text-transform: uppercase;">{{ day }}</strong>
-                            {% if details.subject != 'Rest' %}
-                            <span style="font-size: 0.7rem; background: rgba(76,145,150,0.15); padding: 2px 6px; border-radius: 4px; color: #4C9196;">{{ details.hours }}</span>
-                            {% endif %}
-                        </div>
-                        <div style="color: {% if details.subject == 'Rest' %}#888{% else %}var(--text-main){% endif %}; font-weight: 600; margin-bottom: 4px;">
-                            {{ details.subject }}
-                        </div>
-                        {% if details.mode %}
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">
-                            <i class="fas {% if details.mode == 'Deep Work' %}fa-brain{% elif details.mode == 'Active Practice' %}fa-laptop-code{% else %}fa-book-reader{% endif %} me-1"></i> {{ details.mode }}
-                        </div>
+        <!-- Bottom Block: Long-Term Schedule -->
+        <div style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+                <div>
+                    <h5 style="margin: 0; font-size: 1.4rem; color: var(--text-main);">Optimized Project Timeline</h5>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9rem; opacity: 0.6;">Dynamically mapped across a full quarter execution period.</p>
+                </div>
+                <div style="font-size: 0.85rem; background: rgba(var(--color-accent-rgb), 0.1); color: var(--color-accent); padding: 6px 12px; border-radius: 20px; font-weight: 600;">
+                    <i class="fas fa-calendar-alt me-1"></i> Strategic Auto-Scheduler
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px;">
+                {% for day, details in algorithmic_insights.weekly_schedule.items %}
+                <div style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); padding: 18px; border-radius: 12px; border-top: 3px solid {% if details.subject == 'Rest' %}#444{% elif 'Practice' in details.subject %}var(--color-warning){% else %}var(--primary-color){% endif %}; position: relative; overflow: hidden; transition: transform 0.2s ease; cursor: default;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <strong style="color: var(--text-main); font-size: 0.95rem; font-weight: 700;">{{ day }}</strong>
+                        {% if details.subject != 'Rest' %}
+                        <span style="font-size: 0.75rem; background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 20px; color: #ccc; font-weight: 600;">
+                            {{ details.hours }}
+                        </span>
                         {% endif %}
                     </div>
-                    {% endfor %}
+                    
+                    <div style="color: {% if details.subject == 'Rest' %}#888{% elif 'Practice' in details.subject %}var(--color-warning){% else %}var(--primary-color){% endif %}; font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; line-height: 1.3;">
+                        {{ details.subject }}
+                    </div>
+                    
+                    {% if details.mode %}
+                    <div style="font-size: 0.8rem; color: var(--text-muted); background: rgba(0,0,0,0.2); display: inline-block; padding: 4px 10px; border-radius: 6px;">
+                        <i class="fas {% if details.mode == 'Deep Work' %}fa-brain text-primary{% elif details.mode == 'Recovery' %}fa-bed text-secondary{% elif details.mode == 'Evaluation & Labs' %}fa-vial text-warning{% else %}fa-laptop-code text-info{% endif %} me-1"></i> 
+                        {{ details.mode }}
+                    </div>
+                    {% endif %}
                 </div>
+                {% endfor %}
             </div>
         </div>
     </div>
