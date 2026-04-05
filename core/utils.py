@@ -118,8 +118,7 @@ def call_grok_api(messages, system_instruction=None, max_tokens=4096):
         oai_messages.append({"role": role, "content": msg.get('content', '')})
 
     payload = {
-        # Using standard Groq model for speed and quality
-        "model": "llama-3.1-70b-versatile",
+        "model": "openai/gpt-oss-120b",
         "messages": oai_messages,
         "max_tokens": max_tokens,
         "temperature": 0.7,
@@ -148,17 +147,17 @@ def call_grok_api(messages, system_instruction=None, max_tokens=4096):
 
 def call_chat_api(messages, system_instruction=None, max_tokens=4096):
     """
-    Primary chat function: tries Grok first, falls back to Gemini.
+    Primary chat function: tries Gemini first, falls back to Groq.
     Used for interview chat and therapy chat.
     """
-    # Try Grok first
-    reply = call_grok_api(messages, system_instruction, max_tokens)
+    # Try Gemini first
+    reply = call_gemini_api(messages, system_instruction, max_tokens)
     if reply:
         return reply
 
-    # Fallback to Gemini
-    print("Grok unavailable, falling back to Gemini.")
-    return call_gemini_api(messages, system_instruction, max_tokens)
+    # Fallback to Groq
+    print("Gemini unavailable, falling back to Groq.")
+    return call_grok_api(messages, system_instruction, max_tokens)
 
 
 def call_gemini_with_rag(messages, context_query, system_instruction_base=None, max_tokens=4096):

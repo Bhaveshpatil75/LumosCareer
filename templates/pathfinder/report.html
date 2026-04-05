@@ -23,11 +23,17 @@
             <!-- Card 1: The Score -->
             <div class="ats-card score-card">
                 <h3>Match Score</h3>
-                <div class="score-circle-large" data-score="{{ similarity_score }}">
-                    <div class="inner-circle">
-                        <span class="score-number">{{ similarity_score }}%</span>
+                <div style="font-size: 3rem; font-weight: 800; color: #fff; margin-bottom: 10px;">{{ similarity_score }}%</div>
+                
+                <!-- Horizontal Strip -->
+                <div style="width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; margin-bottom: 15px;">
+                    <div class="score-strip-fill" 
+                         style="height: 100%; width: {{ similarity_score|floatformat:"0" }}%; 
+                                background: {% if similarity_score >= 80 %}#28a745{% elif similarity_score >= 50 %}#ffc107{% else %}#dc3545{% endif %};
+                                transition: width 1s ease-in-out;">
                     </div>
                 </div>
+
                 <p class="score-label">Relevance Probability</p>
             </div>
 
@@ -225,15 +231,4 @@
 
 {% block scripts %}
 {{ block.super }}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const scoreCircles = document.querySelectorAll('.score-circle-large');
-        scoreCircles.forEach(circle => {
-            const score = circle.getAttribute('data-score');
-            if (score) {
-                circle.style.background = `conic-gradient(var(--primary-color) ${score}%, #333 0)`;
-            }
-        });
-    });
-</script>
 {% endblock %}

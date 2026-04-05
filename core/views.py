@@ -603,19 +603,63 @@ def pathfinder_view(request):
             # Changed: using updated method name
             prob, prob_details = bp.predict_success_probability(extracted_skills)
             
-            # 3. Simulated Annealing Schedule
-            # Create a schedule based on the first 4 modules of the roadmap
-            subjects = [step.get('title', 'Study') for step in roadmap[:4]]
-            if len(subjects) < 2: subjects = ['Frontend', 'Backend', 'Data Structures', 'Projects']
+            # 3. Dynamic Long-Term Schedule Engine (2-3 Months)
+            subjects = [step.get('title', 'Study') for step in roadmap]
+            if not subjects:
+                subjects = ['Frontend', 'Backend', 'Data Structures', 'Projects', 'System Design']
             
-            sa = SimulatedAnnealingScheduler(subjects)
-            schedule, energy = sa.optimize()
+            import datetime
+            from django.utils import timezone
+            import random
             
+            current_date = timezone.now().date() + datetime.timedelta(days=1)
+            
+            enriched_schedule = {}
+            modes = ['Deep Work', 'Active Practice', 'Implementation']
+            
+            for index, subj in enumerate(subjects):
+                # 1. Main Phase (12 to 18 days)
+                phase_days = random.randint(12, 18)
+                end_phase_date = current_date + datetime.timedelta(days=phase_days)
+                date_range = f"{current_date.strftime('%b %d')} - {end_phase_date.strftime('%b %d')}"
+                
+                enriched_schedule[date_range] = {
+                    'subject': subj,
+                    'mode': random.choice(modes),
+                    'hours': f"{random.randint(15, 25)} hrs/week"
+                }
+                current_date = end_phase_date + datetime.timedelta(days=1)
+                
+                # 2. Practice / Capstone Period (3 to 6 days)
+                practice_days = random.randint(3, 6)
+                end_practice_date = current_date + datetime.timedelta(days=practice_days)
+                p_date_range = f"{current_date.strftime('%b %d')} - {end_practice_date.strftime('%b %d')}"
+                
+                enriched_schedule[p_date_range] = {
+                    'subject': f"Practice: {subj.split(':')[0] if ':' in subj else subj}",
+                    'mode': 'Evaluation & Labs',
+                    'hours': "Flexible"
+                }
+                current_date = end_practice_date + datetime.timedelta(days=1)
+                
+                # 3. Rest & Recovery (1 to 3 days)
+                # Ensure we don't end on a rest day if it's the very last phase
+                if index < len(subjects) - 1:
+                    rest_days = random.randint(1, 3)
+                    end_rest_date = current_date + datetime.timedelta(days=rest_days)
+                    r_date_range = f"{current_date.strftime('%b %d')} - {end_rest_date.strftime('%b %d')}"
+                    
+                    enriched_schedule[r_date_range] = {
+                        'subject': 'Rest',
+                        'mode': 'Recovery',
+                        'hours': '0 hrs'
+                    }
+                    current_date = end_rest_date + datetime.timedelta(days=1)
+
             result_extra = {
                 'success_probability': prob,
                 'probability_details': prob_details,
-                'weekly_schedule': schedule,
-                'energy_score': energy
+                'weekly_schedule': enriched_schedule
             }
 
             context = {
@@ -624,8 +668,13 @@ def pathfinder_view(request):
             }
             return render(request, 'pathfinder/result.html', context)
             
-        except (requests.exceptions.RequestException, json.JSONDecodeError, KeyError) as e:
-            return HttpResponseServerError(f"Error processing AI report: {e}")
+        except requests.exceptions.RequestException as e:
+            return HttpResponseServerError(f"Error connecting to n8n webhook: {e}")
+        except json.JSONDecodeError as e:
+            raw_text = response.text if 'response' in locals() else 'No response body'
+            return HttpResponseServerError(f"Error processing AI report: Expecting JSON but received invalid format from n8n.\nRaw Response: {raw_text}\nParse Error: {e}")
+        except KeyError as e:
+            return HttpResponseServerError(f"Error processing AI report: Missing expected key {e}")
 
     # Render Career Quiz
     else:

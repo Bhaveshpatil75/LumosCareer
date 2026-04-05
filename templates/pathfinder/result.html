@@ -64,17 +64,25 @@
             <div style="flex: 1; min-width: 300px;">
                 <h5 style="text-align: center; margin-bottom: 20px;">Optimized Study Schedule</h5>
                 <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">
-                    Generated via <strong>Simulated Annealing</strong> algorithm to minimize burnout.
+                    Generated dynamically based on chronological roadmap progression.
                 </p>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                    {% for day, subject in algorithmic_insights.weekly_schedule.items %}
-                    <div
-                        style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; font-size: 0.9rem;">
-                        <div style="opacity: 0.6; font-size: 0.75rem;">{{ day }}</div>
-                        <div
-                            style="color: {% if subject == 'Rest' %}#888{% else %}var(--text-main){% endif %}; font-weight: 500;">
-                            {{ subject }}
+                    {% for day, details in algorithmic_insights.weekly_schedule.items %}
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; font-size: 0.9rem; border-left: 3px solid {% if details.subject == 'Rest' %}#555{% else %}var(--primary-color){% endif %};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <strong style="opacity: 0.8; font-size: 0.8rem; text-transform: uppercase;">{{ day }}</strong>
+                            {% if details.subject != 'Rest' %}
+                            <span style="font-size: 0.7rem; background: rgba(76,145,150,0.15); padding: 2px 6px; border-radius: 4px; color: #4C9196;">{{ details.hours }}</span>
+                            {% endif %}
                         </div>
+                        <div style="color: {% if details.subject == 'Rest' %}#888{% else %}var(--text-main){% endif %}; font-weight: 600; margin-bottom: 4px;">
+                            {{ details.subject }}
+                        </div>
+                        {% if details.mode %}
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            <i class="fas {% if details.mode == 'Deep Work' %}fa-brain{% elif details.mode == 'Active Practice' %}fa-laptop-code{% else %}fa-book-reader{% endif %} me-1"></i> {{ details.mode }}
+                        </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -94,6 +102,8 @@
                         ✓
                         {% elif step.status == 'in-progress' %}
                         ⟳
+                        {% elif step.status == 'open' %}
+                        ▶
                         {% else %}
                         🔒
                         {% endif %}
@@ -245,6 +255,11 @@
     .roadmap-step.status-completed .step-icon {
         color: var(--color-success);
         background: rgba(var(--color-success-rgb), 0.15);
+    }
+
+    .roadmap-step.status-open .step-icon {
+        color: #4C9196;
+        background: rgba(76, 145, 150, 0.15);
     }
 
     .roadmap-step.status-in-progress .step-icon {

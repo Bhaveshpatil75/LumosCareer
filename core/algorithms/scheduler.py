@@ -54,10 +54,23 @@ class SimulatedAnnealingScheduler:
             
         return penalty
 
+    def generate_random_sequential_schedule(self):
+        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        num_subjects = min(len(self.subjects), len(days))
+        chosen_indices = sorted(random.sample(range(len(days)), num_subjects))
+        
+        schedule = {day: 'Rest' for day in days}
+        for i, idx in enumerate(chosen_indices):
+            schedule[days[idx]] = self.subjects[i]
+        return schedule
+
     def optimize(self, iterations=1000):
         days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        # Initial State: Random
-        current_schedule = {day: random.choice(self.subjects + ['Rest']) for day in days}
+        if not self.subjects:
+            return {day: 'Rest' for day in days}, 0
+
+        # Initial State: Sequential placement
+        current_schedule = self.generate_random_sequential_schedule()
         current_energy = self.energy(current_schedule)
         
         best_schedule = current_schedule.copy()
@@ -67,11 +80,7 @@ class SimulatedAnnealingScheduler:
         cooling_rate = 0.95
         
         for i in range(iterations):
-            # Neighbor: Change one day randomly
-            neighbor = current_schedule.copy()
-            day_to_change = random.choice(days)
-            neighbor[day_to_change] = random.choice(self.subjects + ['Rest'])
-            
+            neighbor = self.generate_random_sequential_schedule()
             neighbor_energy = self.energy(neighbor)
             
             # Acceptance Probability
@@ -79,7 +88,10 @@ class SimulatedAnnealingScheduler:
                 current_schedule = neighbor
                 current_energy = neighbor_energy
             else:
-                prob = math.exp((current_energy - neighbor_energy) / temperature)
+                try:
+                    prob = math.exp((current_energy - neighbor_energy) / max(temperature, 0.001))
+                except OverflowError:
+                    prob = 0
                 if random.random() < prob:
                     current_schedule = neighbor
                     current_energy = neighbor_energy
