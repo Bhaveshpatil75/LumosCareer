@@ -38,6 +38,9 @@
                 {% if profile.leetcode_url %}
                     <a href="{{ profile.leetcode_url }}" target="_blank" class="tag" style="text-decoration: none; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid #fff;">LeetCode ↗</a>
                 {% endif %}
+                {% if profile.portfolio_url %}
+                    <a href="{{ profile.portfolio_url }}" target="_blank" class="tag" style="text-decoration: none; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid #fff;">Portfolio ↗</a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -91,6 +94,47 @@
                 </div>
             </div>
 
+                <!-- Professional Info -->
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Professional Info</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        {% if profile.current_role %}
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Current Role</div>
+                            <div style="font-weight: 500;">{{ profile.current_role }}</div>
+                        </div>
+                        {% endif %}
+                        {% if profile.experience_years %}
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Experience</div>
+                            <div style="font-weight: 500;">{{ profile.experience_years }} year{{ profile.experience_years|pluralize }}</div>
+                        </div>
+                        {% endif %}
+                        {% if profile.education %}
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Education</div>
+                            <div style="font-weight: 500;">{{ profile.education }}</div>
+                        </div>
+                        {% endif %}
+                        {% if profile.preferred_work_style %}
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Work Style</div>
+                            <div style="font-weight: 500;">{{ profile.get_preferred_work_style_display }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if profile.skills_list %}
+                    <div style="margin-top: 15px;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Skills</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            {% for skill in profile.skills_list %}
+                            <span style="background: rgba(76, 145, 150, 0.15); color: #4C9196; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(76, 145, 150, 0.3);">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
             <!-- Right Column (Personality) -->
             <div>
                 <div class="card" style="text-align: center;">
@@ -120,7 +164,6 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <h3 style="font-size: 1.2rem;">{{ path.title }}</h3>
-                    <span style="font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.1);">{{ path.status }}</span>
                 </div>
                 <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">{{ path.description|truncatewords:20 }}</p>
                 
@@ -157,7 +200,7 @@
                 <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Saved on {{ company.date_saved|date:"M d, Y" }}</p>
 
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="alert('Full report view coming soon!')" style="flex: 1; background: none; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: var(--text-muted); cursor: pointer;">View Analysis</button>
+                    <a href="{% url 'view_saved_company' company.id %}" style="flex: 1; text-align: center; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: var(--text-muted); text-decoration: none; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.color='var(--primary-color)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-muted)'">View Analysis</a>
                     <button onclick="deleteItem('company', {{ company.id }})" style="flex: 1; background: none; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; color: #ff4444; cursor: pointer;">Delete</button>
                 </div>
             </div>

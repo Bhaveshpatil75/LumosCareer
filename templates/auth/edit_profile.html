@@ -60,6 +60,48 @@
                     <input type="url" name="leetcode_url" value="{{ profile.leetcode_url }}" placeholder="https://leetcode.com/..."
                         style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
                 </div>
+                <div>
+                    <label for="portfolio_url" style="display: block; margin-bottom: 8px;">Portfolio URL</label>
+                    <input type="url" name="portfolio_url" value="{{ profile.portfolio_url }}" placeholder="https://yourportfolio.com"
+                        style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <!-- Professional Info -->
+            <h3 style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Professional Info</h3>
+            <div style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    <label for="current_role" style="display: block; margin-bottom: 8px;">Current Role</label>
+                    <input type="text" name="current_role" value="{{ profile.current_role }}" placeholder="e.g. Software Engineer"
+                        style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label for="experience_years" style="display: block; margin-bottom: 8px;">Years of Experience</label>
+                        <input type="number" name="experience_years" value="{{ profile.experience_years }}" min="0" max="50"
+                            style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="preferred_work_style" style="display: block; margin-bottom: 8px;">Preferred Work Style</label>
+                        <select name="preferred_work_style"
+                            style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                            <option value="" {% if not profile.preferred_work_style %}selected{% endif %}>Not specified</option>
+                            <option value="remote" {% if profile.preferred_work_style == 'remote' %}selected{% endif %}>Remote</option>
+                            <option value="hybrid" {% if profile.preferred_work_style == 'hybrid' %}selected{% endif %}>Hybrid</option>
+                            <option value="onsite" {% if profile.preferred_work_style == 'onsite' %}selected{% endif %}>On-site</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label for="education" style="display: block; margin-bottom: 8px;">Education</label>
+                    <input type="text" name="education" value="{{ profile.education }}" placeholder="e.g. B.Tech Computer Science, IIT Delhi"
+                        style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label for="skills" style="display: block; margin-bottom: 8px;">Skills (comma-separated)</label>
+                    <input type="text" name="skills" value="{{ profile.skills }}" placeholder="e.g. Python, React, Docker, SQL"
+                        style="width: 100%; padding: 10px; border-radius: 8px; background: var(--background-input); border: 1px solid var(--border-color); color: white; box-sizing: border-box;">
+                </div>
             </div>
 
             <div style="display: flex; gap: 15px; align-items: center;">

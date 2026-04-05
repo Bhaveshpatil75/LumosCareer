@@ -43,6 +43,7 @@ urlpatterns = [
     path('profile/path/<int:path_id>/', views.view_career_path, name='view_career_path'),
     path('profile/update-path/<int:path_id>/', views.update_career_path, name='update_career_path'),
     path('profile/save-company/', views.save_company, name='save_company'),
+    path('profile/company/<int:company_id>/', views.view_saved_company, name='view_saved_company'),
     path('profile/save-interview/', views.save_interview_session, name='save_interview'),
     path('profile/delete/<str:item_type>/<int:item_id>/', views.delete_item, name='delete_item'),
     path('profile/path/<int:path_id>/step/<int:step_id>/', views.career_step_detail_view, name='career_step_detail'),

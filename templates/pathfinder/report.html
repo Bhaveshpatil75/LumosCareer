@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="pathfinder-container">
-    <h1>Your Career Compass Report</h1>
+    <h1>Your Report</h1>
     {% if company_name %}
     <h2 style="color: var(--primary-color); margin-top: 10px;">Target: {{ company_name }}</h2>
     {% endif %}
@@ -72,6 +72,70 @@
                     </div>
                     {% endfor %}
                 </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if company_info %}
+    <div class="ats-dashboard" style="box-shadow: none; border: none; padding: 0; background: transparent; margin-bottom: 30px;">
+        <div class="ats-header">
+            <h2><span class="icon">🏢</span> Company Intelligence</h2>
+            <p>Data sourced from our company database</p>
+        </div>
+        <div class="ats-grid">
+            <div class="ats-card" style="grid-column: 1 / -1;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    {% if company_info.industry %}
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Industry</div>
+                        <div style="font-weight: 600;">{{ company_info.industry }}</div>
+                    </div>
+                    {% endif %}
+                    {% if company_info.headquarters %}
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Headquarters</div>
+                        <div style="font-weight: 600;">{{ company_info.headquarters }}</div>
+                    </div>
+                    {% endif %}
+                    {% if company_info.employee_count %}
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Company Size</div>
+                        <div style="font-weight: 600;">{{ company_info.employee_count }} employees</div>
+                    </div>
+                    {% endif %}
+                    {% if company_info.avg_salary_range %}
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Avg Salary Range</div>
+                        <div style="font-weight: 600;">{{ company_info.avg_salary_range }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if company_info.tech_stack %}
+            <div class="ats-card">
+                <h3>🛠️ Known Tech Stack</h3>
+                <div class="keyword-cloud" style="margin-top: 10px;">
+                    {% for tech in company_info.tech_stack_list %}
+                    <span class="tag match" style="background: rgba(76, 145, 150, 0.15); color: #4C9196; border-color: rgba(76, 145, 150, 0.3);">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if company_info.culture_notes %}
+            <div class="ats-card">
+                <h3>🎯 Culture & Values</h3>
+                <p style="font-size: 0.9rem; line-height: 1.6; margin-top: 10px; opacity: 0.85;">{{ company_info.culture_notes }}</p>
+            </div>
+            {% endif %}
+
+            {% if company_info.interview_process %}
+            <div class="ats-card" style="grid-column: 1 / -1;">
+                <h3>📋 Interview Process</h3>
+                <p style="font-size: 0.9rem; line-height: 1.6; margin-top: 10px; opacity: 0.85;">{{ company_info.interview_process }}</p>
             </div>
             {% endif %}
         </div>

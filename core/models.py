@@ -13,9 +13,22 @@ class Company(models.Model):
         blank=True, 
         help_text="Common interview questions, key cultural topics, or technical areas to focus on for this company."
     )
+    description = models.TextField(blank=True, help_text="Brief description of the company.")
+    headquarters = models.CharField(max_length=200, blank=True)
+    employee_count = models.CharField(max_length=50, blank=True, help_text="e.g. 10000+, 500-1000")
+    culture_notes = models.TextField(blank=True, help_text="Culture and work environment details.")
+    interview_process = models.TextField(blank=True, help_text="Detailed interview process and tips.")
+    careers_url = models.URLField(blank=True)
+    avg_salary_range = models.CharField(max_length=100, blank=True, help_text="e.g. $120k-$200k")
 
     class Meta:
         verbose_name_plural = "Companies"
+
+    @property
+    def tech_stack_list(self):
+        if not self.tech_stack:
+            return []
+        return [t.strip() for t in self.tech_stack.split(',') if t.strip()]
 
     def __str__(self):
         return self.name
@@ -81,6 +94,15 @@ class UserProfile(models.Model):
     linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
     github_url = models.URLField(blank=True, verbose_name="GitHub URL")
     leetcode_url = models.URLField(blank=True, verbose_name="LeetCode URL")
+    # New extended fields
+    experience_years = models.IntegerField(default=0, help_text="Years of professional experience")
+    current_role = models.CharField(max_length=200, blank=True, help_text="Current job title")
+    education = models.CharField(max_length=300, blank=True, help_text="Highest education (e.g. B.Tech CS, M.S. AI)")
+    skills = models.TextField(blank=True, help_text="Comma-separated list of skills")
+    preferred_work_style = models.CharField(max_length=50, blank=True, choices=[
+        ('remote', 'Remote'), ('hybrid', 'Hybrid'), ('onsite', 'On-site'), ('', 'Not specified')
+    ], default='')
+    portfolio_url = models.URLField(blank=True, verbose_name="Portfolio URL")
 
     @property
     def filename(self):
@@ -93,6 +115,12 @@ class UserProfile(models.Model):
         if not self.target_job_titles:
             return []
         return [r.strip() for r in self.target_job_titles.split(',') if r.strip()]
+
+    @property
+    def skills_list(self):
+        if not self.skills:
+            return []
+        return [s.strip() for s in self.skills.split(',') if s.strip()]
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

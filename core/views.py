@@ -14,7 +14,8 @@ from .algorithms import (
     LSAEngine, SkillGraph, PersonalityClassifier, RecommenderSystem, 
     PageRank, BayesianPredictor, SimulatedAnnealingScheduler, AprioriGenerator
 )
-from .utils import extract_text_from_pdf_file, validate_file_size, send_to_n8n_webhook, call_gemini_api
+from .utils import extract_text_from_pdf_file, validate_file_size, send_to_n8n_webhook, call_gemini_api, call_gemini_with_rag, call_chat_api
+from .mcp_server import get_mcp_server
 from django.core.exceptions import ValidationError
 
 dotenv.load_dotenv()
@@ -52,10 +53,33 @@ def matcher_view(request):
         except UserProfile.DoesNotExist:
             return redirect('edit_profile')
 
-        company_name = request.POST.get('company_name', '')
+        company_name = request.POST.get('company_name', '').strip()
+        
+        company_db_info = ""
+        company_obj = None
+        try:
+            # name__iexact matches irrespective of casing
+            company_obj = Company.objects.filter(name__iexact=company_name).first()
+            if company_obj:
+                company_db_info = (
+                f"Industry: {company_obj.industry}. "
+                f"Tech Stack: {company_obj.tech_stack}. "
+                f"Interview Notes: {company_obj.interview_notes}. "
+                f"Culture: {company_obj.culture_notes}. "
+                f"Interview Process: {company_obj.interview_process}. "
+                f"Description: {company_obj.description}. "
+                f"Salary Range: {company_obj.avg_salary_range}."
+            )
+        except Company.DoesNotExist:
+            pass
         job_description = request.POST.get('job_description', '')
         
-        similarity_score, matching_keywords, missing_keywords = calculate_similarity_score(resume_text, job_description)
+        # Include predefined company keywords into the matching algorithm
+        match_text = job_description
+        if company_obj and company_obj.tech_stack:
+            match_text += " " + company_obj.tech_stack
+            
+        similarity_score, matching_keywords, missing_keywords = calculate_similarity_score(resume_text, match_text)
         personality_type = "Not Available"
         try:
             assessment = AssessmentResult.objects.get(user=request.user)
@@ -64,12 +88,24 @@ def matcher_view(request):
             pass
 
         n8n_webhook_url = os.getenv('COMPANY_SCRAPER_URL')
+        
+        # Enrich payload with RAG-retrieved company knowledge
+        rag_company_context = ""
+        try:
+            from .rag_engine import get_rag_engine
+            rag = get_rag_engine()
+            rag_company_context = rag.build_context(f"company {company_name} culture interview tech stack", max_chars=1500)
+        except Exception:
+            pass
+        
         payload = {
             "resume": resume_text,
             "company": company_name,
             "personality": personality_type,
             "similarity_score": similarity_score,
-            "job_description": job_description
+            "job_description": job_description,
+            "rag_context": rag_company_context,
+            "company_db_info": company_db_info,
         }
 
         try:
@@ -153,6 +189,16 @@ def matcher_view(request):
                 if rule['from'] in user_skills and rule['to'] not in user_skills:
                     recommendations.append(rule)
             
+            # Use company tech stack from DB for keyword matching
+            if company_obj and company_obj.tech_stack:
+                db_techs = [t.strip().lower() for t in company_obj.tech_stack.split(',')]
+                resume_lower = resume_text.lower() if resume_text else ''
+                for tech in db_techs:
+                    if tech in resume_lower and tech not in [k.lower() for k in matching_keywords]:
+                        matching_keywords.append(tech.title())
+                    elif tech not in resume_lower and tech not in [k.lower() for k in missing_keywords]:
+                        missing_keywords.append(tech.title())
+
             context = {
                 'report_content': report_text,
                 'similarity_score': similarity_score,
@@ -161,7 +207,8 @@ def matcher_view(request):
                 'show_score': True if job_description else False,
                 'company_name': company_name,
                 'job_description': job_description,
-                'skill_recommendations': recommendations[:3] # Show top 3 derived rules
+                'skill_recommendations': recommendations[:3],
+                'company_info': company_obj,
             }
             return render(request, 'pathfinder/report.html', context)
             
@@ -181,7 +228,7 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')
+            return redirect('edit_profile')
     else:
         form = UserCreationForm()
     return render(request, 'auth/signup.html', {'form': form})
@@ -264,19 +311,36 @@ def interview_chat_view(request):
             except UserProfile.DoesNotExist:
                 pass
 
-        system_instruction = (
-            f"You are a professional Technical Recruiter and Hiring Manager at {company_name}. "
-            f"JOB CONTEXT: {job_description if job_description else 'General Software Engineering role'}. "
-            f"CANDIDATE: {resume_text[:2000] if resume_text else 'No resume provided'}. "
-            "YOUR MISSION: Conduct a realistic screening interview. "
-            "GUIDELINES: "
-            "1. ask only ONE question at a time. "
-            "2. Do not offer advice or extensive feedback during the interview. "
-            "3. If the candidate gives a short or vague answer, ask a follow-up digging deeper. "
-            "4. Start with a relevant technical question based on their resume or the job. "
-            "5. Be concise. Keep your responses under 3 sentences unless explaining a complex scenario. "
-            "6. Maintain a professional but slightly challenging persona."
-        )
+        # Use MCP to build a RAG-enriched interviewer prompt
+        try:
+            mcp = get_mcp_server()
+            personality_type = ""
+            try:
+                assessment = AssessmentResult.objects.get(user=request.user)
+                personality_type = assessment.result_type
+            except AssessmentResult.DoesNotExist:
+                pass
+            system_instruction = mcp.get_prompt("interviewer_prompt", {
+                "company_name": company_name,
+                "job_description": job_description,
+                "resume_text": resume_text,
+                "personality_type": personality_type,
+            })
+        except Exception:
+            # Fallback to basic prompt if MCP fails
+            system_instruction = (
+                f"You are a professional Technical Recruiter and Hiring Manager at {company_name}. "
+                f"JOB CONTEXT: {job_description if job_description else 'General Software Engineering role'}. "
+                f"CANDIDATE: {resume_text[:2000] if resume_text else 'No resume provided'}. "
+                "YOUR MISSION: Conduct a realistic screening interview. "
+                "GUIDELINES: "
+                "1. Ask only ONE question at a time. "
+                "2. Do not offer advice or extensive feedback during the interview. "
+                "3. If the candidate gives a short or vague answer, ask a follow-up digging deeper. "
+                "4. Start with a relevant technical question based on their resume or the job. "
+                "5. Be concise. Keep your responses under 3 sentences unless explaining a complex scenario. "
+                "6. Maintain a professional but slightly challenging persona."
+            )
 
         # For single-turn via POST, we treat it as a new message. 
         # But if frontend sends history, we use it for context.
@@ -294,7 +358,7 @@ def interview_chat_view(request):
         if not messages and user_message:
             messages = [{'role': 'user', 'content': user_message}]
 
-        reply = call_gemini_api(messages, system_instruction)
+        reply = call_chat_api(messages, system_instruction)
         
         if not reply:
             return JsonResponse({'error': 'AI did not respond'}, status=500)
@@ -337,8 +401,83 @@ def personality_view(request):
             defaults={'result_type': result_type}
         )
         
-        # Redirect to Profile to see result
-        return redirect('profile')
+        # Build extensive result data for the personality result page
+        # Get RAG context about this personality type
+        rag_context = ""
+        try:
+            from .rag_engine import get_rag_engine
+            rag = get_rag_engine()
+            results = rag.retrieve(f"MBTI {result_type} career personality", top_k=3)
+            personality_data = {}
+            for key, text, score in results:
+                personality_data[key] = text
+        except Exception:
+            personality_data = {}
+        
+        # Get compatible companies from DB based on personality
+        compatible_companies = []
+        try:
+            rec = RecommenderSystem()
+            all_companies = Company.objects.all()[:20]
+            compatible_companies = list(all_companies[:8])
+        except Exception:
+            pass
+        
+        # Get compatible roles from knowledge base
+        compatible_roles = []
+        role_mapping = {
+            'INTJ': ['Software Architect', 'Data Scientist', 'Backend Developer', 'Cybersecurity Analyst', 'ML Engineer'],
+            'INTP': ['Research Engineer', 'Data Scientist', 'AI/LLM Engineer', 'Algorithm Developer', 'Backend Developer'],
+            'ENTJ': ['Engineering Manager', 'CTO', 'Solutions Architect', 'Product Manager', 'Cloud Architect'],
+            'ENTP': ['Full-Stack Developer', 'Product Manager', 'Developer Advocate', 'Solutions Engineer', 'Startup Founder'],
+            'INFJ': ['UX Researcher', 'Technical Writer', 'Data Scientist', 'EdTech Developer', 'Product Designer'],
+            'INFP': ['UX Designer', 'Technical Writer', 'Frontend Developer', 'Accessibility Engineer', 'Content Strategist'],
+            'ENFJ': ['Engineering Manager', 'Scrum Master', 'Developer Relations', 'Technical Program Manager', 'VP Engineering'],
+            'ENFP': ['Product Manager', 'UX Designer', 'Developer Advocate', 'Solutions Engineer', 'Frontend Developer'],
+            'ISTJ': ['QA Engineer', 'DevOps Engineer', 'Database Administrator', 'Project Manager', 'Backend Developer'],
+            'ISFJ': ['QA Engineer', 'Technical Support', 'Documentation Engineer', 'System Administrator', 'Data Analyst'],
+            'ESTJ': ['Project Manager', 'IT Director', 'Technical Program Manager', 'Operations Manager', 'QA Manager'],
+            'ESFJ': ['Scrum Master', 'Customer Success', 'Technical Support Lead', 'HR Tech', 'Training Manager'],
+            'ISTP': ['DevOps Engineer', 'SRE', 'Security Engineer', 'Systems Administrator', 'Network Engineer'],
+            'ISFP': ['UX Designer', 'Mobile Developer', 'Game Developer', 'Creative Technologist', 'Frontend Developer'],
+            'ESTP': ['Sales Engineer', 'Solutions Architect', 'Startup Founder', 'DevOps Engineer', 'Security Consultant'],
+            'ESFP': ['Developer Advocate', 'Community Manager', 'UX Designer', 'Frontend Developer', 'Event Tech Lead'],
+        }
+        compatible_roles = role_mapping.get(result_type, ['Software Developer', 'Full-Stack Developer', 'Data Analyst'])
+        
+        # Personality type names and descriptions
+        type_info = {
+            'INTJ': {'name': 'The Architect', 'desc': 'Imaginative and strategic thinkers, with a plan for everything. You excel at designing complex systems and seeing the big picture.', 'strengths': ['Strategic Vision', 'Analytical Thinking', 'Independence', 'High Standards', 'Long-term Planning'], 'work_style': 'You prefer deep focus time, minimal meetings, and autonomous work environments. You thrive when given complex problems to solve independently.'},
+            'INTP': {'name': 'The Logician', 'desc': 'Innovative thinkers with an unquenchable thirst for knowledge. You love solving complex theoretical problems and building systems from first principles.', 'strengths': ['Analytical Depth', 'Innovation', 'Pattern Recognition', 'Objectivity', 'Creative Problem-Solving'], 'work_style': 'You prefer intellectual freedom, minimal bureaucracy, and the ability to explore ideas deeply. You work best with flexible deadlines.'},
+            'ENTJ': {'name': 'The Commander', 'desc': 'Bold, imaginative and strong-willed leaders who always find a way. You are natural executives who drive strategy and build high-performing teams.', 'strengths': ['Strategic Leadership', 'Decisiveness', 'Efficiency', 'Confidence', 'Goal-oriented'], 'work_style': 'You prefer leadership roles with high-impact projects. Fast-paced environments and clear organizational goals energize you.'},
+            'ENTP': {'name': 'The Debater', 'desc': 'Smart and curious thinkers who thrive on intellectual challenges. You love brainstorming, debating ideas, and finding innovative solutions.', 'strengths': ['Quick Thinking', 'Adaptability', 'Innovation', 'Persuasion', 'Problem-Solving'], 'work_style': 'You thrive in dynamic environments with variety. You prefer roles that involve strategy, brainstorming, and rapid prototyping.'},
+            'INFJ': {'name': 'The Advocate', 'desc': 'Quiet and mystical, yet very inspiring and tireless idealists. You seek meaningful work that makes a positive impact on people.', 'strengths': ['Empathy', 'Vision', 'Creativity', 'Determination', 'Insight'], 'work_style': 'You prefer meaningful work with clear positive impact. Small teams, mentoring opportunities, and creative problem-solving appeal to you.'},
+            'INFP': {'name': 'The Mediator', 'desc': 'Poetic, kind and altruistic people, always eager to help a good cause. You bring creativity and heart to everything you build.', 'strengths': ['Creativity', 'Empathy', 'Writing', 'Values-driven', 'User Advocacy'], 'work_style': 'You prefer meaningful projects with creative freedom. Non-competitive environments and small, collaborative teams suit you best.'},
+            'ENFJ': {'name': 'The Protagonist', 'desc': 'Charismatic and inspiring leaders who bring people together. You excel at building teams, mentoring, and driving alignment.', 'strengths': ['Leadership', 'Communication', 'Empathy', 'Team Building', 'Vision'], 'work_style': 'You thrive in collaborative environments with mentoring opportunities. You prefer making organizational impact through people.'},
+            'ENFP': {'name': 'The Campaigner', 'desc': 'Enthusiastic, creative and sociable free spirits. You bring energy, creativity, and a people-first approach to every project.', 'strengths': ['Creativity', 'Enthusiasm', 'Empathy', 'Adaptability', 'Communication'], 'work_style': 'You prefer collaborative, flexible environments with brainstorming sessions and meaningful work. Routine kills your energy.'},
+            'ISTJ': {'name': 'The Logistician', 'desc': 'Practical and fact-minded individuals, whose reliability cannot be doubted. You are the backbone of any engineering team.', 'strengths': ['Reliability', 'Thoroughness', 'Organization', 'Dedication', 'Process-oriented'], 'work_style': 'You prefer structured environments with clear expectations. You excel at maintaining systems, documenting processes, and ensuring quality.'},
+            'ISFJ': {'name': 'The Defender', 'desc': 'Very dedicated and warm protectors, always ready to support their team. You bring stability and care to every project.', 'strengths': ['Loyalty', 'Attention to Detail', 'Patience', 'Supportiveness', 'Reliability'], 'work_style': 'You prefer stable, supportive environments where your contributions are valued. You excel at maintaining quality and helping others succeed.'},
+            'ESTJ': {'name': 'The Executive', 'desc': 'Excellent administrators, unsurpassed at managing things and people. You bring order, structure, and efficiency to any team.', 'strengths': ['Organization', 'Leadership', 'Decisiveness', 'Process Management', 'Reliability'], 'work_style': 'You prefer clear hierarchies, defined processes, and measurable goals. You thrive in management and operations roles.'},
+            'ESFJ': {'name': 'The Consul', 'desc': 'Extraordinarily caring, social and popular people, always eager to help. You create harmonious, productive team environments.', 'strengths': ['Cooperation', 'Loyalty', 'Sensitivity', 'Practicality', 'Social Skills'], 'work_style': 'You thrive in collaborative team environments where you can help others and maintain group harmony.'},
+            'ISTP': {'name': 'The Virtuoso', 'desc': 'Bold and practical experimenters, masters of all kinds of tools. You excel at troubleshooting and hands-on problem solving.', 'strengths': ['Troubleshooting', 'Practical Skills', 'Adaptability', 'Crisis Management', 'Technical Depth'], 'work_style': 'You prefer hands-on work with minimal bureaucracy. You learn best by doing and thrive in roles that require rapid troubleshooting.'},
+            'ISFP': {'name': 'The Adventurer', 'desc': 'Flexible and charming artists, always ready to explore something new. You bring aesthetic sensibility and creativity to tech.', 'strengths': ['Creativity', 'Aesthetic Sense', 'Flexibility', 'Sensitivity', 'Hands-on Skills'], 'work_style': 'You prefer creative roles with visual or interactive outputs. You work best with autonomy and the ability to experiment.'},
+            'ESTP': {'name': 'The Entrepreneur', 'desc': 'Smart, energetic and very perceptive people who enjoy living on the edge. You thrive in fast-paced, high-stakes environments.', 'strengths': ['Action-oriented', 'Resourcefulness', 'Directness', 'Sociability', 'Risk-taking'], 'work_style': 'You prefer dynamic, fast-paced environments with variety. Long-term planning bores you; you excel at rapid execution.'},
+            'ESFP': {'name': 'The Entertainer', 'desc': 'Spontaneous, energetic and enthusiastic people — life is never boring around them. You bring energy and positivity to teams.', 'strengths': ['Enthusiasm', 'Practicality', 'Sociability', 'Adaptability', 'Observation'], 'work_style': 'You prefer social, engaging work environments. You thrive in roles involving people, communication, and real-time interaction.'},
+        }
+        
+        info = type_info.get(result_type, {'name': 'Unknown', 'desc': '', 'strengths': [], 'work_style': ''})
+        
+        context = {
+            'result_type': result_type,
+            'type_name': info['name'],
+            'type_desc': info['desc'],
+            'strengths': info['strengths'],
+            'work_style': info['work_style'],
+            'compatible_roles': compatible_roles,
+            'compatible_companies': compatible_companies,
+            'user_vector': user_vector,
+        }
+        return render(request, 'pathfinder/personality_result.html', context)
 
     else:
         questions = AssessmentQuestion.objects.all()
@@ -390,12 +529,24 @@ def pathfinder_view(request):
         except UserProfile.DoesNotExist:
             pass
 
-        # Prepare Payload for n8n
+        # Prepare enriched Payload for n8n with RAG context
         n8n_webhook_url = os.getenv('PATHFINDER_URL')
+        
+        # Enrich payload with RAG-retrieved career knowledge
+        rag_career_context = ""
+        try:
+            from .rag_engine import get_rag_engine
+            rag = get_rag_engine()
+            career_query = f"career path {personality_type} " + " ".join([a['answer'] for a in career_data if a.get('answer')])
+            rag_career_context = rag.build_context(career_query, max_chars=2000)
+        except Exception:
+            pass
+        
         payload = {
             "personality_type": personality_type,
             "resume_text": resume_text,
-            "career_answers": career_data
+            "career_answers": career_data,
+            "rag_context": rag_career_context,
         }
 
         try:
@@ -405,6 +556,27 @@ def pathfinder_view(request):
             
             # Robust extraction of the report
             report_data = n8n_data.get('report_json', n8n_data)
+            
+            # Normalize roadmap step statuses — n8n may send first step as 'completed'
+            # Reset: first step = 'open', rest = 'locked'; add step_id and name if missing
+            roadmap_steps = report_data.get('roadmap', [])
+            for i, step in enumerate(roadmap_steps):
+                if i == 0:
+                    step['status'] = 'open'
+                else:
+                    step['status'] = 'locked'
+                # Ensure step_id exists
+                if 'step_id' not in step:
+                    step['step_id'] = i + 1
+                # Ensure 'name' field exists (view_career_path uses 'name', n8n sends 'title')
+                if 'name' not in step and 'title' in step:
+                    step['name'] = step['title']
+            
+            # Save updated roadmap back
+            report_data['roadmap'] = roadmap_steps
+            
+            # Also create a 'steps' key for view_career_path.html compatibility
+            report_data['steps'] = roadmap_steps
             
             # Save Final Detailed Result
             assessment.detailed_report = report_data
@@ -604,15 +776,21 @@ def edit_profile_view(request):
                 extracted_text = extract_text_from_pdf_file(resume_file)
                 if extracted_text:
                     profile.resume_text = extracted_text
-            except ValidationError as e:
-                # In a real app, add a message. For now, we might just ignore or let it fail?
-                # Better to just not save the file if invalid, or let Django form handle it.
-                # Since we are manual, let's just print or ignore for this quick impl, or add a message.
+            except ValidationError:
                 pass 
 
         profile.linkedin_url = request.POST.get('linkedin_url', '')
         profile.github_url = request.POST.get('github_url', '')
         profile.leetcode_url = request.POST.get('leetcode_url', '')
+        profile.portfolio_url = request.POST.get('portfolio_url', '')
+        profile.current_role = request.POST.get('current_role', '')
+        profile.education = request.POST.get('education', '')
+        profile.skills = request.POST.get('skills', '')
+        profile.preferred_work_style = request.POST.get('preferred_work_style', '')
+        try:
+            profile.experience_years = int(request.POST.get('experience_years', 0))
+        except (ValueError, TypeError):
+            profile.experience_years = 0
         profile.save()
         return redirect('profile')
 
@@ -670,6 +848,22 @@ def save_career_path(request):
                 title = report['title']
             elif isinstance(report, dict) and 'career' in report:
                 title = report['career']
+
+            # Normalize roadmap data for view_career_path.html
+            # Ensure 'steps' key exists with proper format
+            roadmap_data = report
+            if 'steps' not in roadmap_data and 'roadmap' in roadmap_data:
+                steps = roadmap_data['roadmap']
+                for i, step in enumerate(steps):
+                    if i == 0:
+                        step['status'] = 'open'
+                    else:
+                        step['status'] = 'locked'
+                    if 'step_id' not in step:
+                        step['step_id'] = i + 1
+                    if 'name' not in step and 'title' in step:
+                        step['name'] = step['title']
+                roadmap_data['steps'] = steps
 
             CareerPath.objects.create(
                 user=request.user,
@@ -763,6 +957,37 @@ def save_company(request):
         )
         return JsonResponse({'success': True, 'message': 'Company saved to profile!'})
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@login_required
+def view_saved_company(request, company_id):
+    """View the saved analysis report for a company."""
+    try:
+        saved = SavedCompany.objects.get(id=company_id, user=request.user)
+    except SavedCompany.DoesNotExist:
+        return redirect('profile')
+    
+    # Get company info from DB if available
+    company_obj = None
+    try:
+        company_obj = Company.objects.get(name__iexact=saved.company_name)
+    except Company.DoesNotExist:
+        pass
+    
+    report_content = ''
+    if saved.analysis_report:
+        if isinstance(saved.analysis_report, dict):
+            report_content = saved.analysis_report.get('content', str(saved.analysis_report))
+        else:
+            report_content = str(saved.analysis_report)
+    
+    context = {
+        'saved_company': saved,
+        'report_content': report_content,
+        'company_info': company_obj,
+        'similarity_score': saved.compatibility_score,
+        'company_name': saved.company_name,
+    }
+    return render(request, 'pathfinder/saved_company_report.html', context)
 
 @login_required
 def save_interview_session(request):
@@ -927,15 +1152,21 @@ def ai_chat_api(request):
             if not messages and user_message:
                 messages = [{'role': 'user', 'content': user_message}]
 
-            system_instruction = (
-                "You are 'Lumos', a compassionate, empathetic, and professional AI wellness companion and therapist. "
-                "Your goal is to support the user through stress, anxiety, and career-related challenges. "
-                "Use a warm, calming tone. Validate their feelings. Offer evidence-based advice (Mindfulness, CBT techniques) when appropriate. "
-                "Keep responses concise (max 3-4 sentences) and conversational. "
-                "Do not diagnose. If the user mentions self-harm, gently urge them to seek professional help immediately."
-            )
+            # Use MCP to build a RAG-enriched therapist prompt
+            try:
+                mcp = get_mcp_server()
+                system_instruction = mcp.get_prompt("therapist_prompt")
+            except Exception:
+                # Fallback to basic prompt if MCP fails
+                system_instruction = (
+                    "You are 'Lumos', a compassionate, empathetic, and professional AI wellness companion and therapist. "
+                    "Your goal is to support the user through stress, anxiety, and career-related challenges. "
+                    "Use a warm, calming tone. Validate their feelings. Offer evidence-based advice (Mindfulness, CBT techniques) when appropriate. "
+                    "Keep responses concise (max 3-4 sentences) and conversational. "
+                    "Do not diagnose. If the user mentions self-harm, gently urge them to seek professional help immediately."
+                )
             
-            reply = call_gemini_api(messages, system_instruction)
+            reply = call_chat_api(messages, system_instruction)
             
             if not reply:
                 reply = "I'm here for you, but I'm having trouble thinking of a response right now. Could you rephrase that?"

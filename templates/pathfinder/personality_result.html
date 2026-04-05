@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Personality: {{ result_type }} | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 60px; padding-bottom: 80px; max-width: 900px; margin: 0 auto;">
+
+    <!-- Hero Section -->
+    <div class="card" style="text-align: center; margin-bottom: 30px; padding: 50px 30px;">
+        <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); margin-bottom: 15px;">Your Personality Archetype</div>
+        <div style="font-size: 5rem; font-weight: 800; color: var(--primary-color); text-shadow: 0 0 30px rgba(255, 107, 107, 0.4); margin-bottom: 10px;">{{ result_type }}</div>
+        <div style="font-size: 1.8rem; font-weight: 600; margin-bottom: 15px;">{{ type_name }}</div>
+        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; line-height: 1.6;">{{ type_desc }}</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 style="margin-bottom: 20px;">📊 Your Trait Dimensions</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: var(--background-input); padding: 15px; border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">Extraversion (E)</span>
+                    <span style="font-weight: 600;">Introversion (I)</span>
+                </div>
+                <div style="background: #333; height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div id="bar-ei" style="background: var(--primary-color); height: 100%; border-radius: 4px; transition: width 0.8s ease;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px; font-size: 0.85rem; color: var(--text-muted);">{{ result_type.0 }}</div>
+            </div>
+            <div style="background: var(--background-input); padding: 15px; border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">Sensing (S)</span>
+                    <span style="font-weight: 600;">Intuition (N)</span>
+                </div>
+                <div style="background: #333; height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div id="bar-sn" style="background: #4C9196; height: 100%; border-radius: 4px; transition: width 0.8s ease;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px; font-size: 0.85rem; color: var(--text-muted);">{{ result_type.1 }}</div>
+            </div>
+            <div style="background: var(--background-input); padding: 15px; border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">Thinking (T)</span>
+                    <span style="font-weight: 600;">Feeling (F)</span>
+                </div>
+                <div style="background: #333; height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div id="bar-tf" style="background: #FFD93D; height: 100%; border-radius: 4px; transition: width 0.8s ease;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px; font-size: 0.85rem; color: var(--text-muted);">{{ result_type.2 }}</div>
+            </div>
+            <div style="background: var(--background-input); padding: 15px; border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">Judging (J)</span>
+                    <span style="font-weight: 600;">Perceiving (P)</span>
+                </div>
+                <div style="background: #333; height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div id="bar-jp" style="background: #6BCB77; height: 100%; border-radius: 4px; transition: width 0.8s ease;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px; font-size: 0.85rem; color: var(--text-muted);">{{ result_type.3 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Convert user_vector values (-1 to 1) to bar widths (10% to 90%)
+    // Positive = more toward first trait (E, S, T, J), Negative = more toward second (I, N, F, P)
+    const vectors = [{{ user_vector.0 }}, {{ user_vector.1 }}, {{ user_vector.2 }}, {{ user_vector.3 }}];
+    const barIds = ['bar-ei', 'bar-sn', 'bar-tf', 'bar-jp'];
+    vectors.forEach((v, i) => {
+        // Map from [-1, 1] to [10, 90] percent
+        const pct = Math.round(((v + 1) / 2) * 80 + 10);
+        document.getElementById(barIds[i]).style.width = pct + '%';
+    });
+    </script>
+
+    <!-- Strengths -->
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 style="margin-bottom: 20px;">💪 Your Core Strengths</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            {% for strength in strengths %}
+            <span style="background: rgba(255, 107, 107, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color); padding: 8px 18px; border-radius: 25px; font-size: 0.95rem; font-weight: 500;">{{ strength }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Work Style -->
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 style="margin-bottom: 15px;">🏢 Ideal Work Style</h3>
+        <p style="color: var(--text-muted); line-height: 1.7; font-size: 1.05rem;">{{ work_style }}</p>
+    </div>
+
+    <!-- Compatible Roles -->
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 style="margin-bottom: 20px;">🎯 Best-Fit Career Roles</h3>
+        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Based on your personality type, these roles align with your natural strengths and work preferences.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+            {% for role in compatible_roles %}
+            <div style="background: var(--background-input); padding: 15px; border-radius: 10px; border-left: 3px solid var(--primary-color);">
+                <span style="font-weight: 600;">{{ role }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Compatible Companies -->
+    {% if compatible_companies %}
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 style="margin-bottom: 20px;">🏆 Companies Compatible With Your Profile</h3>
+        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Companies in our database that match well with {{ result_type }} personality types.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+            {% for company in compatible_companies %}
+            <div style="background: var(--background-input); padding: 15px; border-radius: 10px;">
+                <div style="font-weight: 600; margin-bottom: 5px;">{{ company.name }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ company.industry }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Suggestions -->
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 style="margin-bottom: 15px;">💡 Personalized Suggestions</h3>
+        <ul style="color: var(--text-muted); line-height: 2; padding-left: 20px;">
+            <li>Take the <a href="{% url 'pathfinder_quiz' %}" style="color: var(--primary-color);">Career Pathfinder Quiz</a> to get a personalized roadmap based on your {{ result_type }} type.</li>
+            <li>Browse the <a href="{% url 'career_library' %}" style="color: var(--primary-color);">Career Library</a> for structured learning paths that match your work style.</li>
+            <li>Practice interviews with our <a href="{% url 'interview_prep' %}" style="color: var(--primary-color);">AI Interviewer</a> — tailored to your personality's communication style.</li>
+            <li>If you're feeling overwhelmed, our <a href="{% url 'ai_therapist_view' %}" style="color: var(--primary-color);">AI Therapist</a> understands {{ result_type }} specific stressors.</li>
+        </ul>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="{% url 'profile' %}" class="btn-primary" style="padding: 12px 30px;">View Profile</a>
+        <a href="{% url 'pathfinder_quiz' %}" style="padding: 12px 30px; border: 1px solid var(--primary-color); color: var(--primary-color); text-decoration: none; border-radius: 8px; font-weight: 600;">Start Pathfinder →</a>
+        <a href="{% url 'personality_test' %}" style="padding: 12px 30px; border: 1px solid var(--border-color); color: var(--text-muted); text-decoration: none; border-radius: 8px;">Retake Test</a>
+    </div>
+</div>
+{% endblock %}

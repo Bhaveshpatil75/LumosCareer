@@ -47,9 +47,9 @@ def send_to_n8n_webhook(url, payload):
         print(f"Error sending to n8n: {e}")
         return None
 
-def call_gemini_api(messages, system_instruction=None):
+def call_gemini_api(messages, system_instruction=None, max_tokens=4096):
     """
-    Calls Google Gemini 1.5 Flash API.
+    Calls Google Gemini API.
     messages: list of dicts [{'role': 'user'|'model', 'content': 'text'}]
     """
     api_key = os.getenv("GEMINI_API_KEY")
@@ -57,7 +57,6 @@ def call_gemini_api(messages, system_instruction=None):
         print("GEMINI_API_KEY not found.")
         return None
 
-    # Use Gemini 1.5 Flash as requested (v1beta)
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
     
     contents = []
@@ -73,7 +72,7 @@ def call_gemini_api(messages, system_instruction=None):
         "contents": contents,
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 800,
+            "maxOutputTokens": max_tokens,
         }
     }
 
@@ -83,7 +82,7 @@ def call_gemini_api(messages, system_instruction=None):
         }
 
     try:
-        response = requests.post(url, json=payload, timeout=30)
+        response = requests.post(url, json=payload, timeout=60)
         response.raise_for_status()
         data = response.json()
         # Extract text from the first candidate
@@ -94,3 +93,102 @@ def call_gemini_api(messages, system_instruction=None):
     except Exception as e:
         print(f"Error calling Gemini: {e}")
         return None
+
+
+def call_grok_api(messages, system_instruction=None, max_tokens=4096):
+    """
+    Calls xAI Grok API (OpenAI-compatible format).
+    Primary chat LLM — faster and more efficient.
+    Falls back to None if unavailable so caller can try Gemini.
+    """
+    api_key = os.getenv("GROK_API_KEY")
+    if not api_key:
+        print("GROK_API_KEY not found, skipping Grok.")
+        return None
+
+    url = "https://api.x.ai/v1/chat/completions"
+
+    oai_messages = []
+    if system_instruction:
+        oai_messages.append({"role": "system", "content": system_instruction})
+
+    for msg in messages:
+        role = "user" if msg.get('role') == 'user' else "assistant"
+        oai_messages.append({"role": role, "content": msg.get('content', '')})
+
+    payload = {
+        "model": "grok-3-mini-fast",
+        "messages": oai_messages,
+        "max_tokens": max_tokens,
+        "temperature": 0.7,
+    }
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+        choices = data.get('choices', [])
+        if choices:
+            return choices[0].get('message', {}).get('content', '')
+        return None
+    except Exception as e:
+        print(f"Error calling Grok: {e}")
+        return None
+
+
+def call_chat_api(messages, system_instruction=None, max_tokens=4096):
+    """
+    Primary chat function: tries Grok first, falls back to Gemini.
+    Used for interview chat and therapy chat.
+    """
+    # Try Grok first
+    reply = call_grok_api(messages, system_instruction, max_tokens)
+    if reply:
+        return reply
+
+    # Fallback to Gemini
+    print("Grok unavailable, falling back to Gemini.")
+    return call_gemini_api(messages, system_instruction, max_tokens)
+
+
+def call_gemini_with_rag(messages, context_query, system_instruction_base=None, max_tokens=4096):
+    """
+    Enhanced Gemini call that retrieves RAG context before generating.
+    1. Retrieves relevant knowledge via RAG engine
+    2. Injects context into system instruction
+    3. Calls Gemini with enriched prompt
+    """
+    try:
+        from .rag_engine import get_rag_engine
+        rag = get_rag_engine()
+        rag_context = rag.build_context(context_query, max_chars=2500)
+    except Exception as e:
+        print(f"RAG retrieval failed (non-fatal): {e}")
+        rag_context = ""
+
+    if system_instruction_base and rag_context:
+        enhanced_instruction = f"{system_instruction_base}\n\n{rag_context}"
+    elif rag_context:
+        enhanced_instruction = rag_context
+    else:
+        enhanced_instruction = system_instruction_base
+
+    return call_gemini_api(messages, enhanced_instruction, max_tokens=max_tokens)
+
+
+def call_mcp_tool(tool_name, **kwargs):
+    """
+    Invokes an MCP tool by name and returns structured results.
+    """
+    try:
+        from .mcp_server import get_mcp_server
+        server = get_mcp_server()
+        return server.call_tool(tool_name, kwargs)
+    except Exception as e:
+        print(f"MCP tool call failed: {e}")
+        return {"error": str(e)}

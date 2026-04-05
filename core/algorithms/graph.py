@@ -27,6 +27,10 @@ class SkillGraph:
             self.nodes.add(node.name)
             self.metadata[node.name] = node.category
 
+    def build_sample_career_graph(self):
+        """No-op: graph is already built from DB in __init__. Kept for backward compatibility."""
+        pass
+
     def add_edge_multi(self, u, v, weights):
         """Adds a directed edge with multiple weight criteria."""
         self.graph[u].append((v, weights))

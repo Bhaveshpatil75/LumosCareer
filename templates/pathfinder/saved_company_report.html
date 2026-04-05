@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ company_name }} Analysis | Lumos Career{% endblock %}
+
+{% block content %}
+<div class="pathfinder-container" style="max-width: 900px; margin: 0 auto; padding: 40px 20px 80px;">
+    <a href="{% url 'profile' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 20px;">← Back to Profile</a>
+
+    <h1>{{ company_name }}</h1>
+    {% if similarity_score %}
+    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px; margin-bottom: 30px;">
+        <span style="font-size: 2rem; font-weight: 800; color: var(--primary-color);">{{ similarity_score }}%</span>
+        <span style="color: var(--text-muted); font-size: 1.1rem;">Match Score</span>
+    </div>
+    {% endif %}
+
+    {% if company_info %}
+    <div class="card" style="margin-bottom: 25px;">
+        <h3 style="margin-bottom: 15px;">🏢 Company Overview</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            {% if company_info.industry %}
+            <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Industry</div>
+                <div style="font-weight: 500;">{{ company_info.industry }}</div>
+            </div>
+            {% endif %}
+            {% if company_info.headquarters %}
+            <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Headquarters</div>
+                <div style="font-weight: 500;">{{ company_info.headquarters }}</div>
+            </div>
+            {% endif %}
+            {% if company_info.employee_count %}
+            <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Company Size</div>
+                <div style="font-weight: 500;">{{ company_info.employee_count }} employees</div>
+            </div>
+            {% endif %}
+            {% if company_info.avg_salary_range %}
+            <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Avg Salary Range</div>
+                <div style="font-weight: 500;">{{ company_info.avg_salary_range }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if company_info.tech_stack %}
+    <div class="card" style="margin-bottom: 25px;">
+        <h3 style="margin-bottom: 15px;">🛠️ Tech Stack</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            {% for tech in company_info.tech_stack_list %}
+            <span style="background: rgba(76, 145, 150, 0.15); color: #4C9196; padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(76, 145, 150, 0.3);">{{ tech }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if company_info.culture_notes %}
+    <div class="card" style="margin-bottom: 25px;">
+        <h3 style="margin-bottom: 10px;">🎯 Culture & Work Environment</h3>
+        <p style="color: var(--text-muted); line-height: 1.7;">{{ company_info.culture_notes }}</p>
+    </div>
+    {% endif %}
+
+    {% if company_info.interview_process %}
+    <div class="card" style="margin-bottom: 25px;">
+        <h3 style="margin-bottom: 10px;">📋 Interview Process</h3>
+        <p style="color: var(--text-muted); line-height: 1.7;">{{ company_info.interview_process }}</p>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if report_content %}
+    <div class="card" style="margin-bottom: 25px;">
+        <h3 style="margin-bottom: 15px;">📄 AI Analysis Report</h3>
+        <div class="report-content" style="color: var(--text-muted); line-height: 1.7;">
+            {{ report_content|safe|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 30px; display: flex; gap: 15px;">
+        <a href="{% url 'profile' %}" style="padding: 12px 25px; border: 1px solid var(--border-color); color: var(--text-muted); text-decoration: none; border-radius: 8px;">Back to Profile</a>
+        <a href="{% url 'home' %}" style="padding: 12px 25px; background: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Run New Analysis</a>
+    </div>
+</div>
+{% endblock %}

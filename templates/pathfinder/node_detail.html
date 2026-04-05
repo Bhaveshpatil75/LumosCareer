@@ -6,10 +6,17 @@
 {% block content %}
 <div class="result-container" style="max-width: 900px; margin: 0 auto; padding: 40px 20px; padding-bottom: 100px;">
     <!-- Back Button -->
+    {% if path %}
     <a href="{% url 'view_career_path' path.id %}" class="btn-secondary"
         style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.05); color: #ccc;">
         ← Back to Roadmap
     </a>
+    {% else %}
+    <a href="javascript:history.back()" class="btn-secondary"
+        style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.05); color: #ccc;">
+        ← Back to Results
+    </a>
+    {% endif %}
 
     <!-- Header Section -->
     <div class="glass-card" style="padding: 2.5rem; margin-bottom: 2rem;">
