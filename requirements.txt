@@ -1,0 +1,16 @@
+asgiref==3.9.1
+certifi==2025.7.14
+charset-normalizer==3.4.2
+Django==5.2.4
+dotenv==0.9.9
+idna==3.10
+joblib==1.5.2
+numpy==2.3.5
+python-dotenv==1.1.1
+requests==2.32.4
+scikit-learn==1.7.2
+scipy==1.16.3
+sqlparse==0.5.3
+threadpoolctl==3.6.0
+tzdata==2025.2
+urllib3==2.5.0
