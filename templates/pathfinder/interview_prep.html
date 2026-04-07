@@ -374,10 +374,17 @@
             <input type="hidden" id="selected_mode" value="">
             
             <!-- Start button only needed for AI modes -->
-            <button type="button" id="start-btn" class="action-btn" onclick="startSession()" style="display:none;">Start Preparation</button>
+            <button type="button" id="start-btn" class="action-btn" onclick="startSession()">Start Preparation</button>
         </form>
     </div>
 </div>
+
+<script>
+    // Initialize UI state
+    document.addEventListener("DOMContentLoaded", function() {
+        checkReady();
+    });
+</script>
 
 <!-- Standalone Chat Layout (Identical DOM to Therapy Chat) -->
 <div id="chat-view" class="chat-layout">
@@ -433,21 +440,29 @@
     document.getElementById('company_input').addEventListener('input', checkReady);
 
     function checkReady() {
-        const company = document.getElementById('company_input').value.trim();
         const btn = document.getElementById('start-btn');
+        btn.style.display = 'block';
 
-        if (company && currentMode) {
-            btn.style.display = 'block';
-            setTimeout(() => btn.classList.add('active'), 10); // Trigger transition
-            btn.innerText = currentMode === 'text' ? 'Start Text Session' : 'Start Voice Session';
+        if (currentMode) {
+            btn.classList.add('active');
+            btn.innerText = currentMode === 'text' ? 'Start Text Session : ' + (document.getElementById('company_input').value.trim() || document.getElementById('company_input').dataset.default_val || 'Amazon') : 'Start Voice Session';
         } else {
             btn.classList.remove('active');
-            if (!currentMode) btn.style.display = 'none'; // Hide if no mode
+            btn.innerText = 'Select a mode to start';
         }
     }
 
     function startSession() {
-        const company = document.getElementById('company_input').value.trim();
+        const companyInput = document.getElementById('company_input');
+        
+        // Auto-fill for presentation if empty
+        if (!companyInput.value.trim() && companyInput.dataset.default_val) {
+            companyInput.value = companyInput.dataset.default_val;
+        } else if (!companyInput.value.trim()) {
+            companyInput.value = 'Amazon'; // Fallback FAANG dummy data
+        }
+
+        const company = companyInput.value.trim();
         if (!company || !currentMode) return;
 
         if (currentMode === 'voice') {
