@@ -72,7 +72,17 @@
         {% block content %}{% endblock %}
     </div>
 
-
+    <!-- Global Loading Overlay -->
+    <div id="global-loader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+        <h3 style="color: white; font-family: 'Poppins', sans-serif; font-weight: 500; letter-spacing: 1px; margin: 0;" id="global-loader-text">Analyzing Profile Data...</h3>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    </div>
 
     {% block scripts %}
     <script src="{% static 'js/script.js' %}"></script>
@@ -182,6 +192,28 @@
                         });
                     });
                 }
+                
+                // Attach global loading overlay to all form submissions
+                form.addEventListener('submit', function(e) {
+                    // Only show loader if the form hasn't been prevented or isn't a search/minor form
+                    if (!e.defaultPrevented && form.method.toLowerCase() === 'post') {
+                        const loader = document.getElementById('global-loader');
+                        const loaderText = document.getElementById('global-loader-text');
+                        
+                        // Customize text based on action URL if needed
+                        if (form.action.includes('match')) {
+                            loaderText.innerText = "Analyzing Match Compatibility...";
+                        } else if (form.action.includes('pathfinder')) {
+                            loaderText.innerText = "Generating Personalized Roadmap...";
+                        } else if (form.action.includes('personality')) {
+                            loaderText.innerText = "Evaluating Assessment Results...";
+                        } else {
+                            loaderText.innerText = "Processing...";
+                        }
+                        
+                        loader.style.display = 'flex';
+                    }
+                });
             });
         });
     </script>

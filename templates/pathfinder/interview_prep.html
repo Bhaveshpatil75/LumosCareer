@@ -4,11 +4,10 @@
 
 {% block content %}
 <style>
-    /* Container for the whole layout */
+    /* Container for the whole layout (unused now for setup, but kept for legacy) */
     .interview-container {
         max-width: 900px;
         margin: 40px auto;
-        /* Using therapy-like card style */
         background: var(--bg-card);
         border-radius: 16px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.3);
@@ -17,7 +16,7 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        min-height: 80vh; /* Ensure height for chat */
+        min-height: 80vh;
     }
 
     .header-section {
@@ -263,6 +262,39 @@
         font-size: 0.85rem;
         opacity: 0.8;
     }
+    
+    .typing-indicator {
+        color: #888;
+        font-size: 0.9rem;
+        margin-left: 10px;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        align-self: flex-start;
+        padding: 5px 15px;
+        background: #2d2d2d;
+        border-radius: 12px;
+        border-bottom-left-radius: 2px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .typing-dots span {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: #888;
+        border-radius: 50%;
+        animation: typingBlink 1.4s infinite both;
+    }
+    
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingBlink {
+        0% { opacity: 0.2; transform: scale(0.8); }
+        20% { opacity: 1; transform: scale(1.1); }
+        100% { opacity: 0.2; transform: scale(0.8); }
+    }
 
     .recommendations-glass {
         margin: 10px 20px;
@@ -324,77 +356,72 @@
     }
 </style>
 
-<div class="interview-container" id="setup-view">
+<!-- Setup View matching Therapy Landing -->
+<div class="container" id="setup-view" style="padding-top: 60px; padding-bottom: 60px;">
+    <div style="text-align: center; margin-bottom: 50px;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 15px;">Interview <span class="text-gradient">Co-Pilot</span></h1>
+        <p style="color: var(--text-muted); max-width: 700px; margin: 0 auto;">
+            Master your upcoming interview with AI-tailored simulations using your profile & resume.
+        </p>
+    </div>
 
+    <form id="prep-form" onsubmit="return false;" style="max-width: 600px; margin: 0 auto 40px;">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" id="company_input" name="company_name" required
+                placeholder="Enter Target Company (e.g. Google, Netflix)..." autocomplete="off">
+            <div class="resume-badge">
+                <span style="font-size: 1.2em;">📄</span> Linked
+            </div>
+        </div>
+    </form>
 
-    <!-- Setup Interface (Uses .interview-container) -->
-    <div>
-        <div class="header-section">
-            <h1>Interview Co-Pilot 🚀</h1>
-            <p>Master your upcoming interview with AI-tailored simulations using your profile & resume.</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        <!-- Option 1: Expert Mock -->
+        <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.2s;" onclick="window.location.href='{% url 'book_interview_session' %}'">
+            <div style="font-size: 3rem; margin-bottom: 20px;">👨‍🏫</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Expert Mock</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px;">
+                Schedule a live session with an industry expert for detailed feedback.
+            </p>
+            <div class="btn-primary" style="background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color) !important; padding: 10px 30px; display: inline-block;">Schedule</div>
         </div>
 
-        <form id="prep-form" onsubmit="return false;">
-            {% csrf_token %}
+        <!-- Option 2: Voice Simulation -->
+        <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.2s; position: relative;" onclick="startDirectSession('voice')">
+            <div style="position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: bold;">Live</div>
+            <div style="font-size: 3rem; margin-bottom: 20px;">🎙️</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Voice Simulation</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px;">
+                Speak naturally to our AI recruiter. Perfect for confidence & flow.
+            </p>
+            <div class="btn-primary" style="display: inline-block; padding: 10px 30px;">Start Voice</div>
+        </div>
 
-            <div class="input-group">
-                <input type="text" id="company_input" name="company_name" required
-                    placeholder="Enter Target Company (e.g. Google, Netflix)..." autocomplete="off">
-                <div class="resume-badge">
-                    <span style="font-size: 1.2em;">📄</span> Profile Resume Linked
-                </div>
-            </div>
-
-            <!-- New 3-Card Grid -->
-            <div class="options-grid" style="grid-template-columns: repeat(3, 1fr);">
-                
-                <!-- Option 1: Live Expert -->
-                <div class="option-card" onclick="window.location.href='{% url 'book_interview_session' %}'">
-                    <div class="card-icon">👨‍🏫</div>
-                    <div class="card-title">Expert Mock</div>
-                    <div class="card-desc">Schedule a live session with an industry expert for detailed feedback.</div>
-                </div>
-
-                <!-- Option 2: Voice AI -->
-                <div class="option-card" onclick="selectMode('voice', this)">
-                    <div class="card-icon">🎙️</div>
-                    <div class="card-title">Voice Simulation</div>
-                    <div class="card-desc">Speak naturally to our AI recruiter. Perfect for confidence & flow.</div>
-                </div>
-                
-                <!-- Option 3: Text AI -->
-                <div class="option-card" onclick="selectMode('text', this)">
-                    <div class="card-icon">💬</div>
-                    <div class="card-title">Text Simulation</div>
-                    <div class="card-desc">Real-time chat with an AI recruiter. Refine your answers and logic.</div>
-                </div>
-
-            </div>
-
-            <input type="hidden" id="selected_mode" value="">
-            
-            <!-- Start button only needed for AI modes -->
-            <button type="button" id="start-btn" class="action-btn" onclick="startSession()">Start Preparation</button>
-        </form>
+        <!-- Option 3: Text Simulation -->
+        <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.2s; position: relative;" onclick="startDirectSession('text')">
+            <div style="position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #000; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: bold;">24/7</div>
+            <div style="font-size: 3rem; margin-bottom: 20px;">💬</div>
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Text Simulation</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px;">
+                Real-time chat with an AI recruiter. Refine your answers and logic.
+            </p>
+            <div class="btn-primary" style="display: inline-block; padding: 10px 30px;">Start Chat</div>
+        </div>
     </div>
 </div>
 
-<script>
-    // Initialize UI state
-    document.addEventListener("DOMContentLoaded", function() {
-        checkReady();
-    });
-</script>
-
 <!-- Standalone Chat Layout (Identical DOM to Therapy Chat) -->
-<div id="chat-view" class="chat-layout">
+<div id="chat-view" class="chat-layout" style="display: none;">
     <div class="chat-header">
         <div class="bot-avatar">👔</div>
-        <div class="header-info">
-            <h3 id="chat-session-title">Interview Session</h3>
-            <p>Professional Recruitment Simulation</p>
+        <div class="header-info" style="display:flex; align-items:center; gap:20px;">
+            <div>
+                <h3 id="chat-session-title">Interview Simulator</h3>
+                <p>Professional Recruitment Session</p>
+            </div>
         </div>
-        <a onclick="location.reload()" style="margin-left: auto; color: #888; text-decoration: none; cursor: pointer; font-size: 1.2rem;">✕</a>
+        <a href="javascript:void(0)" onclick="location.reload()" style="margin-left: auto; color: #888; text-decoration: none; cursor: pointer; font-size: 1.2rem;">✕</a>
     </div>
 
     <!-- We can insert recommendations here if needed, but for 'exact' match, we keep it simple or append as a message -->
@@ -405,6 +432,9 @@
 
     <div class="chat-messages" id="chat-messages-container">
         <!-- Messages go here -->
+        <div id="typingIndicator" class="typing-indicator">
+            Recruiter is thinking <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
     </div>
 
     <div class="chat-input-area">
@@ -422,37 +452,9 @@
 </div>
 
 <script>
-    let currentMode = '';
     let chatHistory = []; // Initialize history
 
-    function selectMode(mode, cardElement) {
-        currentMode = mode;
-        document.getElementById('selected_mode').value = mode;
-
-        // Visual selection
-        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-        cardElement.classList.add('selected');
-
-        // Show/Update button
-        checkReady();
-    }
-
-    document.getElementById('company_input').addEventListener('input', checkReady);
-
-    function checkReady() {
-        const btn = document.getElementById('start-btn');
-        btn.style.display = 'block';
-
-        if (currentMode) {
-            btn.classList.add('active');
-            btn.innerText = currentMode === 'text' ? 'Start Text Session : ' + (document.getElementById('company_input').value.trim() || document.getElementById('company_input').dataset.default_val || 'Amazon') : 'Start Voice Session';
-        } else {
-            btn.classList.remove('active');
-            btn.innerText = 'Select a mode to start';
-        }
-    }
-
-    function startSession() {
+    function startDirectSession(mode) {
         const companyInput = document.getElementById('company_input');
         
         // Auto-fill for presentation if empty
@@ -463,27 +465,34 @@
         }
 
         const company = companyInput.value.trim();
-        if (!company || !currentMode) return;
+        if (!company) {
+            alert('Please enter a target company.');
+            return;
+        }
 
-        if (currentMode === 'voice') {
+        if (mode === 'voice') {
             // Redirect for Voice Mode
             const voiceUrl = "{{ voice_interview_url|escapejs }}";
             if (voiceUrl && voiceUrl !== '#' && voiceUrl !== 'None') {
-                window.location.href = voiceUrl;
+                window.open(voiceUrl, '_blank');
             } else {
-                alert("Voice interview configuration is missing. Please contact support.");
+                alert("Voice service is currently configuring. Please try again later.");
             }
             return;
         }
 
-        // Text Mode Logic
-        initiateTextSession(company);
+        if (mode === 'text') {
+            // Text Mode Logic
+            initiateTextSession(company);
+        }
     }
 
     function initiateTextSession(companyName) {
         const btn = document.getElementById('start-btn');
-        btn.innerText = 'Initializing...';
-        btn.style.opacity = '0.7';
+        if (btn) {
+            btn.innerText = 'Initializing...';
+            btn.style.opacity = '0.7';
+        }
 
         const formData = new FormData();
         formData.append('company_name', companyName);
@@ -500,26 +509,29 @@
             .then(data => {
                 if (data.error) {
                     alert(data.error);
-                    btn.innerText = 'Start Text Session';
-                    btn.style.opacity = '1';
+                    if (btn) {
+                        btn.innerText = 'Start Text Session';
+                        btn.style.opacity = '1';
+                    }
                     return;
                 }
 
-                // Switch Views
-                document.querySelector('.interview-container').style.display = 'none'; // Hide setup card
+                // Hide setup block and show chat
+                document.getElementById('setup-view').style.display = 'none';
                 const chatView = document.getElementById('chat-view');
-                chatView.style.display = 'flex'; // Show flex chat
+                chatView.style.display = 'flex';
+                
                 document.getElementById('chat-session-title').innerText = 'Interview @ ' + companyName;
 
                 // Add Initial Bot Message
                 const messagesDiv = document.getElementById('chat-messages-container');
                 const initialMsg = `Hello! I see you're preparing for ${companyName}. I've reviewed your resume and I'm ready to help you prepare. Let's start with a simple question: tell me about yourself?`;
-                messagesDiv.innerHTML = `
-                <div class="message ai-message">
-                    <strong>AI Recruiter:</strong><br>
-                    ${initialMsg}
-                </div>
-            `;
+                const initDiv = document.createElement('div');
+                initDiv.className = 'message ai-message';
+                initDiv.innerHTML = `<strong>AI Recruiter:</strong><br>${initialMsg}`;
+                
+                const typingInd = document.getElementById('typingIndicator');
+                messagesDiv.insertBefore(initDiv, typingInd);
                 // Add to history
                 chatHistory = [{ role: 'model', content: initialMsg }];
 
@@ -544,8 +556,10 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Something went wrong. Please try again.');
-                btn.innerText = 'Start Text Session';
-                btn.style.opacity = '1';
+                if (btn) {
+                    btn.innerText = 'Start Text Session';
+                    btn.style.opacity = '1';
+                }
             });
     }
 
@@ -564,7 +578,13 @@
 
         // Add User Message locally
         const messagesDiv = document.getElementById('chat-messages-container');
-        messagesDiv.innerHTML += `<div class="message user-message">${message}</div>`;
+        const userDiv = document.createElement('div');
+        userDiv.className = 'message user-message';
+        userDiv.textContent = message;
+        
+        const indicator = document.getElementById('typingIndicator');
+        messagesDiv.insertBefore(userDiv, indicator);
+        
         chatInput.value = '';
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         
@@ -578,6 +598,9 @@
         formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
         // Simulated Lag for realism
+        indicator.style.display = 'flex';
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
         setTimeout(() => {
             fetch('chat/', { 
                 method: 'POST',
@@ -599,13 +622,14 @@
                 if (reply && typeof reply === 'object' && reply.parts) {
                     reply = reply.parts[0].text;
                 }
+                
+                indicator.style.display = 'none';
 
-                messagesDiv.innerHTML += `
-                <div class="message ai-message">
-                    <strong>AI Recruiter:</strong><br>
-                    ${reply}
-                </div>
-                `;
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message ai-message';
+                botDiv.innerHTML = `<strong>AI Recruiter:</strong><br>${reply}`;
+                messagesDiv.insertBefore(botDiv, indicator);
+                
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 
                 // Add AI response to history
@@ -613,9 +637,14 @@
             })
             .catch(err => {
                 console.error(err);
-                messagesDiv.innerHTML += `<div class="message system-message">Error connecting to AI.</div>`;
+                indicator.style.display = 'none';
+                const errDiv = document.createElement('div');
+                errDiv.className = 'message system-message';
+                errDiv.textContent = 'Error connecting to AI.';
+                messagesDiv.insertBefore(errDiv, indicator);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
             });
-        }, 500); 
+        }, 100); 
     }
 </script>
 

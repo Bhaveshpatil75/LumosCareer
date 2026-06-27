@@ -131,11 +131,36 @@
     }
     
     .typing-indicator {
-        font-style: italic;
         color: #888;
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         margin-left: 10px;
         display: none;
+        align-items: center;
+        gap: 5px;
+        align-self: flex-start;
+        padding: 5px 15px;
+        background: #2d2d2d;
+        border-radius: 12px;
+        border-bottom-left-radius: 2px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .typing-dots span {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: #888;
+        border-radius: 50%;
+        animation: typingBlink 1.4s infinite both;
+    }
+    
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingBlink {
+        0% { opacity: 0.2; transform: scale(0.8); }
+        20% { opacity: 1; transform: scale(1.1); }
+        100% { opacity: 0.2; transform: scale(0.8); }
     }
 
 </style>
@@ -155,6 +180,9 @@
     <div class="chat-messages" id="chatBox">
         <div class="message bot">
             Hello! I'm here to provide a safe space for you. Whether you're feeling stressed about exams, career choices, or just need to vent, I'm listening. How are you feeling today?
+        </div>
+        <div id="typingIndicator" class="typing-indicator">
+            Lumos is thinking <div class="typing-dots"><span></span><span></span><span></span></div>
         </div>
     </div>
 
@@ -205,6 +233,11 @@
         history.push({ role: 'user', content: text });
 
         // 2. Bot Typing... (Simulated lag)
+        const indicator = document.getElementById('typingIndicator');
+        chatBox.appendChild(indicator); // Move indicator to bottom
+        indicator.style.display = 'flex';
+        scrollToBottom();
+        
         setTimeout(async () => {
              try {
                 const response = await fetch("{% url 'ai_chat_api' %}", {
@@ -222,6 +255,8 @@
 
                 const data = await response.json();
                 
+                indicator.style.display = 'none';
+                
                 if (data.reply) {
                     appendMessage(data.reply, 'bot');
                     // Add to history
@@ -232,9 +267,10 @@
 
             } catch (error) {
                 console.error('Error:', error);
+                indicator.style.display = 'none';
                 appendMessage("Sorry, something went wrong.", 'bot');
             }
-        }, 500);
+        }, 100);
     }
 </script>
 {% endblock %}

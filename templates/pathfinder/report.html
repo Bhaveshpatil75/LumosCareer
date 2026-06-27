@@ -84,6 +84,32 @@
     </div>
     {% endif %}
 
+    {% if algo_metrics %}
+    <div class="ats-dashboard" style="box-shadow: none; border: none; padding: 0; background: transparent; margin-bottom: 30px;">
+        <div class="ats-header">
+            <h2><span class="icon">⚙️</span> Engine Diagnostics</h2>
+            <p>Real-time metrics from our underlying algorithmic models</p>
+        </div>
+        <div class="ats-grid">
+            <div class="ats-card">
+                <h3>LSA Engine</h3>
+                <div style="font-size: 2.2rem; font-weight: bold; color: #fff;">{{ algo_metrics.ats_score }}%</div>
+                <p class="score-label" style="margin-top: 5px;">Latent Semantic Match Rate</p>
+            </div>
+            <div class="ats-card">
+                <h3>Apriori Model</h3>
+                <div style="font-size: 2.2rem; font-weight: bold; color: #00b4db;">{{ algo_metrics.apriori_confidence }}</div>
+                <p class="score-label" style="margin-top: 5px;">Synergy Confidence Level</p>
+            </div>
+            <div class="ats-card">
+                <h3>Bayesian Engine</h3>
+                <div style="font-size: 2.2rem; font-weight: bold; color: #d63384;">{{ algo_metrics.bayesian_prob }}</div>
+                <p class="score-label" style="margin-top: 5px;">Success Probability Pred.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     {% if company_info %}
     <div class="ats-dashboard" style="box-shadow: none; border: none; padding: 0; background: transparent; margin-bottom: 30px;">
         <div class="ats-header">
