@@ -2,6 +2,8 @@
 
 LumosCareer is a web app for career guidance, interview preparation, and mental well-being, customized to help candidates navigate their professional journeys effectively.
 
+> **For instructions on how to set up and run this project locally, please refer to the [Setup Guide](SETUP_GUIDE.md).**
+
 ## Core Features
 
 - **Compatibility Reports:** Generates compatibility reports between a candidate’s profile and a company’s background.
