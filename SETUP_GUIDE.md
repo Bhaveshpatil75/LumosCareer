@@ -102,4 +102,4 @@ LumosCareer comes with integrated conversational AI agents. If you are intereste
 
 ## Need Help?
 If you have any issues with setting up the project or run into any bugs, please write to my email:
-**[EMAIL_ADDRESS](mailto:[bhaveshpatil7504@gmail.com])**
+**[bhaveshpatil7504@gmail.com](mailto:[bhaveshpatil7504@gmail.com])**
