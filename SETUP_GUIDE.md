@@ -96,9 +96,10 @@ python manage.py runserver
 You can now access LumosCareer in your browser at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ## Custom Voice Agents
-LumosCareer comes with integrated conversational AI agents. If you are interested in creating your own custom voice agents, you can easily do so by referring to my dedicated repositories for this. 
-- [Check out my GitHub profile (@bhaveshpatil75)](https://github.com/bhaveshpatil75) to explore the source code for the Mock Interviewer and AI Therapist agents.
+LumosCareer comes with integrated conversational AI agents. If you are interested in creating your own custom voice agents, you can easily do so by referring to my dedicated repositories for this:
+- **[Interviewer-X-Therapist](https://github.com/Bhaveshpatil75/Interviewer-X-Therapist)**
+- **[Anika-X-Hannibal](https://github.com/Bhaveshpatil75/Anika-X-Hannibal)**
 
 ## Need Help?
 If you have any issues with setting up the project or run into any bugs, please write to my email:
-**bhaveshpatil75@gmail.com**
+**[EMAIL_ADDRESS](mailto:[bhaveshpatil7504@gmail.com])**
