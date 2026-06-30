@@ -1,0 +1,105 @@
+{
+  "name": "Pathfinder",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "7e55999f-1503-459d-a85c-15986a018a0b",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ebcbd9bd-95eb-4318-a167-a7f107168b5a",
+      "name": "Webhook",
+      "webhookId": "7e55999f-1503-459d-a85c-15986a018a0b"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.parse($json.content.parts[0].text.replace(/```json\\n?/, \"\").replace(/```/, \"\")) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "0a72c290-42f4-4f37-ae88-1f97fc7a632c",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.1-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.1-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an elite Career Architect and Psychological Profiler. Your objective is to design a highly personalized, strategic career roadmap for the user based on their specific personality archetype, their existing experience, and scientifically retrieved career data.\n\nInput Data:\n---\nPersonality Type (MBTI): {{ $('Webhook').item.json.body.personality_type }}\nCandidate's Resume/Experience: {{ $('Webhook').item.json.body.resume_text }}\nCareer Assessment Answers: {{ JSON.stringify($('Webhook').item.json.body.career_answers) }}\nRetrieved Knowledge Base Context (Career Specific Data): {{ $('Webhook').item.json.body.rag_context }}\n---\n\nInstructions:\nAnalyze the input data to construct a highly actionable, step-by-step career progression roadmap. The roadmap must cater to the psychological strengths of the user's personality type and bridge the gap between their current resume and their ideal career.\n\nCRITICAL JSON OUTPUT RULES:\nYou must return ONLY a single, valid JSON object. Do not include markdown code block backticks (```json). Just the raw JSON object. \nEnsure the \"roadmap\" array contains exactly 5 to 7 steps.\n\nOutput Structure Requirements:\n{\n  \"career_path_title\": \"Provide a compelling, specific title for this roadmap (e.g., Senior Full-Stack Mastery, AI Data Scientist Path).\",\n  \"personality_type\": \"Include the MBTI and Archetype name (e.g., INTJ - The Architect)\",\n  \"recommended_path\": \"Specific Target Role\",\n  \"profile_summary\": \"A 2-3 sentence psychological and professional summary of why this path fits them.\",\n  \"roadmap\": [\n    {\n      \"step_id\": 1,\n      \"title\": \"Phase 1: Foundation\",\n      \"status\": \"open\",\n      \"description\": \"Short 2 sentence overview of this milestone.\",\n      \"full_description\": \"Detailed strategic execution plan for this milestone.\",\n      \"resources\": [\n        {\"name\": \"Resource Name\", \"url\": \"https://example.com\"}\n      ],\n      \"actions\": [\"Actionable Item 1\", \"Actionable Item 2\"]\n    }\n  ]\n}\n\nImportant Status Rule: For the \"roadmap\" steps, ONLY use the exact string \"open\" for the FIRST step, and the exact string \"locked\" for ALL other subsequent steps except the first step. Do not use \"completed\" or \"in-progress\".\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7e3e96b1-3011-4217-9e38-306f0308a087",
+      "name": "gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "30jhhG8nff6GPJQL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "63657115-d679-4cb5-a122-dcb1e25c5db4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1b4baad1b894aeec05e71d55ed657291430458b8f275069237cc268dee9e6d8"
+  },
+  "id": "8bWtqRGA2CfS12TX",
+  "tags": []
+}

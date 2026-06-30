@@ -1,0 +1,140 @@
+{
+  "name": "company-scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "93add13d-0db8-43e1-847d-5240e7253852",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5fa48afa-79a5-4ead-ba9e-709fd728a4b6",
+      "name": "Webhook",
+      "webhookId": "93add13d-0db8-43e1-847d-5240e7253852"
+    },
+    {
+      "parameters": {
+        "q": "={{ $json.body.company }}",
+        "additionalFields": {
+          "output": "={{ $json.search_metadata }}"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-serpapi.serpApi",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "09caf7ce-c3c0-45e5-948e-a63b20dd2f9d",
+      "name": "Google search",
+      "alwaysOutputData": true,
+      "credentials": {
+        "serpApi": {
+          "id": "BB3lFsDmSv79mTJy",
+          "name": "SerpApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        736,
+        0
+      ],
+      "id": "818e7970-f30c-4515-985a-53befcf05951",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.1-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.1-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an elite Career Analyst and ATS Optimization Expert. Your objective is to synthesize live web search data, internal database knowledge, and the candidate's profile to generate a highly actionable, concise company intelligence report.\n\nBelow is the contextual data:\n---\nCandidate's Resume: {{ $('Webhook').item.json.body.resume }}\nJob Description: {{ $('Webhook').item.json.body.job_description }}\nATS Similarity Score: {{ $('Webhook').item.json.body.similarity_score }}%\nCandidate's Personality Type: {{ $('Webhook').item.json.body.personality }}\n\nCompany Internal DB Info: {{ $('Webhook').item.json.body.company_db_info }}\nRetrieved Knowledge Base Context: {{ $('Webhook').item.json.body.rag_context }}\n\nLive Web Search Results (JSON from previous node):\n{{ JSON.stringify($json, null, 2) }}\n---\n\nInstructions:\n1. Carefully analyze the \"Live Web Search Results\" to identify recent company news, recent hiring trends, and current market sentiment.\n2. Cross-reference the live news with the \"Company Internal DB Info\" and \"Retrieved Knowledge Base Context\" to form a complete picture of the company's culture and interview process.\n3. Contrast this company culture against the candidate's \"Personality Type\" and \"Resume\" to highlight what they should emphasize in an interview.\n4. Output a densely packed, analytical report. Do not use filler words. Focus strictly on information relevant to someone trying to get hired there right now. Ignore any advertisements or irrelevant links from the search JSON.\n\nReturn the response formatted as clean HTML markup, using <h4> and <p> or <ul> tags for easy rendering, but keep it concise (under 250 words total).\n",
+              "role": "=user"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        384,
+        0
+      ],
+      "id": "95ba5076-ff27-4c62-ad66-f7ab24ce82cc",
+      "name": "generate report",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "30jhhG8nff6GPJQL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google search": {
+      "main": [
+        [
+          {
+            "node": "generate report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate report": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9190b468-c96f-40d8-be82-42659b509b90",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1b4baad1b894aeec05e71d55ed657291430458b8f275069237cc268dee9e6d8"
+  },
+  "id": "8xUo6p3KcFwVva5b",
+  "tags": []
+}
